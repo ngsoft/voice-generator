@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "serve": "php8.2 -S 127.0.0.1:8300 -t public serve.php",
+    "serve": "php8.2 -S 127.0.0.1:8500 -t public serve.php",
     "phan": "php8.2 -dextension=ast vendor/bin/phan -C  --unused-variable-detection  --redundant-condition-detection",
     "cs:fix": "php8.2 vendor/bin/php-cs-fixer fix"
   },
