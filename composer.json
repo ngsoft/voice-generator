@@ -1,0 +1,32 @@
+{
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config": {
+    "sort-packages": true,
+    "process-timeout": 0,
+    "platform-check": false
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    }
+  },
+  "require": {
+    "php": ">=8.2"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3",
+    "jetbrains/phpstorm-attributes": "dev-master",
+    "league/mime-type-detection": "^1",
+    "ngsoft/container": "^1",
+    "nikic/fast-route": "^1",
+    "phan/phan": "^5",
+    "predis/predis": "^2.2",
+    "symfony/cache": "^7",
+    "symfony/dom-crawler": "^7",
+    "symfony/dotenv": "^7",
+    "symfony/google-mailer": "^7",
+    "symfony/mailer": "^7",
+    "symfony/var-dumper": "^7"
+  }
+}

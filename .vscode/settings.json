@@ -1,0 +1,30 @@
+{
+    "php-cs-fixer.executablePath": "${extensionPath}/php-cs-fixer.phar",
+    "php-cs-fixer.config": ".php-cs-fixer.php;.php-cs-fixer.dist.php;.php_cs;.php_cs.dist",
+    "editor.formatOnSave": true,
+    "[php]": {
+        "editor.defaultFormatter": "junstyle.php-cs-fixer"
+    },
+    "[typescript]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "explicit"
+        }
+    },
+    "[javascript]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "explicit"
+        }
+    },
+    "[svelte]": {
+        "editor.defaultFormatter": "svelte.svelte-vscode"
+    },
+    "[scss]": {
+        "editor.suggest.insertMode": "replace",
+        "editor.defaultFormatter": "sibiraj-s.vscode-scss-formatter"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "bradlc.vscode-tailwindcss"
+    },
+    "files.eol": "\n",
+    "scss.validate": false
+}
