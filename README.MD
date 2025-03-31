@@ -15,9 +15,13 @@ Copy the langage packs (`*.onnx` and `*.onnx.json`) to `data/voices`
 ## Routes
 
 **GET** `/voice/list`
+
+
 **params(optional):**
 
 - `lang`: the lang to search for (`en_EN`, `fr`, ...)
+
+
 
 **response:** JSON Object
 
@@ -38,11 +42,15 @@ Copy the langage packs (`*.onnx` and `*.onnx.json`) to `data/voices`
 ```
 
 **GET** `/voice/speak/{voice_pack}/{speaker_id}` (you can use one of the resolved `{voiceUri}` in the voice list)
+
+
 **example**
 
 - `/voice/speak/fr/fr_FR/siwis/low/fr_FR-siwis-low/0`: that is the pack location in `data/voices` without the
   extensions followed by the
   speaker id (`0` if only one speaker in the pack)
+
+
 
 **payload** JSON Object
 
@@ -53,4 +61,3 @@ Copy the langage packs (`*.onnx` and `*.onnx.json`) to `data/voices`
 ```
 
 **response** `audio/x-wave` 16 bits file to be played
-
