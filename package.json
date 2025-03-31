@@ -28,7 +28,6 @@
         "tslib": "^2",
         "typescript": "^5",
         "unplugin-fonts": "^1.3",
-        "@tsconfig/svelte": "^5",
         "npm-run-all": "^4",
         "vite": "^6"
     },

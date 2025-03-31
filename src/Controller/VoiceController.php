@@ -97,10 +97,8 @@ class VoiceController
         return JsonResponse::newNotFound();
     }
 
-    public function listVoices(\Request $request): \Response
+    public function getAllVoices(): array
     {
-        $lang  = $request->getParameter('lang');
-
         $root  = $this->voiceRepository;
 
         $files = getFileList($root, '.onnx.json');
@@ -111,15 +109,22 @@ class VoiceController
         {
             $all = [...$all, ...SpeechSynthesisVoice::fromOnnxJson($file)];
         }
+        return array_map(fn (SpeechSynthesisVoice $item) => $item->setVoiceUri(
+            '/voice/speak' . $item->getVoiceUri()
+        ), $all);
+    }
+
+    public function listVoices(\Request $request): \Response
+    {
+        $lang = $request->getParameter('lang');
 
         /** @var SpeechSynthesisVoice $entity */
-        foreach ($all as $entity)
+        foreach ($this->getAllVoices() as $entity)
         {
             $entity->setVoiceUri(
                 $this->getVoiceUrl(
                     $request,
-                    '/voice/speak'
-                    . $entity->getVoiceUri()
+                    $entity->getVoiceUri()
                 )
             );
             $add = true;

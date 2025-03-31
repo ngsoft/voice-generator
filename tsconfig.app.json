@@ -1,6 +1,10 @@
 {
-    "extends": "@tsconfig/svelte/tsconfig.json",
     "compilerOptions": {
+        "verbatimModuleSyntax": true,
+        "sourceMap": true,
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
         "composite": true,
         "target": "ESNext",
         "useDefineForClassFields": true,

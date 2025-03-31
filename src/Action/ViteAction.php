@@ -5,7 +5,7 @@ namespace Action;
 use Renderer\BaseResponse;
 use View\TemplateView;
 
-class SvelteAction extends \Action
+class ViteAction extends \Action
 {
     public function __construct(private readonly TemplateView $templateView) {}
 
@@ -18,7 +18,6 @@ class SvelteAction extends \Action
     {
         $template = $this->getTemplateView();
 
-        $svelte   = [];
         $route    = $request->getUri();
         $base     = getBasePath();
 
@@ -33,7 +32,7 @@ class SvelteAction extends \Action
         }
 
         return $template
-            ->setTemplate('svelte')
-            ->setAttributes($request->getAttributes() + ['svelte' => $svelte, 'route' => $route, 'base' => $base]);
+            ->setTemplate('vite')
+            ->setAttributes($request->getAttributes() + ['route' => $route, 'base' => $base]);
     }
 }

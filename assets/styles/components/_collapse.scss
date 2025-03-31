@@ -1,0 +1,62 @@
+details.#{$collapse-name} {
+    // visibility: inherit !important;
+    appearance: none;
+    transition: height 1s;
+    & > summary {
+        flex-grow: 1;
+        display: inline-block;
+        cursor: pointer;
+        // transition: background 0.3s;
+        color: var(#{$collapse-label-fore-color-var});
+        background: var(#{$collapse-label-back-color-var});
+        border: $__1px solid var(#{$collapse-border-color-var});
+        padding: calc(1.5 * var(#{$universal-padding-var}));
+        &:hover,
+        &:focus {
+            background: var(#{$collapse-label-hover-back-color-var});
+        }
+        & + * {
+            height: 0;
+        }
+    }
+    &[open] > summary {
+        background: var(#{$collapse-selected-label-back-color-var});
+        border-bottom-color: var(#{$collapse-selected-label-border-color-var});
+        & + * {
+            box-sizing: border-box;
+            position: relative;
+            width: 100%;
+            height: auto;
+            overflow: auto;
+            background: var(#{$collapse-content-back-color-var});
+            border: $__1px solid var(#{$collapse-border-color-var});
+            border-top: 0;
+            padding: var(#{$universal-padding-var});
+            clip: auto;
+            -webkit-clip-path: inset(0%);
+            clip-path: inset(0%);
+            // max-height: $collapse-content-max-height;
+            background: #cccccc08;
+        }
+    }
+
+    & > summary:not(:first-of-type) {
+        // Keep these down here, as it overrides some other styles.
+        border-top: 0;
+    }
+    & > summary:first-of-type {
+        border-radius: var(#{$universal-border-radius-var}) var(#{$universal-border-radius-var}) 0 0;
+    }
+    & > summary:last-of-type:not(:first-of-type) {
+        border-radius: 0 0 var(#{$universal-border-radius-var}) var(#{$universal-border-radius-var});
+    }
+    & > summary:last-of-type:first-of-type {
+        border-radius: var(#{$universal-border-radius-var});
+    }
+    &[open]:last-of-type:not(:first-of-type) > summary {
+        border-radius: 0;
+    }
+    &[open]:last-of-type > summary + * {
+        border-radius: 0 0 var(#{$universal-border-radius-var}) var(#{$universal-border-radius-var});
+    }
+}
