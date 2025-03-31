@@ -3,15 +3,79 @@
 /** @noinspection ALL */
 
 use NGSOFT\Facades\Container;
-use Sql\QueryHelper;
 use View\TemplateView;
 
 require_once __DIR__ . '/libs/poly.php';
 require_once __DIR__ . '/libs/Lockable.php';
-require_once __DIR__ . '/libs/EventListener.php';
-require_once __DIR__ . '/libs/Sql.php';
 require_once __DIR__ . '/libs/CurlHandler.php';
 require_once __DIR__ . '/../vendor/autoload.php';
+
+/**
+ * @return array
+ */
+function getFileList(string $dir, string $filter = '', DateTimeInterface|int|string $date = 0)
+{
+    $files = [];
+
+    if ($date instanceof DateTimeInterface)
+    {
+        $date = $date->getTimestamp();
+    }
+
+    if (is_string($date))
+    {
+        $date = strtotime($date);
+    }
+
+    if ( ! is_int($date))
+    {
+        $date = 0;
+    }
+
+    if (is_dir($dir))
+    {
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
+
+        /**
+         * @var string      $path
+         * @var SplFileInfo $info
+         */
+        foreach ($iterator as $info)
+        {
+            if ( ! $info->isFile())
+            {
+                continue;
+            }
+
+            if ( ! empty($filter) && false === strpos($info->getFilename(), $filter))
+            {
+                continue;
+            }
+
+            if ($info->getMTime() >= $date)
+            {
+                $files[] = realpath($info->getPathname());
+            }
+        }
+    }
+    usort($files, function ($a, $b)
+    {
+        $numa = $numb = 0;
+
+        if (preg_match('#(\d+)#', basename($a), $matches))
+        {
+            $numa = intval($matches[1]);
+        }
+
+        if (preg_match('#(\d+)#', basename($b), $matches))
+        {
+            $numb = intval($matches[1]);
+        }
+        return $numa - $numb;
+    });
+
+    return $files;
+}
 
 function extends_template(string $template)
 {
@@ -49,38 +113,6 @@ function getBasePath(): string
         $basePath = rtrim($basePath, '/');
     }
     return $basePath;
-}
-
-function migrateEntities(array $entities, QueryHelper $conn): bool
-{
-    static $done       = [];
-
-    if (isset($done[$key = serialize($entities)]))
-    {
-        return $done[$key];
-    }
-
-    $ok                = true;
-
-    foreach ($entities as $class)
-    {
-        try
-        {
-            if (is_subclass_of($class, Entity::class))
-            {
-                $class::migrate($conn);
-            }
-        } catch (Throwable $error)
-        {
-            $ok = false;
-            ApplicationLogger::getLogger()->error(
-                'migration error: %s',
-                [$error->getMessage()]
-            );
-        }
-    }
-
-    return $done[$key] = $ok;
 }
 
 if ( ! function_exists('require_secure'))

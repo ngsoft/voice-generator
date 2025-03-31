@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Adds GZip encoding to php serve response.
  */
@@ -13,7 +14,8 @@ $root                 = __DIR__ . '/public';
 $logReq               = $req = explode('?', $_SERVER['REQUEST_URI'] ?? '')[0];
 $ext                  = '';
 $gz ??= str_contains($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') ? '.gz' : '';
-$compress             = ! empty($gz);
+// $compress             = ! empty($gz);
+$compress             = false;
 
 if (preg_match('#([.].+)$#', $req, $matches))
 {
@@ -59,8 +61,8 @@ if ($ext)
         ApplicationLogger::getLogger()->log(
             "REQUEST: GET %s ext='%s', gz=%d, mime='%s'",
             [
-                $logReq,  $ext,
-                ! empty($gz),  $mime,
+                $logReq, $ext,
+                ! empty($gz), $mime,
             ]
         );
         echo $contents;

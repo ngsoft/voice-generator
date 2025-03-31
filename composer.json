@@ -21,12 +21,8 @@
     "ngsoft/container": "^1",
     "nikic/fast-route": "^1",
     "phan/phan": "^5",
-    "predis/predis": "^2.2",
-    "symfony/cache": "^7",
-    "symfony/dom-crawler": "^7",
     "symfony/dotenv": "^7",
-    "symfony/google-mailer": "^7",
-    "symfony/mailer": "^7",
-    "symfony/var-dumper": "^7"
+    "symfony/var-dumper": "^7",
+    "symfony/process": "^7"
   }
 }

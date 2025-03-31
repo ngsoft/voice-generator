@@ -7,10 +7,9 @@ use Renderer\JsonResponse;
 
 use function FastRoute\simpleDispatcher;
 
-$routeMatch  = substr($_SERVER['REQUEST_URI'], strlen(getBasePath()));
+$routeMatch  = explode('?', substr($_SERVER['REQUEST_URI'], strlen(getBasePath())))[0];
 
 $routeMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
-$basepath    = getBasePath();
 $dispatcher  = simpleDispatcher(Container::get('routes'));
 $routeInfo   = $dispatcher->dispatch($routeMethod, $routeMatch);
 $status      = $routeInfo[0];
@@ -102,6 +101,8 @@ switch ($status)
                 $headers,
                 array_replace($args, $request)
             ));
+
+            $request->addAttribute('basepath', getBasePath());
 
             try
             {
