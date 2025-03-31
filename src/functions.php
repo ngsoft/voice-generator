@@ -91,7 +91,60 @@ function get_attr(string $name, mixed $default = null): mixed
 {
     return Container::get(TemplateView::class)->getAttribute($name, $default);
 }
+function getViteEntryPoints(): array
+{
+    static $data;
 
+    if ( ! isset($data))
+    {
+        $css    = $js = [];
+        $server = null;
+
+        $base   = getBasePath();
+
+        $json   = @file_get_contents(Globals::resolvePath('%public_path%/build/.vite/entrypoints.json'));
+
+        if ($json)
+        {
+            if ($obj = json_decode($json, true))
+            {
+                $server = $obj['viteServer'];
+
+                if (isset($obj['entryPoints']))
+                {
+                    foreach ($obj['entryPoints'] as $entry)
+                    {
+                        foreach ($entry['js'] ?? [] as $file)
+                        {
+                            if (str_starts_with($file, '/'))
+                            {
+                                $file = $base . $file;
+                            }
+                            $js[] = $file;
+                        }
+
+                        foreach ($entry['css'] ?? [] as $file)
+                        {
+                            if (str_starts_with($file, '/'))
+                            {
+                                $file = $base . $file;
+                            }
+                            $css[] = $file;
+                        }
+                    }
+                }
+            }
+        }
+
+        $data   = [
+            $js,
+            $css,
+            $server,
+        ];
+    }
+
+    return $data;
+}
 function getBasePath(): string
 {
     static $basePath;

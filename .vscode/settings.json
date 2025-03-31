@@ -6,25 +6,43 @@
         "editor.defaultFormatter": "junstyle.php-cs-fixer"
     },
     "[typescript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         }
     },
     "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         }
     },
-    "[svelte]": {
-        "editor.defaultFormatter": "svelte.svelte-vscode"
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[scss]": {
         "editor.suggest.insertMode": "replace",
         "editor.defaultFormatter": "sibiraj-s.vscode-scss-formatter"
     },
-    "[css]": {
-        "editor.defaultFormatter": "bradlc.vscode-tailwindcss"
+    "tailwindCSS.includeLanguages": {
+        "javascript": "javascript",
+        "typescript": "typescript",
+        "Svelte": "svelte",
+        "html": "HTML"
     },
     "files.eol": "\n",
-    "scss.validate": false
+    "scss.validate": false,
+    "prettier.enable": true,
+    "tailwindCSS.emmetCompletions": true,
+    "tailwind-fold.foldStyle": "QUOTES",
+    "tailwind-fold.unfoldIfLineSelected": true,
+    "tailwind-fold.foldLengthThreshold": 32,
+    "tailwind-fold.autoFold": true,
+    "editor.quickSuggestions": {
+        "strings": true
+    }
 }

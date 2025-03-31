@@ -32,5 +32,12 @@
         "herrmannplatz.npm-dependency-links",
         "christian-kohler.npm-intellisense",
         "christian-kohler.path-intellisense",
+        "esbenp.prettier-vscode",
+        "KalimahApps.tailwindcss-kit",
+        "QuentiumYT.vscode-tailwindcss-directives",
+        "macieklad.tailwind-sass-syntax",
+        "sibiraj-s.vscode-scss-formatter",
+        "dbaeumer.vscode-eslint",
+        "EditorConfig.EditorConfig",
     ]
 }
