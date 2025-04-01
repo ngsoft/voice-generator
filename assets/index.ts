@@ -4,14 +4,12 @@ import './styles/tw.css';
 import './styles/mini.scss';
 import './main.css';
 
-
 (() => {
-
-    const route = document.body.dataset.route ?? "/";
+    const route = document.body.dataset.route ?? '/';
 
     (() => {
         const documentElement = document.documentElement,
-            lightMode: MediaQueryList = globalThis.matchMedia("(prefers-color-scheme: light)"),
+            lightMode: MediaQueryList = globalThis.matchMedia('(prefers-color-scheme: light)'),
             darkModeSwitch = document.getElementById('dark-mode-switch') as HTMLInputElement;
 
         function toggleDarkMode(checked: boolean) {
@@ -20,7 +18,7 @@ import './main.css';
 
         addEventListener('storage', (event: StorageEvent) => {
             if (event.storageArea === localStorage && event.key === 'piper:dark' && event.newValue !== null) {
-                toggleDarkMode(darkModeSwitch.checked = JSON.parse(event.newValue));
+                toggleDarkMode((darkModeSwitch.checked = JSON.parse(event.newValue)));
             }
         });
         darkModeSwitch.addEventListener('change', () => {
@@ -28,17 +26,13 @@ import './main.css';
             localStorage.setItem('piper:dark', JSON.stringify(darkModeSwitch.checked));
         });
         if (localStorage.getItem('piper:dark') !== null) {
-            toggleDarkMode(darkModeSwitch.checked = JSON.parse(localStorage.getItem('piper:dark') as string));
+            toggleDarkMode((darkModeSwitch.checked = JSON.parse(localStorage.getItem('piper:dark') as string)));
         } else if (!lightMode.matches) {
-            toggleDarkMode(darkModeSwitch.checked = true);
+            toggleDarkMode((darkModeSwitch.checked = true));
         }
-
     })();
 
-
     if ('/' == route) {
-
-
         let url: string = '';
 
         const form = document.querySelector('form') as HTMLFormElement,
@@ -55,7 +49,6 @@ import './main.css';
             voiceItems.set(group.getAttribute('label') as string, group);
         }
 
-
         langInput.addEventListener('change', () => {
             submitButton.disabled = true;
             voiceInput.selectedIndex = 0;
@@ -69,12 +62,21 @@ import './main.css';
 
         voiceText.addEventListener('input', () => {
             submitButton.disabled = !voiceText.value.trim() && !voiceInput.value;
-            console.debug(voiceText.value);
         });
 
+        voiceInput.addEventListener('change', () => {
+            submitButton.disabled = !voiceText.value.trim() && !voiceInput.value;
+        });
 
         audioElement.addEventListener('pause', () => {
-            URL.revokeObjectURL(url);
+            if (url) {
+                URL.revokeObjectURL(url);
+                url = '';
+            }
+        });
+
+        form.addEventListener('reset', () => {
+            submitButton.disabled = true;
         });
 
         form.addEventListener('submit', (e) => {
@@ -82,22 +84,21 @@ import './main.css';
 
             audioElement.pause();
 
-            fetch(('.' + voiceInput.value), {
+            fetch('.' + voiceInput.value, {
                 method: 'POST',
                 body: JSON.stringify({
                     text: voiceText.value,
                 }),
-                headers: {"Content-Type": "application/json",}
+                headers: { 'Content-Type': 'application/json' },
             })
-                .then(response => response.blob())
-                .then(blob => {
-                    audioElement.setAttribute('src', url = URL.createObjectURL(blob));
+                .then((response) => response.blob())
+                .then((blob) => {
+                    audioElement.setAttribute('src', (url = URL.createObjectURL(blob)));
                     return audioElement.play();
                 })
                 .catch((err) => {
                     console.error(err);
                 });
-
-        })
+        });
     }
-})()
+})();
