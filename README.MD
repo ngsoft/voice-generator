@@ -1,5 +1,20 @@
 # Text to Speech API
 
+## Setup the project
+
+Run the following commands
+```shell
+composer install
+npm install
+```
+
+## Build javascript
+
+```shell
+npm run vite:build
+```
+
+
 ## How to use
 
 Piper Binaries for windows and linux are included
@@ -41,7 +56,7 @@ Copy the langage packs (`*.onnx` and `*.onnx.json`) to `data/voices`
 }
 ```
 
-**GET** `/voice/speak/{voice_pack}/{speaker_id}` (you can use one of the resolved `{voiceUri}` in the voice list)
+**POST** `/voice/speak/{voice_pack}/{speaker_id}` (you can use one of the resolved `{voiceUri}` in the voice list)
 
 
 **example**
@@ -61,3 +76,6 @@ Copy the langage packs (`*.onnx` and `*.onnx.json`) to `data/voices`
 ```
 
 **response** `audio/x-wave` 16 bits file to be played
+
+
+
