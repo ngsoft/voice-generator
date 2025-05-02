@@ -6,7 +6,7 @@ use NGSOFT\Facades\Container;
 use View\TemplateView;
 
 require_once __DIR__ . '/libs/poly.php';
-require_once __DIR__ . '/libs/Lockable.php';
+
 require_once __DIR__ . '/libs/CurlHandler.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -91,6 +91,7 @@ function get_attr(string $name, mixed $default = null): mixed
 {
     return Container::get(TemplateView::class)->getAttribute($name, $default);
 }
+
 function getViteEntryPoints(): array
 {
     static $data;
@@ -145,6 +146,7 @@ function getViteEntryPoints(): array
 
     return $data;
 }
+
 function getBasePath(): string
 {
     static $basePath;

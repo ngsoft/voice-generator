@@ -2,6 +2,33 @@
 /** @noinspection ALL */
 namespace {
 
+if (!interface_exists("Lockable", false)) {
+    interface Lockable
+    {
+        /**
+         * Lock the object.
+         * @return void
+         */
+        public function lock();
+
+        /**
+         * Unlock the object.
+         * @return void
+         */
+        public function unlock();
+
+
+        /**
+         * Get the lock status.
+         * @return bool
+         */
+        public function isLocked();
+    }
+}
+
+}
+namespace {
+
 class CurlHandler
 {
 
@@ -1072,7 +1099,7 @@ class CurlRequest
     protected function getHeaderName($name)
     {
         return ucfirst(preg_replace_callback('#-([a-z])#', function ($matches) {
-            return strtoupper($matches[1]);
+            return strtoupper($matches[0]);
         }, strtolower($name)));
     }
 

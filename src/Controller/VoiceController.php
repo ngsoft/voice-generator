@@ -18,80 +18,83 @@ class VoiceController
 
     public function playVoice(\Request $request): \Response
     {
-        if (
-            ! str_contains($request->getHeader('Content-Type'), '/json')
-            || ! $request->getParameter('text'))
+        if (\Env::getItem('PIPER_ENABLED'))
         {
-            return JsonResponse::newBadRequest();
-        }
+            if (
+                ! str_contains($request->getHeader('Content-Type'), '/json')
+                || ! $request->getParameter('text'))
+            {
+                return JsonResponse::newBadRequest();
+            }
 
-        $text  = str_replace('"', '', $request->getParameter('text'));
+            $text  = str_replace('"', '', $request->getParameter('text'));
 
-        $path  = $request->getParameter('path');
-        $id    = $request->getParameter('id');
-        $file  = sprintf('%s/%s.onnx', $this->voiceRepository, $path);
-        $uuid  = generate_uid();
-        $dest  = str_replace(DIRECTORY_SEPARATOR, '/', \Globals::resolvePath("%tmp_path%/{$uuid}.wav"));
+            $path  = $request->getParameter('path');
+            $id    = $request->getParameter('id');
+            $file  = sprintf('%s/%s.onnx', $this->voiceRepository, $path);
+            $uuid  = generate_uid();
+            $dest  = str_replace(DIRECTORY_SEPARATOR, '/', \Globals::resolvePath("%tmp_path%/{$uuid}.wav"));
 
-        $piper = str_replace(
-            DIRECTORY_SEPARATOR,
-            '/',
-            \Globals::resolvePath('%project_root%/bin/amd64_linux/piper/piper')
-        );
-
-        // echo don't work well with json
-        $cmd   = sprintf(
-            'echo %s | "%s" -m "%s" -s %d -f "%s" ',
-            $text,
-            $piper,
-            $file,
-            $id,
-            $dest,
-        );
-
-        if ('\\' === \DIRECTORY_SEPARATOR)
-        {
             $piper = str_replace(
                 DIRECTORY_SEPARATOR,
                 '/',
-                \Globals::resolvePath('%project_root%/bin/amd64_windows/piper/piper.exe')
+                \Globals::resolvePath('%project_root%/bin/amd64_linux/piper/piper')
             );
 
-            // windows needs json with escaped Unicode sequence
+            // echo doesn't work well with JSON
             $cmd   = sprintf(
-                'echo %s | "%s" --json-input -m "%s" -s %d -f "%s" ',
-                json_encode(['text' => $text]),
+                'echo %s | "%s" -m "%s" -s %d -f "%s" ',
+                $text,
                 $piper,
                 $file,
                 $id,
                 $dest,
             );
-        }
 
-        try
-        {
-            @umask(0);
-            @mkdir(dirname($dest), 0777, true);
-
-            $proc = Process::fromShellCommandline($cmd);
-
-            $proc->run();
-
-            if ($proc->isSuccessful() && is_file($dest))
+            if ('\\' === \DIRECTORY_SEPARATOR)
             {
-                return BaseResponse::newResponse()
-                    ->setContent(@file_get_contents($dest))
-                    ->setHeader('Content-Type', 'audio/x-wav')
-                    ->setHeader('Content-Disposition', sprintf('inline; filename="%s"', basename($dest)));
+                $piper = str_replace(
+                    DIRECTORY_SEPARATOR,
+                    '/',
+                    \Globals::resolvePath('%project_root%/bin/amd64_windows/piper/piper.exe')
+                );
+
+                // windows needs JSON with an escaped Unicode sequence
+                $cmd   = sprintf(
+                    'echo %s | "%s" --json-input -m "%s" -s %d -f "%s" ',
+                    json_encode(['text' => $text]),
+                    $piper,
+                    $file,
+                    $id,
+                    $dest,
+                );
             }
-        } catch (\Throwable $exception)
-        {
-            \ApplicationLogger::getLogger()->error('piper error: %s', [$exception->getMessage()]);
-            return JsonResponse::newInternalError();
-        } finally
-        {
-            // we don't nee the file anymore as it has already been loaded in the response as content
-            @unlink($dest);
+
+            try
+            {
+                @umask(0);
+                @mkdir(dirname($dest), 0777, true);
+
+                $proc = Process::fromShellCommandline($cmd);
+
+                $proc->run();
+
+                if ($proc->isSuccessful() && is_file($dest))
+                {
+                    return BaseResponse::newResponse()
+                        ->setContent(@file_get_contents($dest))
+                        ->setHeader('Content-Type', 'audio/x-wav')
+                        ->setHeader('Content-Disposition', sprintf('inline; filename="%s"', basename($dest)));
+                }
+            } catch (\Throwable $exception)
+            {
+                \ApplicationLogger::getLogger()->error('piper error: %s', [$exception->getMessage()]);
+                return JsonResponse::newInternalError();
+            } finally
+            {
+                // we don't need the file anymore as it has already been loaded in the response as content
+                @unlink($dest);
+            }
         }
 
         return JsonResponse::newNotFound();
@@ -103,12 +106,16 @@ class VoiceController
 
         $files = getFileList($root, '.onnx.json');
 
-        $all   = $result = [];
+        $all   = [];
 
-        foreach ($files as $file)
+        if (\Env::getItem('PIPER_ENABLED'))
         {
-            $all = [...$all, ...SpeechSynthesisVoice::fromOnnxJson($file)];
+            foreach ($files as $file)
+            {
+                $all = [...$all, ...SpeechSynthesisVoice::fromOnnxJson($file)];
+            }
         }
+
         return array_map(fn (SpeechSynthesisVoice $item) => $item->setVoiceUri(
             '/voice/speak' . $item->getVoiceUri()
         ), $all);
@@ -116,7 +123,8 @@ class VoiceController
 
     public function listVoices(\Request $request): \Response
     {
-        $lang = $request->getParameter('lang');
+        $lang   = $request->getParameter('lang');
+        $result = [];
 
         /** @var SpeechSynthesisVoice $entity */
         foreach ($this->getAllVoices() as $entity)
@@ -145,9 +153,16 @@ class VoiceController
 
     protected function getVoiceUrl(\Request $request, string $uri): string
     {
+        $https = ! empty($_SERVER['HTTPS']) && 'off' !== strtolower($_SERVER['HTTPS']);
+
+        if (\Env::getItem('FORCE_HTTPS', false))
+        {
+            $https = true;
+        }
+
         return sprintf(
             '%s://%s%s%s',
-            ( ! empty($_SERVER['HTTPS']) && 'off' !== strtolower($_SERVER['HTTPS'])) ? 'https' : 'http',
+            $https ? 'https' : 'http',
             $_SERVER['HTTP_HOST'],
             $request->getAttribute('basepath', ''),
             $uri

@@ -43,7 +43,7 @@ import './main.css';
             audioElement = document.querySelector('audio') as HTMLAudioElement,
             voiceItems = new Map<string, HTMLOptGroupElement>();
 
-        submitButton.disabled = true;
+        submitButton.disabled = !voiceText.value.trim() && !voiceInput.value;
 
         for (let group of [...voiceInput.querySelectorAll('optgroup')]) {
             voiceItems.set(group.getAttribute('label') as string, group);
@@ -89,7 +89,7 @@ import './main.css';
                 body: JSON.stringify({
                     text: voiceText.value,
                 }),
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
             })
                 .then((response) => response.blob())
                 .then((blob) => {

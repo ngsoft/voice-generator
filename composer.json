@@ -15,6 +15,7 @@
     "php": ">=8.2"
   },
   "require-dev": {
+    "afaya/edge-tts": "^1.2",
     "friendsofphp/php-cs-fixer": "^3",
     "jetbrains/phpstorm-attributes": "dev-master",
     "league/mime-type-detection": "^1",
@@ -22,7 +23,7 @@
     "nikic/fast-route": "^1",
     "phan/phan": "^5",
     "symfony/dotenv": "^7",
-    "symfony/var-dumper": "^7",
-    "symfony/process": "^7"
+    "symfony/process": "^7",
+    "symfony/var-dumper": "^7"
   }
 }
