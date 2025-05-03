@@ -41,6 +41,8 @@ class EdgeVoicesController
             {
                 return BaseResponse::newResponse()
                     ->setContent(@file_get_contents($dest))
+                    ->addHeader('Access-Control-Allow-Origin', '*')
+                    ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
                     ->setHeader('Content-Type', 'audio/x-mpeg')
                     ->setHeader(
                         'Content-Disposition',
