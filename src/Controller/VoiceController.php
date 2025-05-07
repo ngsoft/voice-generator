@@ -94,8 +94,11 @@ class VoiceController
                 return JsonResponse::newInternalError();
             } finally
             {
-                // we don't need the file anymore as it has already been loaded in the response as content
-                @unlink($dest);
+                if (\Env::getItem('REMOVE_AUDIO_FILES'))
+                {
+                    // we don't need the file anymore as it has already been loaded in the response as content
+                    @unlink($dest);
+                }
             }
         }
 
