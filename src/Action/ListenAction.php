@@ -3,14 +3,14 @@
 namespace Action;
 
 use Controller\EdgeVoicesController;
-use Controller\VoiceController;
+use Controller\PiperVoiceController;
 use View\TemplateView;
 
 class ListenAction extends ViteAction
 {
     public function __construct(
         TemplateView $templateView,
-        private readonly VoiceController $voiceController,
+        private readonly PiperVoiceController $voiceController,
         private readonly EdgeVoicesController $edgeVoicesController
     ) {
         parent::__construct($templateView);

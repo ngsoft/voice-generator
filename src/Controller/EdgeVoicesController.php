@@ -28,6 +28,8 @@ class EdgeVoicesController
         $path = $request->getParameter('path');
         $uuid = generate_uid();
         $dest = str_replace(DIRECTORY_SEPARATOR, '/', \Globals::resolvePath("%tmp_path%/{$uuid}"));
+        $lame = "{$dest}.mp3";
+        $pcm  = "{$dest}.wav";
 
         try
         {
@@ -35,18 +37,35 @@ class EdgeVoicesController
             @mkdir(dirname($dest), 0777, true);
             $this->edgeTTS->synthesize($text, $path);
             $this->edgeTTS->toFile($dest);
-            $dest .= '.mp3';
 
-            if (is_file($dest))
+            if (\Env::getItem('CONVERT_PCM') && ! \AudioConverter::convert($lame, $pcm))
+            {
+                @unlink($pcm);
+            }
+
+            if (is_file($pcm))
             {
                 return BaseResponse::newResponse()
-                    ->setContent(@file_get_contents($dest))
+                    ->setContent(@file_get_contents($pcm))
+                    ->addHeader('Access-Control-Allow-Origin', '*')
+                    ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                    ->setHeader('Content-Type', 'audio/x-wav')
+                    ->setHeader(
+                        'Content-Disposition',
+                        sprintf('inline; filename="%s"', basename($pcm))
+                    );
+            }
+
+            if (is_file($lame))
+            {
+                return BaseResponse::newResponse()
+                    ->setContent(@file_get_contents($lame))
                     ->addHeader('Access-Control-Allow-Origin', '*')
                     ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
                     ->setHeader('Content-Type', 'audio/x-mpeg')
                     ->setHeader(
                         'Content-Disposition',
-                        sprintf('inline; filename="%s"', basename($dest))
+                        sprintf('inline; filename="%s"', basename($lame))
                     );
             }
         } catch (\Throwable $exception)
@@ -58,7 +77,8 @@ class EdgeVoicesController
             if (\Env::getItem('REMOVE_AUDIO_FILES'))
             {
                 // we don't need the file anymore as it has already been loaded in the response as content
-                @unlink($dest);
+                @unlink($lame);
+                @unlink($pcm);
             }
         }
 

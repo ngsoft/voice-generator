@@ -7,7 +7,7 @@ use Renderer\BaseResponse;
 use Renderer\JsonResponse;
 use Symfony\Component\Process\Process;
 
-class VoiceController
+class PiperVoiceController
 {
     private string $voiceRepository;
 

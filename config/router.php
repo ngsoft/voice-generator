@@ -4,7 +4,7 @@ use Action\DefaultAction;
 use Action\ListenAction;
 use Action\NotAllowedAction;
 use Controller\EdgeVoicesController;
-use Controller\VoiceController;
+use Controller\PiperVoiceController;
 use FastRoute\RouteCollector;
 
 return function (RouteCollector $router)
@@ -15,8 +15,8 @@ return function (RouteCollector $router)
         $router->addRoute(['GET', 'POST'], '/voice/speak/{path:.*}', [EdgeVoicesController::class, 'playVoice']);
     });
 
-    $router->get('/voice/list', [VoiceController::class, 'listVoices']);
-    $router->addRoute(['GET', 'POST'], '/voice/speak/{path:.*}/{id}', [VoiceController::class, 'playVoice']);
+    $router->get('/voice/list', [PiperVoiceController::class, 'listVoices']);
+    $router->addRoute(['GET', 'POST'], '/voice/speak/{path:.*}/{id}', [PiperVoiceController::class, 'playVoice']);
 
     $router->addRoute(['GET'], '/', ListenAction::class);
     // catch all
