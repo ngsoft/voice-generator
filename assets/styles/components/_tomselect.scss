@@ -1,0 +1,70 @@
+.ts-control {
+
+    box-sizing: border-box;
+    background: var(--input-back-color) !important;
+    color: var(--input-fore-color) !important;
+    border: 0.0625rem solid var(--input-border-color);
+    border-radius: var(--universal-border-radius);
+    padding: var(--universal-padding) calc(1.5 * var(--universal-padding));
+    box-shadow: none !important;
+
+
+    &:hover, &:focus-within {
+        border-color: var(--input-focus-color);
+        box-shadow: none;
+    }
+
+    [type="text"]::placeholder {
+        color: var(--input-fore-color);
+    }
+}
+
+.ts-dropdown.single {
+    border-radius: var(--universal-border-radius);
+    border: 0.0625rem solid var(--input-border-color);
+    box-shadow: none !important;
+    color: var(--input-fore-color);
+    background: var(--input-back-color);
+
+    .optgroup {
+        .optgroup-header {
+            background: var(--input-back-color);
+            color: var(--input-fore-color);
+            font-weight: 600;
+        }
+
+        &:before {
+            content: none !important;
+        }
+
+        .option {
+            padding-left: 32px;
+        }
+    }
+
+
+}
+
+.ts-wrapper.single .ts-control::after,
+.ts-wrapper.single .ts-control:hover::after,
+.ts-wrapper.single .ts-control:focus-within::after,
+.ts-wrapper.single.dropdown-active .ts-control::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-style: solid;
+    border-width: 1px 1px 0 0;
+    border-color: var(--input-fore-color) var(--input-fore-color) transparent transparent;
+    transform: rotate(135deg);
+    transform-origin: center center;
+    right: 8px;
+}
+
+.ts-wrapper.single .ts-control:not(.rtl)::after {
+    right: 8px;
+}
+
+

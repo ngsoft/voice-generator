@@ -12,6 +12,7 @@ import './main.css';
             lightMode: MediaQueryList = globalThis.matchMedia('(prefers-color-scheme: light)'),
             darkModeSwitch = document.getElementById('dark-mode-switch') as HTMLInputElement;
 
+
         function toggleDarkMode(checked: boolean) {
             checked ? documentElement.classList.add('dark') : documentElement.classList.remove('dark');
         }
@@ -33,7 +34,7 @@ import './main.css';
     })();
 
     if ('/' == route) {
-        let url: string = '';
+        let url: string = '', filename: string = '';
 
         const form = document.querySelector('form') as HTMLFormElement,
             langInput = form.elements.namedItem('lang') as HTMLSelectElement,
@@ -41,7 +42,42 @@ import './main.css';
             voiceText = form.elements.namedItem('text') as HTMLTextAreaElement,
             submitButton = form.elements.namedItem('submitButton') as HTMLButtonElement,
             audioElement = document.querySelector('audio') as HTMLAudioElement,
-            voiceItems = new Map<string, HTMLOptGroupElement>();
+            downloadButton = document.getElementById('download') as HTMLButtonElement,
+            voiceItems = new Map<string, HTMLOptGroupElement>(),
+            tomSelectOptions = {
+                itemClass: '_item',
+                maxOptions: null,
+            };
+
+
+        function revokeUrl() {
+            if (url) {
+                URL.revokeObjectURL(url);
+                url = '';
+            }
+        }
+
+
+        function createUrl(blob: Blob): string {
+            revokeUrl();
+            let url = URL.createObjectURL(blob);
+            toggleDownload();
+            return url;
+        }
+
+
+        function toggleDownload() {
+            downloadButton.disabled = filename.length === 0;
+        }
+
+        function updateGroup() {
+            for (let [lang, group] of voiceItems) {
+                group.remove();
+                if (!langInput.value || langInput.value === lang) {
+                    voiceInput.appendChild(group);
+                }
+            }
+        }
 
         submitButton.disabled = !voiceText.value.trim() && !voiceInput.value;
 
@@ -49,15 +85,16 @@ import './main.css';
             voiceItems.set(group.getAttribute('label') as string, group);
         }
 
+        updateGroup();
+
+        // @ts-ignore
+        (new TomSelect(langInput, tomSelectOptions));
+
+
         langInput.addEventListener('change', () => {
             submitButton.disabled = true;
             voiceInput.selectedIndex = 0;
-            for (let [lang, group] of voiceItems) {
-                group.remove();
-                if (!langInput.value || langInput.value === lang) {
-                    voiceInput.appendChild(group);
-                }
-            }
+            updateGroup();
         });
 
         voiceText.addEventListener('input', () => {
@@ -79,6 +116,22 @@ import './main.css';
             submitButton.disabled = true;
         });
 
+        downloadButton.addEventListener('click', () => {
+
+            if (filename && url) {
+                const link = document.createElement('a');
+                link.setAttribute('class', 'visually-hidden');
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                requestAnimationFrame(() => {
+                    link.remove();
+                });
+            }
+        });
+
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -91,14 +144,19 @@ import './main.css';
                 }),
                 headers: {'Content-Type': 'application/json'},
             })
-                .then((response) => response.blob())
+                .then((response) => {
+                    filename = (/"(.+)"/.exec(response.headers.get('content-disposition') ?? '') ?? [])[1] ?? '';
+                    return response.blob();
+                })
                 .then((blob) => {
-                    audioElement.setAttribute('src', (url = URL.createObjectURL(blob)));
+                    audioElement.setAttribute('src', url = createUrl(blob));
                     return audioElement.play();
                 })
                 .catch((err) => {
                     console.error(err);
                 });
         });
+
+
     }
 })();

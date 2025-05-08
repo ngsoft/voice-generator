@@ -14,7 +14,17 @@ foreach ($voices as $voice)
     $languages->set($lang, $list);
 }
 $languages->lock();
-extends_template('vite'); ?>
+extends_template('vite');
+/* @block head */
+ob_start(); ?>
+<link rel="preload stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@latest/dist/css/tom-select.bootstrap4.css" as="style"
+      media="all" crossorigin>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@latest/dist/css/tom-select.bootstrap4.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@latest/dist/js/tom-select.complete.min.js"></script>
+<?php set_attr('head', ob_get_clean());
+
+/* @block contents */ ?>
 
 <div class="container py-4">
     <header class="flex items-center">
@@ -30,7 +40,7 @@ extends_template('vite'); ?>
             <h2>Voices</h2>
 
             <div class="flex flex-col mt-8">
-                <div class="flex md:items-center justify-evenly max-md:flex-col max-md:px-[5%]">
+                <div class="flex md:items-center justify-evenly max-md:flex-col max-md:px-[5%] mb-3">
                     <label for="lang" class="md:w-[200px] inline-block">Select a language</label>
                     <select class="w-[90%] md:w-[320px] lg:w-[640px]" id="lang">
                         <option value="">Select a language</option>
@@ -40,7 +50,7 @@ extends_template('vite'); ?>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="flex md:items-center justify-evenly max-md:flex-col max-md:px-[5%]">
+                <div class="flex md:items-center justify-evenly max-md:flex-col max-md:px-[5%] mb-3">
                     <label for="voice" class="md:w-[200px] inline-block">Select a voice</label>
                     <select class="w-[90%] md:w-[320px] lg:w-[640px]" id="voice">
                         <option value="">Select a voice</option>
@@ -67,10 +77,16 @@ extends_template('vite'); ?>
             </div>
 
 
-            <div class="pt-8 mb-4 flex justify-center gap-8">
+            <div class="mb-4 mt-8 flex justify-center gap-8">
+
                 <button type="reset" class="secondary rounded px-8 py-4">
                     Reset
                 </button>
+
+                <button disabled type="button" id="download">
+                    Download File
+                </button>
+
                 <button disabled type="submit" class="primary rounded px-8 py-4" id="submitButton">
                     Listen
                 </button>

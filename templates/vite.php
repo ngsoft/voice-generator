@@ -21,13 +21,15 @@ foreach ($jsList as $uri) :?>
 foreach ($jsList as $uri) :?>
     <script type="module" src="<?= $uri; ?>"></script>
 <?php endforeach;
+
+echo $head    ?? '';
 set_attr('head', ob_get_clean());
 /* @block body */ ?>
-<body data-route="<?= $route    ??= '/'; ?>">
-    <?=$contents??''?>
+<body data-route="<?= $route            ??= '/'; ?>">
+<?= $contents ?? ''; ?>
 <script>
     function viteScriptError() {
-        document.body.innerHTML = `<h1>Vite not loaded</h1>
+        document.body.innerHTML = `<h1>Vite isn't loaded</h1>
         <p>You did not build your vite application or did not launch vite server.</p>`;
     }
     <?php if(empty($jsList)):?>
