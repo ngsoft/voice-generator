@@ -14,7 +14,7 @@
         box-shadow: none;
     }
 
-    [type="text"]::placeholder {
+    [type="text"], [type="text"]::placeholder {
         color: var(--input-fore-color);
     }
 }

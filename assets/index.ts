@@ -60,7 +60,7 @@ import './main.css';
 
         function createUrl(blob: Blob): string {
             revokeUrl();
-            let url = URL.createObjectURL(blob);
+            url = URL.createObjectURL(blob);
             toggleDownload();
             return url;
         }
@@ -105,22 +105,14 @@ import './main.css';
             submitButton.disabled = !voiceText.value.trim() && !voiceInput.value;
         });
 
-        audioElement.addEventListener('pause', () => {
-            if (url) {
-                URL.revokeObjectURL(url);
-                url = '';
-            }
-        });
-
         form.addEventListener('reset', () => {
             submitButton.disabled = true;
         });
 
         downloadButton.addEventListener('click', () => {
-
             if (filename && url) {
                 const link = document.createElement('a');
-                link.setAttribute('class', 'visually-hidden');
+                // link.setAttribute('class', 'visually-hidden');
                 link.setAttribute('href', url);
                 link.setAttribute('download', filename);
                 document.body.appendChild(link);
@@ -147,7 +139,7 @@ import './main.css';
                     return response.blob();
                 })
                 .then((blob) => {
-                    audioElement.setAttribute('src', url = createUrl(blob));
+                    audioElement.setAttribute('src', createUrl(blob));
                     return audioElement.play();
                 })
                 .catch((err) => {
