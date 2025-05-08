@@ -139,9 +139,7 @@ import './main.css';
 
             fetch('.' + voiceInput.value, {
                 method: 'POST',
-                body: JSON.stringify({
-                    text: voiceText.value,
-                }),
+                body: JSON.stringify({text: voiceText.value}),
                 headers: {'Content-Type': 'application/json'},
             })
                 .then((response) => {
