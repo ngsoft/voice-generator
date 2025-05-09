@@ -1,8 +1,11 @@
 // import styles (fonts, framework, helpers, app overrides)
+
 import 'unfonts.css';
+import 'tom-select/dist/css/tom-select.bootstrap4.min.css';
 import './styles/tw.css';
 import './styles/mini.scss';
 import './main.css';
+
 
 (() => {
     const route = document.body.dataset.route ?? '/';

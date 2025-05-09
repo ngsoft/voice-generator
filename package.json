@@ -34,6 +34,7 @@
     "dependencies": {
         "@fontsource/poppins": "^5",
         "match-operator": "^0.3.1",
-        "mini.css": "^3.0.1"
+        "mini.css": "^3.0.1",
+        "tom-select": "^2.4.3"
     }
 }

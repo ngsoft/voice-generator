@@ -4,7 +4,6 @@ extends_template('layout');
 $app                                    ??= [];
 $base                                   ??= '';
 /* @block head */
-
 ob_start(); ?>
 <link rel="icon" href="<?= $app['icon'] ??= "{$base}/favicon.svg"; ?>">
 <?php

@@ -17,13 +17,8 @@ $languages->lock();
 extends_template('vite');
 /* @block head */
 ob_start(); ?>
-<link rel="preload stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@latest/dist/css/tom-select.bootstrap4.css" as="style"
-      media="all" crossorigin>
-
-<link href="https://cdn.jsdelivr.net/npm/tom-select@latest/dist/css/tom-select.bootstrap4.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select@latest/dist/js/tom-select.complete.min.js"></script>
+<script src="<?= $base ?? ''; ?>/assets/tom-select.complete.min.js"></script>
 <?php set_attr('head', ob_get_clean());
-
 /* @block contents */ ?>
 
 <div class="container py-4">
