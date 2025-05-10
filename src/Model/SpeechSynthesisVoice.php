@@ -123,7 +123,7 @@ class SpeechSynthesisVoice extends \BaseModel implements \JsonSerializable, \Str
             'lang'         => $this->lang,
             'localService' => $this->localService,
             'name'         => $this->name,
-            'voiceUri'     => $this->voiceUri,
+            'voiceURI'     => $this->voiceUri,
         ];
     }
 }
