@@ -1,7 +1,9 @@
 Options All -Indexes
+Satisfy any
+Allow from all
 
 <Files .htaccess>
-Require all denied
+  Require all denied
 </Files>
 
 <IfModule mod_rewrite.c>
