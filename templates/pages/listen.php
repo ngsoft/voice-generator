@@ -8,7 +8,7 @@ $languages = new Map();
 
 foreach ($voices as $voice)
 {
-    $lang   = $voice->getLang();
+    $lang   = str_replace('_', '-', $voice->getLang());
     $list   = $languages->get($lang) ?? [];
     $list[] = $voice;
     $languages->set($lang, $list);
