@@ -36,7 +36,7 @@ class SpeechSynthesisVoice extends \BaseModel implements \JsonSerializable, \Str
             foreach ($json['speaker_id_map'] as $id)
             {
                 $result[] = self::make([
-                    'lang'     => $json['language']['code'],
+                    'lang'     => str_replace('_', '-', $json['language']['code']),
                     'name'     => sprintf(
                         'Piper %s [%s]#%d - %s (%s)',
                         ucfirst($json['dataset']),
