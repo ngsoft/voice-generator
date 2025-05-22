@@ -1,6 +1,6 @@
 Options All -Indexes
 Satisfy any
-Allow from all
+#Allow from all
 
 <Files .htaccess>
   Require all denied
