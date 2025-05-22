@@ -9,7 +9,7 @@ use Model\SpeechSynthesisVoice;
 use Renderer\BaseResponse;
 use Renderer\JsonResponse;
 
-class EdgeVoicesController
+class EdgeVoicesController extends VoiceController
 {
     public function __construct(
         private readonly EdgeTTS $edgeTTS,
@@ -102,18 +102,19 @@ class EdgeVoicesController
         {
             $all[] = (new SpeechSynthesisVoice())
                 ->setName($voice['FriendlyName'])
-                ->setLang(str_replace('-', '_', $voice['Locale']))
+                ->setLang(str_replace('_', '-', $voice['Locale']))
                 ->setVoiceUri('/' . $voice['ShortName']);
         }
 
         return array_map(fn (SpeechSynthesisVoice $item) => $item->setVoiceUri(
             '/edge/voice/speak' . $item->getVoiceUri()
-        ), $all);
+        ), $this->filterVoices($all));
     }
 
     public function listVoices(\Request $request): \Response
     {
-        $lang   = $request->getParameter('lang');
+        $lang   = str_replace('_', '-', $request->getParameter('lang'));
+
         $result = [];
 
         /** @var SpeechSynthesisVoice $entity */

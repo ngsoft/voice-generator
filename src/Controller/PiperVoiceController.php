@@ -7,7 +7,7 @@ use Renderer\BaseResponse;
 use Renderer\JsonResponse;
 use Symfony\Component\Process\Process;
 
-class PiperVoiceController
+class PiperVoiceController extends VoiceController
 {
     private string $voiceRepository;
 
@@ -125,7 +125,7 @@ class PiperVoiceController
 
         return array_map(fn (SpeechSynthesisVoice $item) => $item->setVoiceUri(
             '/voice/speak' . $item->getVoiceUri()
-        ), $all);
+        ), $this->filterVoices($all));
     }
 
     public function listVoices(\Request $request): \Response
