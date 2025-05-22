@@ -38,35 +38,41 @@ class EdgeVoicesController
             $this->edgeTTS->synthesize($text, $path);
             $this->edgeTTS->toFile($dest);
 
+            $duration = \AudioConverter::getMediaDuration($lame);
+
             if (\Env::getItem('CONVERT_PCM') && ! \AudioConverter::convert($lame, $pcm))
             {
                 @unlink($pcm);
             }
 
+            $response = BaseResponse::newResponse()
+                ->addHeader('Access-Control-Allow-Origin', '*')
+                ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
             if (is_file($pcm))
             {
-                return BaseResponse::newResponse()
-                    ->setContent(@file_get_contents($pcm))
-                    ->addHeader('Access-Control-Allow-Origin', '*')
-                    ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                return $response
+                    ->addHeader('X-Media-Duration', number_format($duration = \AudioConverter::getMediaDuration($pcm), 6, '.', ''))
+                    ->addHeader('X-Media-Time', \AudioConverter::secToTimeMicro($duration))
                     ->setHeader('Content-Type', 'audio/x-wav')
                     ->setHeader(
                         'Content-Disposition',
                         sprintf('inline; filename="%s"', basename($pcm))
-                    );
+                    )
+                    ->setContent(@file_get_contents($pcm));
             }
 
             if (is_file($lame))
             {
-                return BaseResponse::newResponse()
-                    ->setContent(@file_get_contents($lame))
-                    ->addHeader('Access-Control-Allow-Origin', '*')
-                    ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                return $response
+                    ->addHeader('X-Media-Duration', number_format($duration = \AudioConverter::getMediaDuration($lame), 6, '.', ''))
+                    ->addHeader('X-Media-Time', \AudioConverter::secToTimeMicro($duration))
                     ->setHeader('Content-Type', 'audio/x-mpeg')
                     ->setHeader(
                         'Content-Disposition',
                         sprintf('inline; filename="%s"', basename($lame))
-                    );
+                    )
+                    ->setContent(@file_get_contents($lame));
             }
         } catch (\Throwable $exception)
         {

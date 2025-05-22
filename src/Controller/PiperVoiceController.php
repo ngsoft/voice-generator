@@ -82,9 +82,11 @@ class PiperVoiceController
                 if ($proc->isSuccessful() && is_file($dest))
                 {
                     return BaseResponse::newResponse()
-                        ->setContent(@file_get_contents($dest))
                         ->addHeader('Access-Control-Allow-Origin', '*')
                         ->addHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                        ->addHeader('X-Media-Duration', number_format($duration = \AudioConverter::getMediaDuration($dest), 6, '.', ''))
+                        ->addHeader('X-Media-Time', \AudioConverter::secToTimeMicro($duration))
+                        ->setContent(@file_get_contents($dest))
                         ->setHeader('Content-Type', 'audio/x-wav')
                         ->setHeader('Content-Disposition', sprintf('inline; filename="%s"', basename($dest)));
                 }
