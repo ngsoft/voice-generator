@@ -1,6 +1,6 @@
 Options All -Indexes
-Satisfy any
-#Allow from all
+AuthType None
+Require all granted
 
 <Files .htaccess>
   Require all denied
