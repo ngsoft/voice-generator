@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+use NGSOFT\Console\ConsoleApplication;
+use Symfony\Component\Console\Output\AnsiColorMode;
+use Symfony\Component\Console\Terminal;
+
+require_once __DIR__ . '/../src/init.php';
+
+// force color mode
+Terminal::setColorMode(AnsiColorMode::Ansi24);
+
+/** @var ConsoleApplication $app */
+$app = Services::getContainer()->get(ConsoleApplication::class);
+// register commands
+require_secure(resolve_path('%config%/command.php'))($app);
+$app->run();

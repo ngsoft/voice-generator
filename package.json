@@ -1,0 +1,52 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "init": "composer update && npm install",
+    "dev": "concurrently -c auto -p pid \"npm run vite\" \"npm run serve\"",
+    "vite": "cross-env APP_URL=http://127.0.0.1:8600 vite",
+    "watch": "cross-env APP_URL=http://127.0.0.1:8600 CHOKIDAR_USEPOLLING=true vite build --mode development --watch",
+    "build": "vite build",
+    "preview": "vite preview",
+    "clean": "rm -rf build && rm -rf dist && rm -rf public/build/manifest.json && rm -rf public/build/assets",
+    "check": "svelte-check --tsconfig ./tsconfig.json && biome check app",
+    "fix": "biome check app --write --unsafe && biome check config/vite --write --unsafe",
+    "serve": "npm run serve:stop && symfony server:start --no-tls --use-gzip --allow-all-ip --port=8600",
+    "serve:stop": "concurrently --hide 0,1,2 \"killall symfony\" \"taskkill /F /IM symfony.exe\" \"symfony local:server:stop\" || exit 0",
+    "php:check": "php -ddisplay_errors=off -dextension=ast vendor/bin/phan -C  --unused-variable-detection  --redundant-condition-detection",
+    "php:fix": "concurrently --hide 0,1 \"php vendor/bin/php-cs-fixer fix config\" \"php vendor/bin/php-cs-fixer fix src\""
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@internationalized/date": "^3.10.0",
+    "@lucide/svelte": "^0.544.0",
+    "@skeletonlabs/skeleton": "^4.1.0",
+    "@skeletonlabs/skeleton-svelte": "^4.1.0",
+    "@sveltejs/vite-plugin-svelte": "^6",
+    "@tailwindcss/forms": "^0.5",
+    "@tailwindcss/typography": "^0.5",
+    "@tailwindcss/vite": "^4",
+    "@types/node": "^24.9.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10",
+    "daisyui": "^5.3.10",
+    "laravel-vite-plugin": "^2",
+    "match-operator": "^0.3.1",
+    "rxjs": "^7.8.2",
+    "svelte": "^5.53.7",
+    "svelte-check": "^4",
+    "svelte-forms": "^2.3.1",
+    "svelte-preprocess": "^6",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.14",
+    "tslib": "^2",
+    "typescript": "^5",
+    "vite": "^7.1.12"
+  },
+  "dependencies": {
+    "@types/zepto": "^1.0.36"
+  },
+  "trustedDependencies": [
+    "svelte-preprocess"
+  ]
+}

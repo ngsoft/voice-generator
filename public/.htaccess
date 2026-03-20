@@ -1,0 +1,54 @@
+Options -Indexes
+
+DirectoryIndex index.php
+# AuthType None
+# Require all granted
+
+<IfModule rewrite_module>
+    Options +FollowSymlinks
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI}::$0 ^(/.+)/(.*)::\2$
+    RewriteRule .* - [E=BASE:%1]
+    RewriteCond %{HTTP:Authorization} .+
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%0]
+    RewriteCond %{ENV:REDIRECT_STATUS} =""
+    RewriteRule ^index\.php(?:/(.*)|$) %{ENV:BASE}/$1 [R=307,L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ %{ENV:BASE}/index.php [L]
+</IfModule>
+
+<IfModule !rewrite_module>
+    <IfModule alias_module>
+        RedirectMatch 307 ^/$ /index.php/
+    </IfModule>
+</IfModule>
+<IfModule headers_module>
+    <FilesMatch "\.(js)$">
+        Header set Cache-Control "max-age=2592000, private"
+    </FilesMatch>
+    <FilesMatch "\.(ico|jpe?g|png|gif|webp|swf|css|svg|gz)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    <FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+        Header unset Cache-Control
+    </FilesMatch>
+</IfModule>
+<IfModule filter_module>
+    <IfModule deflate_module>
+        AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+    </IfModule>
+</IfModule>
+
+
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>
+<Files .htaccess>
+    Require all denied
+</Files>
+<Files composer.json>
+    Require all denied
+</Files>
+<Files package.json>
+    Require all denied
+</Files>

@@ -1,0 +1,191 @@
+{
+    /** Using that schema to keep up to date with package */
+    "$schema": "https://biomejs.dev/schemas/latest/schema.json",
+    "root": true,
+    "vcs": {
+        "enabled": false,
+        "clientKind": "git",
+        "useIgnoreFile": true,
+        "defaultBranch": "main"
+    },
+    "files": {
+        "ignoreUnknown": true,
+        "includes": [
+            "app/**/*.{ts,js,css,json,jsonc}",
+            "config/**/*.ts",
+            "*.{json,jsonc}",
+            "*.{ts,js,json,jsonc}",
+            ".vscode/*.json",
+            //   Waiting for more support, extremely buggy
+            "!**/*.{svelte,vue,astro}",
+            "!app/theme/tailwind.css",
+            "!biome.jsonc",
+            "!node_modules",
+            "!vendor"
+        ]
+    },
+    /** @see https://next.biomejs.dev/blog/biome-v2-3/ */
+    "html": {
+        "experimentalFullSupportEnabled": true,
+        "formatter": {
+            "enabled": true,
+            "indentScriptAndStyle": true,
+            "indentStyle": "space",
+            "indentWidth": 2,
+            "lineEnding": "auto",
+            "lineWidth": 150,
+            "bracketSameLine": true,
+            "selfCloseVoidElements": "never",
+            "whitespaceSensitivity": "css"
+        },
+        "parser": {
+            "interpolation": true
+        }
+    },
+    "overrides": [
+        {
+            /** @see https://biomejs.dev/internals/language-support/#html-super-languages-support */
+            "includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "useConst": "off",
+                        "useImportType": "off"
+                    },
+                    "correctness": {
+                        "noUnusedVariables": "off",
+                        "noUnusedImports": "off"
+                    }
+                }
+            },
+            "assist": {
+                "enabled": false
+            }
+        },
+        {
+            "includes": ["**/*.css"],
+            "linter": {
+                "rules": {
+                    "suspicious": {
+                        "noDuplicateProperties": "off"
+                    }
+                }
+            }
+        }
+    ],
+    "formatter": {
+        "enabled": true,
+        "formatWithErrors": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineEnding": "lf",
+        "lineWidth": 120,
+        "attributePosition": "auto",
+        "bracketSameLine": true,
+        "bracketSpacing": true,
+        "expand": "auto",
+        "useEditorconfig": true
+    },
+    "javascript": {
+        "linter": {},
+        "formatter": {
+            "enabled": true,
+            "jsxQuoteStyle": "double",
+            "quoteProperties": "asNeeded",
+            "trailingCommas": "es5",
+            "semicolons": "always",
+            "arrowParentheses": "always",
+            "bracketSameLine": false,
+            "quoteStyle": "single",
+            "attributePosition": "auto",
+            "bracketSpacing": true,
+            "indentStyle": "space",
+            "indentWidth": 4,
+            "lineEnding": "lf",
+            "lineWidth": 120,
+            "expand": "auto",
+            "operatorLinebreak": "before"
+        },
+        "globals": ["$", "_"]
+    },
+    "json": {
+        "formatter": {
+            "enabled": true,
+            "indentStyle": "space",
+            "indentWidth": 2,
+            "lineEnding": "lf",
+            "lineWidth": 120,
+            "trailingCommas": "none",
+            "bracketSpacing": true,
+            "expand": "auto"
+        },
+        "parser": {
+            "allowComments": true,
+            "allowTrailingCommas": true
+        }
+    },
+    "css": {
+        "linter": {
+            "enabled": true
+        },
+        "parser": {
+            /** @see https://next.biomejs.dev/blog/biome-v2-3/#tailwind-v4-support */
+            "tailwindDirectives": true
+        },
+        "formatter": {
+            "enabled": true,
+            "indentStyle": "space",
+            "indentWidth": 2,
+            "lineEnding": "lf",
+            "quoteStyle": "double"
+        }
+    },
+    "linter": {
+        "enabled": true,
+        "domains": {
+            // please enable your language using "recommended"|"all"
+            "vue": "none",
+            "next": "none",
+            "qwik": "none",
+            "react": "none",
+            "solid": "none"
+        },
+        "rules": {
+            "recommended": true,
+            "suspicious": {
+                "noConsole": "off",
+                "noExplicitAny": "off",
+                "noAssignInExpressions": "off",
+                "noShadowRestrictedNames": "off",
+                "useIterableCallbackReturn": "off",
+                "noImplicitAnyLet": "off",
+                "noPrototypeBuiltins": "off"
+            },
+            "correctness": {
+                "noVoidTypeReturn": "off"
+            },
+            "complexity": {
+                "noBannedTypes": "off",
+                "noThisInStatic": "off",
+                "noStaticOnlyClass": "off",
+                "noExtraBooleanCast": "off",
+                "noImportantStyles": "off"
+            }
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                // js|ts
+                "organizeImports": "on",
+                // jsx
+                "useSortedAttributes": "on",
+                // js|ts|json|jsonc
+                "useSortedKeys": "off",
+                // css
+                "useSortedProperties": "on"
+            }
+        }
+    }
+}
