@@ -50,7 +50,39 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
             dump($dest);
             @mkdir(dirname($dest), 0777, true);
 
-            $this->client->synthesize($utterance->getText(), $utterance->getVoice());
+            $options      = [
+                'pitch'  => '+0Hz',
+                'rate'   => '0%',
+                'volume' => '0%',
+            ];
+
+            if ($utterance->getPitch() > 1)
+            {
+                $options['pitch'] = sprintf('+%dHz', floor(100 * ($utterance->getPitch() - 1)));
+            } elseif ($utterance->getPitch() < 1)
+            {
+                $options['pitch'] = sprintf('-%dHz', floor(100 * (1 - $utterance->getPitch())));
+            }
+
+            if ($utterance->getRate() > 1)
+            {
+                $options['rate'] = sprintf('+%d', 10 * $utterance->getRate()) . '%';
+            } elseif ($utterance->getRate() < 1)
+            {
+                $options['rate'] = sprintf('-%d', floor(100 * (1 - $utterance->getRate()))) . '%';
+            }
+
+            if ($utterance->getVolume() < 1)
+            {
+                $options['volume'] = sprintf('-%d', floor(100 * (1 - $utterance->getVolume()))) . '%';
+            } elseif ($utterance->getVolume() > 1)
+            {
+                $options['volume'] = sprintf('+%d', floor(100 * ($utterance->getVolume() - 1))) . '%';
+            }
+
+            dump($options);
+
+            $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options);
             $this->client->toFile($dest);
 
             $duration     = PcmAudioConverter::getMediaDuration($lame);

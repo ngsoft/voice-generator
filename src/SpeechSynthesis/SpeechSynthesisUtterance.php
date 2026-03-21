@@ -24,7 +24,10 @@ class SpeechSynthesisUtterance extends DataModel
     #[OA\Property(description: 'Speed at which the utterance will be spoken at.', nullable: true, maximum: 10.0, minimum: 0.1)]
     protected float $rate   = 1.0;
     #[OA\Property(description: 'Pitch at which the utterance will be spoken at.', nullable: true, maximum: 2.0, minimum: 0.0)]
-    protected float $pitch  = 0.0;
+    protected float $pitch  = 1.0;
+
+    #[OA\Property(description: 'Pitch at which the utterance will be spoken at.', nullable: true, maximum: 2.0, minimum: 0.0)]
+    protected float $volume = 1.0;
 
     #[OA\Property(description: 'Convert audio file to PCM (wav).', nullable: true)]
     protected bool $pcm     = false;
@@ -59,6 +62,11 @@ class SpeechSynthesisUtterance extends DataModel
         return $this->pcm;
     }
 
+    public function getVolume(): float
+    {
+        return $this->volume;
+    }
+
     protected function validateData(array $data)
     {
         if ( ! $this->checkRequired($data, 'text', 'lang', 'voice'))
@@ -79,7 +87,7 @@ class SpeechSynthesisUtterance extends DataModel
             }
             $data['pitch'] = (float) $data['pitch'];
 
-            if (0.0 > $data['rate'] || 2.0 < $data['rate'])
+            if (0.0 > $data['pitch'] || 2.0 < $data['pitch'])
             {
                 throw ValidationError::make('rate must be between 0.0 and 2.0');
             }
@@ -97,6 +105,21 @@ class SpeechSynthesisUtterance extends DataModel
             if (0.1 > $data['rate'] || 10 < $data['rate'])
             {
                 throw ValidationError::make('rate must be between 0.1 and 10.0');
+            }
+        }
+
+        if (isset($data['volume']))
+        {
+            if ( ! is_numeric($data['volume']))
+            {
+                throw ValidationError::make('volume must be a number');
+            }
+
+            $data['volume'] = (float) $data['volume'];
+
+            if (0.0 > $data['volume'] || 2.0 < $data['volume'])
+            {
+                throw ValidationError::make('volume must be between 0.0 and 2.0');
             }
         }
 
