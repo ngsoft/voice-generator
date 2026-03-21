@@ -68,6 +68,7 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 
             return new SpeechSynthesisResult(
                 $this->getName(),
+                $utterance->getVoice(),
                 $uuid,
                 $utterance->isPcm() ? $pcm : $lame,
                 $content_type,

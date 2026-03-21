@@ -8,10 +8,11 @@ readonly class SpeechSynthesisResult
 {
     public function __construct(
         public string $provider,
+        public string $voice,
         public string $identifier,
         public string $path,
         public string $content_type,
-        public float $duration
+        public float $duration,
     ) {}
 
     public function getSize(): int
