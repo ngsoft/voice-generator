@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccessService
 {
+    /**
+     * @phan-suppress PhanTypeMismatchReturnNullable
+     */
     public function getRequestIp(Request $request): string
     {
         $ip = $request->getClientIp();

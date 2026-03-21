@@ -25,6 +25,8 @@ class OpenApiResponseView implements \JsonSerializable
 
     /**
      * Extends dto attributes using another dto.
+     *
+     * @phan-suppress PhanTypeSuspiciousNonTraversableForeach, PhanTypeNoPropertiesForeach
      */
     final public function extend(array|\JsonSerializable|self $instance): static
     {
