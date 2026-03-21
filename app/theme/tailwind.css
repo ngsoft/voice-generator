@@ -1,8 +1,10 @@
 @import "tailwindcss";
-@import "@skeletonlabs/skeleton";
+@import "./skeleton/index.css";
+/*@import "@skeletonlabs/skeleton";*/
 @import "@skeletonlabs/skeleton-svelte";
+
 /*@import "@skeletonlabs/skeleton/themes/cerberus";*/
-@import "@skeletonlabs/skeleton/themes/terminus";
+@import "./skeleton/themes/terminus.css";
 /* @import "@skeletonlabs/skeleton/themes/nosh"; */
 /* @import "@skeletonlabs/skeleton/themes/wintry"; */
 /*@import "@skeletonlabs/skeleton/themes/concord";*/
@@ -48,3 +50,5 @@
         clip-path: none;
     }
 }
+
+

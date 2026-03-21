@@ -27,6 +27,7 @@
     "@tailwindcss/typography": "^0.5",
     "@tailwindcss/vite": "^4",
     "@types/node": "^24.9.1",
+    "@types/zepto": "^1.0.36",
     "concurrently": "^9.2.1",
     "cross-env": "^10",
     "daisyui": "^5.3.10",
@@ -39,12 +40,14 @@
     "svelte-preprocess": "^6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.14",
+    "sass": "^1.85.0",
     "tslib": "^2",
     "typescript": "^5",
     "vite": "^7.1.12"
   },
   "dependencies": {
-    "@types/zepto": "^1.0.36"
+    "mini.css": "^3.0.1",
+    "tom-select": "^2.4.3"
   },
   "trustedDependencies": [
     "svelte-preprocess"

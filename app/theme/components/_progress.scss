@@ -1,0 +1,13 @@
+progress.infinite {
+    position: relative;
+    animation: in-progress 1.5s infinite linear;
+}
+
+@keyframes in-progress {
+    from {
+        right: 100%;
+    }
+    to {
+        right: -100%;
+    }
+}

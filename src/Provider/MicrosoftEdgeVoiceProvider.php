@@ -1,0 +1,159 @@
+<?php
+
+namespace Provider;
+
+use Afaya\EdgeTTS\Service\EdgeTTS;
+use Psr\SimpleCache\CacheInterface;
+use Ramsey\Uuid\Uuid;
+use Service\PcmAudioConverter;
+use SpeechSynthesis\SpeechSynthesisException;
+use SpeechSynthesis\SpeechSynthesisInterface;
+use SpeechSynthesis\SpeechSynthesisResult;
+use SpeechSynthesis\SpeechSynthesisUtterance;
+use SpeechSynthesis\SpeechSynthesisVoice;
+use Traits\ErrorLoggerTrait;
+
+readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
+{
+    use ErrorLoggerTrait;
+
+    private string $storage;
+
+    public function __construct(private EdgeTTS $client, private CacheInterface $cache)
+    {
+        $this->storage = resolve_path('%data%/edge_voice');
+    }
+
+    public function getName(): string
+    {
+        return 'edge';
+    }
+
+    public function speak(SpeechSynthesisUtterance $utterance): SpeechSynthesisResult
+    {
+        $mask = @umask(0);
+
+        if ($utterance->isError())
+        {
+            throw SpeechSynthesisException::make('Invalid SpeechSynthesisUtterance');
+        }
+
+        try
+        {
+            @ob_start();
+            $uuid         = Uuid::uuid4()->toString();
+            $content_type = 'audio/x-mpeg';
+            $dest         = resolve_path($this->storage, $uuid);
+            $lame         = "{$dest}.mp3";
+            $pcm          = "{$dest}.wav";
+
+            dump($dest);
+            @mkdir(dirname($dest), 0777, true);
+
+            $this->client->synthesize($utterance->getText(), $utterance->getVoice());
+            $this->client->toFile($dest);
+
+            $duration     = PcmAudioConverter::getMediaDuration($lame);
+
+            if ($utterance->isPcm())
+            {
+                if ( ! PcmAudioConverter::convert($lame, $pcm))
+                {
+                    @unlink($pcm);
+                    throw SpeechSynthesisException::make('PCM Conversion error');
+                }
+                @unlink($lame);
+                $content_type = 'audio/x-wav';
+            }
+
+            return new SpeechSynthesisResult(
+                $this->getName(),
+                $uuid,
+                $utterance->isPcm() ? $pcm : $lame,
+                $content_type,
+                $duration
+            );
+        } catch (\Throwable $error)
+        {
+            @umask($mask);
+
+            $this->logError($error);
+            throw SpeechSynthesisException::make('An error occured during speech synthesis');
+        } finally
+        {
+            @ob_end_clean();
+        }
+    }
+
+    public function getVoices(?string $lang = null): array
+    {
+        static $key = 'edge-voice-list';
+
+        $list       = $this->cache->get($key);
+
+        if ( ! $list)
+        {
+            try
+            {
+                $list = $this->client->getVoices();
+                $this->cache->set('edge-voice-list', $list, 600);
+            } catch (\Throwable $exception)
+            {
+                $this->logError($exception);
+                return [];
+            }
+        }
+
+        if ($lang)
+        {
+            $lang = trim(str_replace('_', '-', $lang));
+        }
+
+        $result     = [];
+
+        foreach ($list as $voice)
+        {
+            $locale    = var_get('Locale', $voice);
+            $shortName = var_get('ShortName', $voice);
+
+            if ( ! $lang || str_contains(strtolower($locale), strtolower($lang)) || $shortName === $lang)
+            {
+                $result[] = SpeechSynthesisVoice::make([
+                    'lang'         => var_get('Locale', $voice),
+                    'name'         => var_get('ShortName', $voice),
+                    'friendlyName' => trim(explode(' - ', var_get('FriendlyName', $voice, $shortName))[0]),
+                    'voiceUri'     => sprintf('%s://%s', $this->getName(), $shortName),
+                ]);
+            }
+        }
+
+        return $result;
+    }
+
+    public function getFile(string $identifier): ?\FileResponseView
+    {
+        $files = [$identifier];
+
+        if ( ! preg_match('#\.\w+$#', $identifier))
+        {
+            $files = ["{$identifier}.mp3", "{$identifier}.wav"];
+        }
+
+        foreach ($files as $file)
+        {
+            $path = resolve_path($this->storage, $file);
+
+            if (is_file($path))
+            {
+                return \FileResponseView::newResponse()->setFile($path);
+            }
+        }
+        return null;
+    }
+
+    public function hasVoice(string $name): bool
+    {
+        $voices = $this->getVoices();
+        return ! empty($voices) && array_any($voices, fn (SpeechSynthesisVoice $voice) => $voice->getName() === $name);
+    }
+}

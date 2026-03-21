@@ -1,0 +1,97 @@
+/* Components: Forms > Select */
+
+/*
+	BROWSER CONSISTENCY WARNING:
+	Select (especially Size and Multiple) are notoriously difficult to style
+	consistently cross-browser, so all styles adhere to progress enhancement.
+	We've styled this element within the confines of that browser's capabilities.
+*/
+
+@utility select {
+  --tw-ring-inset: inset;
+  --tw-ring-color: var(--color-surface-200-800);
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 var(--default-ring-width) var(--tw-ring-color, currentColor);
+  display: block;
+  width: 100%;
+  padding-block: --spacing(1);
+
+  /* Size */
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+
+  /*
+		WARNING
+		Do not set `padding-inline` or it breaks
+		the native drop-down arrow for selects.
+	*/
+
+  /* Edges */
+  outline-color: transparent;
+  background-color: transparent;
+  border-width: 0;
+  border-radius: var(--radius-base);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow);
+
+  @variant active {
+    --tw-ring-color: var(--color-primary-500);
+  }
+  @variant focus {
+    --tw-ring-color: var(--color-primary-500);
+  }
+  @variant focus-within {
+    --tw-ring-color: var(--color-primary-500);
+  }
+
+  /* Multiple & Size --- */
+
+  & > * + * {
+    margin-top: --spacing(2);
+  }
+
+  &[multiple] {
+    padding: --spacing(1);
+    border-radius: var(--radius-container);
+
+    & optgroup,
+    & option {
+      background-color: transparent;
+    }
+  }
+
+  &[size] {
+    padding: --spacing(1);
+    border-radius: var(--radius-container);
+
+    & optgroup,
+    & option {
+      background-color: transparent;
+    }
+  }
+
+  /* Optgroup --- */
+
+  & optgroup {
+    color: var(--color-surface-950-50);
+    background-color: var(--color-surface-50-950);
+  }
+
+  & optgroup > * + * {
+    margin-top: --spacing(2);
+  }
+
+  & optgroup option:first-of-type {
+    margin-top: --spacing(2);
+  }
+  & optgroup option:last-child {
+    margin-bottom: --spacing(2) !important;
+  }
+
+  /* Option --- */
+
+  & option {
+    color: var(--color-surface-950-50);
+    background-color: var(--color-surface-50-950);
+  }
+}

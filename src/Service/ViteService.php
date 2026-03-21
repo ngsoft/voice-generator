@@ -39,7 +39,7 @@ class ViteService implements \Stringable
         return $this;
     }
 
-    public function getHtml(array|string|null $entrypoint = null): string
+    public function getHtml(array|string|null $entrypoint = null, $load_client = false): string
     {
         if ( ! $this->canLoad)
         {
@@ -54,7 +54,7 @@ class ViteService implements \Stringable
             return '';
         }
 
-        $client = empty($this->loaded);
+        $client = empty($this->loaded) || $load_client;
         $load   = [];
 
         foreach (( ! is_array($entrypoint) ? [$entrypoint] : $entrypoint) as $asset)

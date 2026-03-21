@@ -13,9 +13,44 @@ class OpenApiResponseView implements \JsonSerializable
     /** @var array<array<string,mixed>|string> */
     private static $__properties = [];
 
+    public function __debugInfo(): ?array
+    {
+        return $this->attributes;
+    }
+
     final public function jsonSerialize(): array
     {
         return $this->attributes;
+    }
+
+    /**
+     * Extends dto attributes using another dto.
+     */
+    final public function extend(array|\JsonSerializable|self $instance): static
+    {
+        if ($this === $instance)
+        {
+            return $this;
+        }
+
+        $data = $instance;
+
+        if ($instance instanceof self)
+        {
+            $data = $instance->getAttributes();
+        } elseif ($instance instanceof \JsonSerializable)
+        {
+            $data = $instance->jsonSerialize();
+        }
+
+        foreach ($data as $key => $value)
+        {
+            if (is_string($key))
+            {
+                $this->attributes[$key] = $value;
+            }
+        }
+        return $this;
     }
 
     final public function toResponse(int $status = 200): JsonResponse
@@ -102,7 +137,7 @@ class OpenApiResponseView implements \JsonSerializable
 
             foreach ($reflector->getProperties() as $property)
             {
-                if ( ! $property->isPublic() || $property->isStatic())
+                if (( ! $property->isProtected() && ! $property->isPublic()) || $property->isStatic())
                 {
                     continue;
                 }

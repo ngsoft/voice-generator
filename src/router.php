@@ -5,22 +5,21 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 // load tailwind theme
 vite('app/app.css');
-$logger  = Services::getLogger();
-$request = Services::getRequest();
-$router  = Services::getRouter();
 
-if ($router)
-{
+$logger = Services::getLogger();
+$request = Services::getRequest();
+$router = Services::getRouter();
+
+if ($router) {
     $router->prepend(ExceptionMiddleware::class);
 
     $response = $router->handle($request);
     $router->emit($response);
 
-    $path     = $request->getPathInfo();
+    $path = $request->getPathInfo();
 
     // log response
-    if ($response instanceof JsonResponse)
-    {
+    if ($response instanceof JsonResponse) {
         $log = str_format('RESPONSE %s%s[%s][code:%d]%s', [
             $request->getMethod(),
             "[path={$path}]",
@@ -28,8 +27,7 @@ if ($router)
             $response->getStatusCode(),
             env_get('APP_DEBUG') ? $response->getContent() : '',
         ]);
-    } else
-    {
+    } else {
         $log = str_format('RESPONSE %s%s[%s][code:%d]', [
             $request->getMethod(),
             "[path={$path}]",

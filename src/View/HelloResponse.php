@@ -9,16 +9,16 @@ use Record\User;
 class HelloResponse extends SuccessResponse
 {
     #[OA\Property(description: 'Hello message', type: 'string', example: 'Hello {name}!', nullable: false)]
-    public ?string $message    = '';
+    public ?string $message       = '';
 
     #[OA\Property(description: 'api url', nullable: false)]
-    public string $url         = '';
+    protected string $url         = '';
 
     #[OA\Property(description: 'web url', nullable: false)]
-    public string $page_url    = '';
+    protected string $page_url    = '';
 
     #[OA\Property(description: 'User', nullable: true)]
-    public ?UserResponse $user = null;
+    protected ?UserResponse $user = null;
 
     public function setUrl(string $url): static
     {

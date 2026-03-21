@@ -1,0 +1,59 @@
+/* Components: Chips */
+
+@utility chip {
+  display: inline-flex;
+  flex-direction: row;
+  gap: --spacing(2);
+  align-items: center;
+  justify-content: center;
+  padding-block: --spacing(1);
+  padding-inline: --spacing(3);
+
+  /* Size */
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  white-space: nowrap;
+
+  /* Typography */
+  text-decoration-line: none;
+  border-radius: var(--radius-base);
+  transition-timing-function: var(--default-transition-timing-function);
+  transition-duration: var(--default-transition-duration);
+
+  /* Transitions */
+  transition-property: all;
+
+  @variant hover {
+    filter: brightness(125%);
+    @variant dark {
+      filter: brightness(75%);
+    }
+  }
+}
+
+@utility chip-icon {
+  box-sizing: content-box;
+
+  /* Center Icons */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--text-xs);
+  height: var(--text-xs);
+  padding: --spacing(1.5);
+
+  /* Size */
+  font-size: var(--text-xs);
+  white-space: nowrap;
+
+  /* Typography */
+  text-decoration-line: none;
+  border-radius: var(--radius-base);
+
+  @variant hover {
+    filter: brightness(125%);
+    @variant dark {
+      filter: brightness(75%);
+    }
+  }
+}

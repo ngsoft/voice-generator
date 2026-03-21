@@ -32,6 +32,28 @@ abstract class BaseController
         throw new NotFoundHttpException();
     }
 
+    final protected function decodeJsonBody(Request $request, ?array $defaultValue = null): ?array
+    {
+        if ($content = $this->getJsonBody($request))
+        {
+            $value = json_decode($content, true);
+            return is_array($value) ? $value : $defaultValue;
+        }
+
+        return $defaultValue;
+    }
+
+    final protected function getJsonBody(Request $request): ?string
+    {
+        $content = $request->getContent();
+
+        if ( ! json_validate($content))
+        {
+            return null;
+        }
+        return $content;
+    }
+
     /**
      * Loads service from Container.
      *

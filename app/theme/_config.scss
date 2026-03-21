@@ -1,0 +1,452 @@
+// core
+@function rempx($size) {
+    @return 1px / $size;
+}
+
+$base-root-font-size: 16px; // Root font sizing for all elements (`px` only)
+
+$__1px: rempx($base-root-font-size) * 1rem; // [Calculated] Calculated rem value of `1px`
+// fonts
+$base-font-family: 'var(--default-font-family)'; // tailwind override
+$code-font-family: 'var(--default-mono-font-family)'; // tailwind override
+$base-line-height: 1.5; // Line height for most elements
+$base-font-size: 1rem; // Font sizing for all elements
+$_body-margin: 0; // [Hidden] Margin for body
+
+// colors
+$fore-color: #111; // Text & foreground color
+$secondary-fore-color: #444; // Secondary text & foreground color
+$back-color: #f8f8f8; // Background color
+$secondary-back-color: #f0f0f0; // Secondary background color
+$blockquote-color: #f57c00; // <blockquote> sidebar and quotation color
+$pre-color: #1565c0; // <pre> sidebar color
+$border-color: #aaa; // Border color
+$secondary-border-color: #ddd; // Secondary border color
+$a-link-color: #0277bd; // Color for <a>:link
+$a-visited-color: #01579b; // Color for <a>:visited
+$card-fore-color: #111; // Text color for the cards.
+$card-back-color: #f8f8f8; // Background color for the cards.
+$card-border-color: #ddd; // Border color for the cards.
+$form-back-color: #f0f0f0; // Background color for forms.
+$form-fore-color: #111; // Text color for forms.
+$form-border-color: #ddd; // Border color for forms.
+$input-back-color: #f8f8f8; // Background color for input elements.
+$input-fore-color: #111; // Text color for input elements.
+$input-border-color: #ddd; // Border color for input elements.
+$input-focus-color: #0288d1; // Border color for focused input elements.
+$input-invalid-color: #d32f2f; // Border color for invalid input elements.
+$button-back-color: #e2e2e2; // Background color for buttons.
+$button-hover-back-color: #dcdcdc; // Background color for buttons (hover).
+$button-fore-color: #212121; // Text color for buttons.
+$button-border-color: transparent; // Border color for buttons.
+$button-hover-border-color: transparent; // Border color for buttons (hover).
+$button-group-border-color: rgba(124, 124, 124, 0.54); // Border color for button groups.
+$header-back-color: #f8f8f8; // Background color for the header element.
+$header-hover-back-color: #f0f0f0; // Background color for the header element (hover).
+$header-fore-color: #444; // Text color for the header element.
+$header-border-color: #ddd; // Border color for the header element.
+$nav-back-color: #f8f8f8; // Background color for the nav element.
+$nav-hover-back-color: #f0f0f0; // Background color for the nav element (hover).
+$nav-fore-color: #444; // Text color for the nav element.
+$nav-border-color: #ddd; // Border color for the nav element.
+$nav-link-color: #0277bd; // Color for link in the nav element.
+$footer-fore-color: #444; // Text color for the footer element.
+$footer-back-color: #f8f8f8; // Background color for footer nav element.
+$footer-border-color: #ddd; // Border color for the footer element.
+$footer-link-color: #0277bd; // Color for link in the footer element.
+$drawer-back-color: #f8f8f8; // Background color for the drawer component.
+$drawer-border-color: #ddd; // Border color for the drawer component.
+$drawer-hover-back-color: #f0f0f0; // Background color for the drawer component's close (hover).
+$drawer-close-color: #444; // Color of the close element for the drawer component.
+$table-border-color: #aaa; // Border color for <table> elements.
+$table-border-separator-color: #666; // Border color for the border between <thead> and <tbody>.
+$table-th-back-color: #e6e6e6; // Background color for <th> elements.
+$table-th-fore-color: #111; // Text color for <th> elements.
+$table-td-back-color: #f8f8f8; // Background color for <td> elements.
+$table-td-fore-color: #111; // Text color for <td> elements.
+$table-td-alt-back-color: #eee; // Alternative background color for <td> elements in striped tables.
+$table-td-hover-back-color: #90caf9; // Hover background color for <td> elements in hoverable tables.
+$mark-back-color: #0277bd; // Background color for <mark>
+$mark-fore-color: #fafafa; // Text color for <mark>
+$toast-back-color: #424242; // Background color for toast component
+$toast-fore-color: #fafafa; // Text color for toast component
+$tooltip-back-color: #212121; // Background color for tooltip component
+$tooltip-fore-color: #fafafa; // Text color for tooltip component
+$modal-overlay-color: rgba(0, 0, 0, 0.45); // Overlay color for modal dialog component
+$modal-close-color: #444; // Text color for the close button of the modal dialog component
+$modal-close-hover-back-color: #f0f0f0; // Background color for the close button of the modal dialog component (on hover/focus)
+$collapse-label-back-color: #e8e8e8; // Background color for labels in the collapse component
+$collapse-label-fore-color: #212121; // Text color for labels in the collapse component
+$collapse-label-hover-back-color: #f0f0f0; // Background color for labels in the collapse component (hover)
+$collapse-selected-label-back-color: #ececec; // Background color for selected labels in the collapse component
+$collapse-border-color: #ddd; // Border color for collapse component
+$collapse-selected-label-border-color: #0277bd; // Border color for collapse component's selected labels
+$collapse-content-back-color: #fafafa; // Background color for collapse component's content panes
+$progress-back-color: #ddd; // Background color of <progress>.
+$progress-fore-color: #555; // Foreground color of <progress>.
+$spinner-donut-back-color: #ddd; // Background color for spinner donuts
+$spinner-donut-fore-color: #555; // Foreground color for spinner donuts
+$border-generic-color: rgba(0, 0, 0, 0.3); // Border color for bordered elements.
+$card-warning-back-color: #ffca28; // Background color for card warnging color variant.
+$card-warning-fore-color: #111; // Text color for card warnging color variant.
+$card-warning-border-color: #e8b825; // Border style for card warnging color variant.
+$card-error-back-color: #b71c1c; // Background color for card error color variant.
+$card-error-fore-color: #f8f8f8; // Text color for card error color variant.
+$card-error-border-color: #a71a1a; // Border style for card error color variant.
+$card-section-dark-back-color: #e0e0e0; // Background color for card dark section variant.
+$card-section-dark-fore-color: #111; // Text color for card dark section variant.
+$button-primary-back-color: #1976d2; // Background color for primary button color variant.
+$button-primary-hover-back-color: #1565c0; // Background color for primary button color variant (hover).
+$button-primary-fore-color: #f8f8f8; // Text color for primary button color variant.
+$button-secondary-back-color: #d32f2f; // Background color for secondary button color variant.
+$button-secondary-hover-back-color: #c62828; // Background color for secondary button color variant (hover).
+$button-secondary-fore-color: #f8f8f8; // Text color for secondary button color variant.
+$button-tertiary-back-color: #308732; // Background color for tertiary button color variant.
+$button-tertiary-hover-back-color: #277529; // Background color for tertiary button color variant (hover).
+$button-tertiary-fore-color: #f8f8f8; // Text color for tertiary button color variant.
+$button-inverse-back-color: #212121; // Background color for inverse button color variant.
+$button-inverse-hover-back-color: #111; // Background color for inverse button color variant (hover).
+$button-inverse-fore-color: #f8f8f8; // Text color for inverse button color variant.
+$mark-secondary-back-color: #d32f2f; // Background color for secondary <mark> color variant.
+$mark-tertiary-back-color: #308732; // Background color for tertiary <mark> color variant.
+$progress-primary-fore-color: #1976d2; // Foreground color for primary <progress> color variant.
+$progress-secondary-fore-color: #d32f2f; // Foreground color for secondary <progress> color variant.
+$progress-tertiary-fore-color: #308732; // Foreground color for tertiary <progress> color variant.
+$spinner-donut-primary-fore-color: #1976d2; // Foreground color for primary spinner donut color variant.
+$spinner-donut-secondary-fore-color: #d32f2f; // Foreground color for secondary spinner donut color variant.
+$spinner-donut-tertiary-fore-color: #308732; // Foreground color for tertiary spinner donut color variant.
+
+// dark mode
+$fore-dark-color: #fdfdfd;
+$secondary-fore-dark-color: #f0f0f0;
+$back-dark-color: #111;
+$secondary-back-dark-color: #222;
+$blockquote-dark-color: #f57c00;
+$pre-dark-color: #1565c0;
+$border-dark-color: #ddd;
+$secondary-border-dark-color: #aaa;
+$a-link-dark-color: #65a0c7;
+$a-visited-dark-color: #3985b7;
+$card-fore-dark-color: #fdfdfd;
+$card-back-dark-color: #111;
+$card-border-dark-color: #aaa;
+$card-warning-back-dark-color: #ffca28;
+$card-warning-fore-dark-color: #111;
+$card-warning-border-dark-color: #e8b825;
+$card-error-back-dark-color: #b71c1c;
+$card-error-fore-dark-color: #f8f8f8;
+$card-error-border-dark-color: #a71a1a;
+$card-section-dark-back-dark-color: #e0e0e0;
+$card-section-dark-fore-dark-color: #111;
+$form-back-dark-color: #222;
+$form-fore-dark-color: #fdfdfd;
+$form-border-dark-color: #aaa;
+$input-back-dark-color: #111;
+$input-fore-dark-color: #fdfdfd;
+$input-border-dark-color: #aaa;
+$input-focus-dark-color: #0288d1;
+$input-invalid-dark-color: #d32f2f;
+$button-back-dark-color: #212121;
+$button-hover-back-dark-color: #444;
+$button-fore-dark-color: #e2e2e2;
+$button-border-dark-color: transparent;
+$button-hover-border-dark-color: transparent;
+$button-group-border-dark-color: rgba(124, 124, 124, 0.54);
+$button-primary-back-dark-color: #1976d2;
+$button-primary-hover-back-dark-color: #1565c0;
+$button-primary-fore-dark-color: #f8f8f8;
+$button-secondary-back-dark-color: #d32f2f;
+$button-secondary-hover-back-dark-color: #c62828;
+$button-secondary-fore-dark-color: #f8f8f8;
+$button-tertiary-back-dark-color: #308732;
+$button-tertiary-hover-back-dark-color: #277529;
+$button-tertiary-fore-dark-color: #f8f8f8;
+$button-inverse-back-dark-color: #f8f8f8;
+$button-inverse-hover-back-dark-color: #f0f0f0;
+$button-inverse-fore-dark-color: #212121;
+$header-back-dark-color: #111;
+$header-hover-back-dark-color: #222;
+$header-fore-dark-color: #f0f0f0;
+$header-border-dark-color: #aaa;
+$nav-back-dark-color: #111;
+$nav-hover-back-dark-color: #222;
+$nav-fore-dark-color: #f0f0f0;
+$nav-border-dark-color: #aaa;
+$nav-link-dark-color: #0277bd;
+$footer-fore-dark-color: #f0f0f0;
+$footer-back-dark-color: #111;
+$footer-border-dark-color: #aaa;
+$footer-link-dark-color: #0277bd;
+$drawer-back-dark-color: #111;
+$drawer-border-dark-color: #aaa;
+$drawer-hover-back-dark-color: #222;
+$drawer-close-dark-color: #f0f0f0;
+$table-border-dark-color: #ddd;
+$table-border-separator-dark-color: #666;
+$table-th-back-dark-color: #212121;
+$table-th-fore-dark-color: #fdfdfd;
+$table-td-back-dark-color: #111;
+$table-td-fore-dark-color: #fdfdfd;
+$table-td-alt-back-dark-color: #444;
+$table-td-hover-back-dark-color: #5c819f;
+$mark-back-dark-color: #0277bd;
+$mark-fore-dark-color: #fafafa;
+$toast-back-dark-color: #424242;
+$toast-fore-dark-color: #fafafa;
+$tooltip-back-dark-color: #fafafa;
+$tooltip-fore-dark-color: #212121;
+$modal-overlay-dark-color: rgba(0, 0, 0, 0.45);
+$modal-close-dark-color: #f0f0f0;
+$modal-close-hover-back-dark-color: #222;
+$collapse-label-back-dark-color: #111;
+$collapse-label-fore-dark-color: #fafafa;
+$collapse-label-hover-back-dark-color: #222;
+$collapse-selected-label-back-dark-color: #444;
+$collapse-border-dark-color: #aaa;
+$collapse-selected-label-border-dark-color: #0277bd;
+$collapse-content-back-dark-color: #212121;
+$mark-secondary-back-dark-color: #d32f2f;
+$mark-tertiary-back-dark-color: #308732;
+$progress-back-dark-color: #aaa;
+$progress-fore-dark-color: #555;
+$spinner-donut-back-dark-color: #ddd;
+$spinner-donut-fore-dark-color: #555;
+$progress-primary-fore-dark-color: #1976d2;
+$progress-secondary-fore-dark-color: #d32f2f;
+$progress-tertiary-fore-dark-color: #308732;
+$spinner-donut-primary-fore-dark-color: #1976d2;
+$spinner-donut-secondary-fore-dark-color: #d32f2f;
+$spinner-donut-tertiary-fore-dark-color: #308732;
+$border-generic-dark-color: rgba(0, 0, 0, 0.3);
+
+// breakpoints (--breakpoint-md, --breakpoint-xl in tailwind)
+$grid-medium-breakpoint: 768px; // Medium screen breakpoint for grid.
+$grid-large-breakpoint: 1280px; // Large screen breakpoint for grid.
+$input-group-mobile-breakpoint: 767px; // Breakpoint for fluid input group mobile view.
+$button-group-mobile-breakpoint: 767px; // Mobile breakpoint for button groups.
+$drawer-mobile-breakpoint: 768px; // Mobile breakpoint for the drawer component.
+$table-mobile-breakpoint: 768px; // Breakpoint for <table> mobile view.
+$responsive-margin-medium-breakpoint: 768px; // Medium screen breakpoint for responsive margin elements.
+$responsive-margin-large-breakpoint: 1280px; // Medium screen breakpoint for responsive margin elements.
+$responsive-padding-medium-breakpoint: 768px; // Medium screen breakpoint for responsive padding elements.
+$responsive-padding-large-breakpoint: 1280px; // Medium screen breakpoint for responsive padding elements.
+$hidden-medium-breakpoint: 768px; // Medium screen breakpoint for responsive hidden elements.
+$hidden-large-breakpoint: 1280px; // Medium screen breakpoint for responsive hidden elements.
+$visually-hidden-medium-breakpoint: 768px; // Medium screen breakpoint for responsive visually hidden elements.
+$visually-hidden-large-breakpoint: 1280px; // Medium screen breakpoint for responsive visually hidden elements.
+
+// settings
+$_apply-defaults-to-all: false; // [Hidden] Apply defaults to all elements? (boolean)
+$_include-parent-layout: true; // [Hidden] Flag for rows defining column layouts (`true`/`false`).
+$_include-fluid-input-group: true; // [Hidden] Should fluid input groups be included? (boolean)
+$_header-only-bottom-border: true; // [Hidden] Apply styling only to the bottom border of header? (boolean)
+$_header-links-uppercase: false; // [Hidden] Should header links and buttons be uppercase? (boolean)
+$_footer-only-top-border: true; // [Hidden] Apply styling only to the top border of footer? (boolean)
+$_drawer-right: true; // [Hidden] Should the drawer appear on the right side of the screen?
+$_include-horizontal-table: true; // [Hidden] Flag for horizontal tables (`true`/`false`).
+$_include-hoverable-table: true; // [Hidden] Flag for striped tables.
+$_include-striped-table: true; // [Hidden] Flag for striped tables.
+$_include-toast: true; // [Hidden] Should toasts be included? (boolean)
+$_include-tooltip: true; // [Hidden] Should tooltips be included? (boolean)
+$_include-modal: true; // [Hidden] Should modal dialogs be included? (boolean)
+$_include-collapse: true; // [Hidden] Should collapse components be included? (boolean)
+$_include-spinner-donut: true; // [Hidden] Should spinner donuts be included? (boolean)
+
+// others
+$heading-line-height: 1.2; // Line height for headings
+$heading-ratio: 1.19; // Ratio for headings (strictly unitless)
+$subheading-font-size: 0.75em; // Font sizing for <small> elements in headings
+$subheading-top-margin: -0.25rem; // Top margin of <small> elements in headings
+$universal-margin: 0.5rem; // Universal margin for the most elements
+$universal-padding: 0.5rem; // Universal padding for the most elements
+$universal-border-radius: 0.125rem; // Universal border-radius for most elements
+$universal-box-shadow: none; // Universal box-shadow for most elements
+$small-font-size: 0.75em; // Font sizing for <small> elements
+$heading-font-weight: 500; // Font weight for headings
+$bold-font-weight: 700; // Font weight for <b> and <strong>
+$horizontal-rule-line-height: 1.25em; // <hr> line height
+$blockquote-quotation-size: 3rem; // Font size for the quotation of <blockquote>
+$blockquote-cite-size: 0.75em; // Font size for the [cite] of <blockquote>
+$code-font-size: 0.85em; // Font size for <code>, <kbd>
+$small-element-font-size: 0.75em; // Font size for <small>, <sub>, <sup>
+$sup-top: -0.5em; // <sup> top
+$sub-bottom: -0.25em; // <sub> bottom
+
+// layout
+
+$grid-column-count: 12; // Number of columns in the grid (integer value only).
+$grid-container-name: 'container'; // Class name for the grid system container.
+$grid-row-name: 'row'; // Class name for the grid system rows.
+$grid-row-parent-layout-prefix: 'cols'; // Class name prefix for the grid's row parents.
+$grid-column-prefix: 'col'; // Class name prefix for the grid's columns.
+$grid-column-offset-suffix: 'offset'; // Class name suffix for the grid's offsets.
+$grid-order-normal-suffix: 'normal'; // Class name suffix for grid columns with normal priority.
+$grid-order-first-suffix: 'first'; // Class name suffix for grid columns with highest priority.
+$grid-order-last-suffix: 'last'; // Class name suffix for grid columns with lowest priorty.
+$grid-small-prefix: 'sm'; // Small screen class prefix for grid.
+$grid-medium-prefix: 'md'; // Medium screen class prefix for grid.
+$grid-large-prefix: 'lg'; // Large screen class prefix for grid.
+$card-name: 'card'; // Class name for the cards.
+$card-section-name: 'section'; // Class name for the cards' sections.
+$card-section-media-name: 'media'; // Class name for the cards' sections (media cotent).
+$card-normal-width: 320px; // Width for normal cards.
+$card-section-media-height: 200px; // Height for cards' media sections.
+
+// input_control
+$input-group-name: 'input-group'; // Class name for input groups.
+$input-group-fluid-name: 'fluid'; // Class name for fluid input groups.
+$input-group-vertical-name: 'vertical'; // Class name for vertical input groups.
+$button-class-name: 'button'; // Class name for elements styled as buttons.
+$input-disabled-opacity: 0.75; // Opacity for input elements when disabled.
+$button-group-name: 'button-group'; // Class name for button groups.
+
+// navigation
+$header-height: 3.1875rem; // Height of the header element.
+$header-logo-name: 'logo'; // Class name for the header logo element.
+$header-logo-font-size: 1.75rem; // Font ize for the header logo element.
+$nav-sublink-prefix: 'sublink'; // Prefix for the subcategory tabs in nav.
+$nav-sublink-depth: 2; // Amount of subcategory classes to add.
+$footer-font-size: 0.875rem; // Font size for text in footer element.
+$sticky-name: 'sticky'; // Class name for sticky headers and footers.
+$drawer-name: 'drawer'; // Class name for the drawer component.
+$drawer-toggle-name: 'drawer-toggle'; // Class name for the drawer component's toggle.
+$drawer-toggle-font-size: 1.5em; // Font size for the drawer component's toggle. (prefer em units)
+$drawer-persistent-name: 'persistent'; // Class name for the persisten variant of the drawer component.
+$drawer-width: 320px; // Width of the drawer component.
+$drawer-close-name: 'drawer-close'; // Class name of the close element for the drawer component.
+$drawer-close-size: 2rem; // Size of the close element for the drawer component.
+
+// table
+$table-max-height: 400px; // Maximum height of <table> elements (non-horizontal).
+$table-caption-font-size: 1.5rem; // Font size for <caption> elements.
+$table-mobile-card-label: 'data-label'; // Attribute used to replace column headers in mobile view.
+$table-mobile-label-font-weight: 600; // Font weight for column header labels in mobile view.
+$table-horizontal-name: 'horizontal'; // Class name for horizontal <table> elements.
+$table-striped-name: 'striped'; // Class name for striped <table> elements.
+$table-hoverable-name: 'hoverable'; // Class name for hoverable <table> elements.
+
+// contextual
+
+$mark-font-size: 0.95em; // Font size for <mark>
+$mark-line-height: 1em; // Line height for <mark>
+$mark-inline-block-name: 'inline-block'; // Class name for inline-block <mark>
+$toast-name: 'toast'; // Class name for toast component
+$tooltip-name: 'tooltip'; // Class name for tooltip component
+$tooltip-bottom-name: 'bottom'; // Bottom tooltip class name
+$modal-name: 'modal'; // Class name for modal dialog component
+$modal-close-name: 'modal-close'; // Class name for modal dialog close button
+$modal-close-size: 1.75rem; // Font size for the close button of the modal dialog component
+$collapse-name: 'collapsible'; // Class name for collapse component
+$collapse-label-height: 1.5rem; // Height for the labels in the collapse component
+$collapse-content-max-height: 400px; // Max height for the content panes in the collapse component
+
+// progress
+$progress-height: 0.75rem; // Height of <progress>.
+$progress-max-value: 1000; // Arithmetic max value of <progress> - use integer values.
+$progress-inline-name: 'inline'; // Class name for inline <progress> elements.
+$progress-inline-width: 60%; // Width of inline <progress> elements.
+$spinner-donut-name: 'spinner'; // Class name for spinner donuts
+$spinner-donut-size: 1.25rem; // Size of the spinner donuts
+$spinner-donut-border-thickness: 0.25rem; // Border thickness for spinner donuts
+
+// utility
+$hidden-name: 'hidden'; // Class name for hidden elements.
+$visually-hidden-name: 'visually-hidden'; // Class name for visually hidden elements.
+$border-generic-name: 'bordered'; // Class name for bordered elements.
+$border-rounded-name: 'rounded'; // Class name for rounded-border elements.
+$border-circular-name: 'circular'; // Class name for circular-border elements.
+$box-shadow-generic-name: 'shadowed'; // Class name for box-shadow elements.
+$box-shadow-generic:
+    0 4 * $__1px 4 * $__1px 0 rgba(0, 0, 0, 0.125),
+    0 2 * $__1px 2 * $__1px -2 * $__1px rgba(0, 0, 0, 0.25);
+$responsive-margin-name: 'responsive-margin'; //Class name for responsive margin elements.
+$responsive-padding-name: 'responsive-padding'; //Class name for responsive padding elements.
+$hidden-prefix: 'hidden'; // Class prefix for responsive hidden elements.
+$hidden-small-suffix: 'sm'; // Class suffix for responsive hidden elements.
+$hidden-medium-suffix: 'md'; // Class suffix for responsive hidden elements.
+$hidden-large-suffix: 'lg'; // Class suffix for responsive hidden elements.
+$visually-hidden-prefix: 'visually-hidden'; // Class prefix for responsive visually hidden elements.
+$visually-hidden-small-suffix: 'sm'; // Class suffix for responsive hidden elements.
+$visually-hidden-medium-suffix: 'md'; // Class suffix for responsive hidden elements.
+$visually-hidden-large-suffix: 'lg'; // Class suffix for responsive hidden elements.
+
+// css vars, do not modify
+$fore-color-var: '--fore-color';
+$secondary-fore-color-var: '--secondary-fore-color';
+$back-color-var: '--back-color';
+$secondary-back-color-var: '--secondary-back-color';
+$blockquote-color-var: '--blockquote-color';
+$pre-color-var: '--pre-color';
+$border-color-var: '--border-color';
+$secondary-border-color-var: '--secondary-border-color';
+$heading-ratio-var: '--heading-ratio';
+$universal-margin-var: '--universal-margin';
+$universal-padding-var: '--universal-padding';
+$universal-border-radius-var: '--universal-border-radius';
+$universal-box-shadow-var: '--universal-box-shadow';
+$a-link-color-var: '--a-link-color';
+$a-visited-color-var: '--a-visited-color';
+$card-fore-color-var: '--card-fore-color';
+$card-back-color-var: '--card-back-color';
+$card-border-color-var: '--card-border-color';
+$header-fore-color-var: '--header-fore-color';
+$header-back-color-var: '--header-back-color';
+$header-hover-back-color-var: '--header-hover-back-color';
+$header-border-color-var: '--header-border-color';
+$nav-fore-color-var: '--nav-fore-color';
+$nav-back-color-var: '--nav-back-color';
+$nav-hover-back-color-var: '--nav-hover-back-color';
+$nav-border-color-var: '--nav-border-color';
+$nav-link-color-var: '--nav-link-color';
+$footer-fore-color-var: '--footer-fore-color';
+$footer-back-color-var: '--footer-back-color';
+$footer-border-color-var: '--footer-border-color';
+$footer-link-color-var: '--footer-link-color';
+$drawer-back-color-var: '--drawer-back-color';
+$drawer-border-color-var: '--drawer-border-color';
+$drawer-hover-back-color-var: '--drawer-hover-back-color';
+$drawer-close-color-var: '--drawer-close-color';
+$form-back-color-var: '--form-back-color';
+$form-fore-color-var: '--form-fore-color';
+$form-border-color-var: '--form-border-color';
+$input-back-color-var: '--input-back-color';
+$input-fore-color-var: '--input-fore-color';
+$input-border-color-var: '--input-border-color';
+$input-focus-color-var: '--input-focus-color';
+$input-invalid-color-var: '--input-invalid-color';
+$button-back-color-var: '--button-back-color';
+$button-hover-back-color-var: '--button-hover-back-color';
+$button-fore-color-var: '--button-fore-color';
+$button-border-color-var: '--button-border-color';
+$button-hover-border-color-var: '--button-hover-border-color';
+$button-group-border-color-var: '--button-group-border-color';
+$table-border-color-var: '--table-border-color';
+$table-border-separator-color-var: '--table-border-separator-color';
+$table-th-back-color-var: '--table-head-back-color';
+$table-th-fore-color-var: '--table-head-fore-color';
+$table-td-back-color-var: '--table-body-back-color';
+$table-td-fore-color-var: '--table-body-fore-color';
+$table-td-alt-back-color-var: '--table-body-alt-back-color';
+$table-td-hover-back-color-var: '--table-body-hover-back-color';
+$mark-back-color-var: '--mark-back-color';
+$mark-fore-color-var: '--mark-fore-color';
+$toast-back-color-var: '--toast-back-color';
+$toast-fore-color-var: '--toast-fore-color';
+$tooltip-back-color-var: '--tooltip-back-color';
+$tooltip-fore-color-var: '--tooltip-fore-color';
+$modal-overlay-color-var: '--modal-overlay-color';
+$modal-close-color-var: '--modal-close-color';
+$modal-close-hover-back-color-var: '--modal-close-hover-color';
+$collapse-label-back-color-var: '--collapse-label-back-color';
+$collapse-label-fore-color-var: '--collapse-label-fore-color';
+$collapse-label-hover-back-color-var: '--collapse-label-hover-back-color';
+$collapse-selected-label-back-color-var: '--collapse-selected-label-back-color';
+$collapse-border-color-var: '--collapse-border-color';
+$collapse-content-back-color-var: '--collapse-content-back-color';
+$collapse-selected-label-border-color-var: '--collapse-selected-label-border-color';
+$progress-back-color-var: '--progress-back-color';
+$progress-fore-color-var: '--progress-fore-color';
+$spinner-donut-back-color-var: '--spinner-back-color';
+$spinner-donut-fore-color-var: '--spinner-fore-color';
+$border-generic-color-var: '--generic-border-color';
+$box-shadow-generic-var: '--generic-box-shadow';

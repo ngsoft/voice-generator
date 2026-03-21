@@ -315,18 +315,3 @@ call_user_func(function ()
         });
     }
 });
-
-/**
- * Migrate databases on dev env.
- */
-call_user_func(function ()
-{
-    if (is_dev())
-    {
-        if ( ! SqlConnector::tryConnect() && SqlConnector::hasDatabaseConfiguration('sqlite'))
-        {
-            SqlConnector::changeDefaultConnection('sqlite', 'mariadb');
-        }
-        migrate_database(SqlConnector::getConnection());
-    }
-});

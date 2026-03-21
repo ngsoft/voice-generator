@@ -14,6 +14,7 @@ Config::setMany([
     'openapi.paths'            => [
         // load request|response dtos metadata (class names can be used as schema refs)
         resolve_path('%project_root%/src/View'), resolve_path('%project_root%/src/Model'),
+        resolve_path('%project_root%/src/SpeechSynthesis'),
         // load metadata from controllers
         resolve_path('%project_root%/src/Controller'),
     ],
