@@ -1192,7 +1192,7 @@ if ( ! function_exists('env_get'))
                         $_ENV['SYMFONY_DOTENV_VARS'] = implode(',', $SYMFONY_DOTENV_VARS);
                     }
 
-                    $_ENV['env_get_init'] = true;
+                    $_ENV['env_get_init'] = 'true';
                 });
             }
         }

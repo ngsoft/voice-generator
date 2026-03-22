@@ -12,17 +12,17 @@ use SpeechSynthesis\SpeechSynthesisInterface;
 use SpeechSynthesis\SpeechSynthesisResult;
 use SpeechSynthesis\SpeechSynthesisUtterance;
 use SpeechSynthesis\SpeechSynthesisVoice;
-use Traits\ErrorLoggerTrait;
+use Traits\SynthesisProviderTrait;
 
 readonly class ElevenLabsVoiceProvider implements SpeechSynthesisInterface
 {
-    use ErrorLoggerTrait;
+    use SynthesisProviderTrait;
 
     private string $storage;
 
     private string $base_path;
 
-    public function __construct(private readonly string $api_key, private readonly CacheInterface $cache)
+    public function __construct(private string $api_key, private CacheInterface $cache)
     {
         $this->base_path = 'https://api.elevenlabs.io';
         $this->storage   = resolve_path('%data%/eleven_voice');
@@ -164,33 +164,6 @@ readonly class ElevenLabsVoiceProvider implements SpeechSynthesisInterface
         }
 
         return $result;
-    }
-
-    public function hasVoice(string $name): bool
-    {
-        $voices = $this->getVoices();
-        return ! empty($voices) && array_any($voices, fn (SpeechSynthesisVoice $voice) => $voice->getName() === $name);
-    }
-
-    public function getFile(string $identifier): ?\FileResponseView
-    {
-        $files = [$identifier];
-
-        if ( ! preg_match('#\.\w+$#', $identifier))
-        {
-            $files = ["{$identifier}.mp3", "{$identifier}.wav", "{$identifier}.ogg"];
-        }
-
-        foreach ($files as $file)
-        {
-            $path = resolve_path($this->storage, $file);
-
-            if (is_file($path))
-            {
-                return \FileResponseView::newResponse()->setFile($path);
-            }
-        }
-        return null;
     }
 
     private function query_string(array $input = []): string

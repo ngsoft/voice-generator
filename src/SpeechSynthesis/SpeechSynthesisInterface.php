@@ -26,4 +26,6 @@ interface SpeechSynthesisInterface
     public function hasVoice(string $name): bool;
 
     public function getFile(string $identifier): ?\FileResponseView;
+
+    public function prune(\DateTimeInterface $before);
 }

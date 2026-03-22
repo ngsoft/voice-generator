@@ -17,7 +17,19 @@ use View\VoiceListResponse;
 #[OA\Tag('Speech Synthesis')]
 class SynthesisController extends BaseController
 {
-    public function __construct(private readonly SynthesisProviderStack $synthesisProviderStack) {}
+    private readonly int $ttl;
+
+    public function __construct(private readonly SynthesisProviderStack $synthesisProviderStack)
+    {
+        if ($this->ttl = max(0, (int) env_get('SPEECH_SYNTHESIS_TTL')))
+        {
+            $this->synthesisProviderStack->prune(
+                date_create_immutable(
+                    date('Y-m-d H:i:s', time() - $this->ttl)
+                )
+            );
+        }
+    }
 
     #[OA\Get('/api/voices', 'List Voices', description: 'Get all available voices', tags: ['Speech Synthesis'], parameters: [
         new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
@@ -139,6 +151,7 @@ class SynthesisController extends BaseController
                 new OA\Property('mime', description: 'Mime type of the file', type: 'string', example: 'audio/x-wav', nullable: false),
                 new OA\Property('identifier', description: 'File identifier', type: 'string', nullable: false),
                 new OA\Property('url', description: 'URL to download the file', type: 'string', nullable: false),
+                new OA\Property('expires_at', description: 'Expiry datetime', type: 'string', nullable: true),
             ]),
         ])),
         new OA\MediaType('audio/x-wav', schema: new OA\Schema()),
@@ -166,6 +179,8 @@ class SynthesisController extends BaseController
 
             if (str_contains($accept, 'application/json'))
             {
+                $expires = $this->ttl ? date_create_immutable(date('Y-m-d H:i:s', time() + $this->ttl)) : null;
+
                 return $this->getJsonResponse()->addAttributes([
                     'provider'   => $result->provider,
                     'voice'      => $this->addVoiceUri($this->synthesisProviderStack->getVoice($result->voice, $utterance->getLang(), $result->provider)),
@@ -174,6 +189,7 @@ class SynthesisController extends BaseController
                     'mime'       => $result->content_type,
                     'identifier' => $result->identifier,
                     'url'        => $this->generateUrl('download', ['identifier' => $result->identifier]),
+                    'expires_at' => $expires->format(\DateTimeInterface::ATOM),
                 ])->toResponse();
             }
 

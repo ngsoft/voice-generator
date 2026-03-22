@@ -10,6 +10,7 @@ use SpeechSynthesis\SpeechSynthesisResult;
 use SpeechSynthesis\SpeechSynthesisUtterance;
 use SpeechSynthesis\SpeechSynthesisVoice;
 use Traits\ErrorLoggerTrait;
+use Worker\PidLock;
 
 final class SynthesisProviderStack
 {
@@ -122,5 +123,17 @@ final class SynthesisProviderStack
             $result[$provider->getName()] = $provider->getName();
         }
         return array_values($result);
+    }
+
+    public function prune(\DateTimeInterface $before)
+    {
+        static $lock = 'prune-synthesis';
+        PidLock::lock($lock, 60);
+
+        foreach ($this->providers as $provider)
+        {
+            $provider->prune($before);
+        }
+        PidLock::unlock($lock);
     }
 }
