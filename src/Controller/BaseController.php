@@ -34,7 +34,7 @@ abstract class BaseController
 
     final protected function decodeJsonBody(Request $request, ?array $defaultValue = null): ?array
     {
-        if ($content = $this->getJsonBody($request))
+        if ($content = $this->jsonBody($request))
         {
             $value = json_decode($content, true);
             return is_array($value) ? $value : $defaultValue;
@@ -43,7 +43,7 @@ abstract class BaseController
         return $defaultValue;
     }
 
-    final protected function getJsonBody(Request $request): ?string
+    final protected function jsonBody(Request $request): ?string
     {
         $content = $request->getContent();
 
@@ -79,7 +79,7 @@ abstract class BaseController
         return $this->get(\JsonResponseView::class);
     }
 
-    final protected function toErrorJsonResponse(int $code = 500): \JsonResponseView
+    final protected function toErrorResponse(int $code = 500): \JsonResponseView
     {
         return \JsonResponseView::newResponse()->setStatusCode($code)->setError(
             \CurlHandler::getReasonPhrase($code)

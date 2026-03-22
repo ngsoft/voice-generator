@@ -4,6 +4,7 @@ export interface IMiddleware<IN, OUT> {
 
 export interface IFetchHeaders {
     [key: string]: string;
+
     forEach?: any;
 }
 
@@ -35,7 +36,9 @@ export interface IFetchResponseCacheOptions {
 // Represents the storage engine functionality
 export interface ICacheMiddlewareStore {
     setItem(key: string, value: string): void;
+
     getItem(key: string): string | undefined;
+
     removeItem(key: string): void;
 }
 

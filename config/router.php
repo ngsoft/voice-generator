@@ -2,6 +2,7 @@
 
 // register routes/actions
 
+use Controller\Action\TranslateAction;
 use Controller\OpenApiController;
 use Controller\SynthesisController;
 use Middleware\AccessControlMiddleware;
@@ -25,24 +26,27 @@ return function (Router $router)
             ->setName('api_doc_download');
     })->add(AccessControlMiddleware::make('LOCAL_ACL', '^127.0,::1,^192.168'));
 
-    // api group
+    // api group protected by api key and global ACL
     $router->group('/api', function (RouteGroup $router)
     {
-        $api_key = RequiredHeaderMiddleware::make([
-            'X-Api-Key' => env_get('API_KEY', '', false),
-        ], 401);
-
-        $router->get('/voices', [SynthesisController::class, 'getvoices'])->add($api_key)
+        $router->get('/voices', [SynthesisController::class, 'getvoices'])
             ->setName('voices');
-        $router->get('/voice/{provider}/{lang}/{name}', [SynthesisController::class, 'getvoice'])->add($api_key)
+        $router->get('/voice/{provider}/{lang}/{name}', [SynthesisController::class, 'getvoice'])
             ->setName('voice');
-        $router->post('/speak', [SynthesisController::class, 'speak'])->add($api_key)
+        $router->post('/speak', [SynthesisController::class, 'speak'])
             ->setName('speak');
-        $router->get('/providers', [SynthesisController::class, 'getproviders'])->add($api_key);
+        $router->get('/providers', [SynthesisController::class, 'getproviders']);
+    })->add(AccessControlMiddleware::make('GLOBAL_ACL', '*'))->add(RequiredHeaderMiddleware::make([
+        'X-Api-Key' => env_get('API_KEY', '', false),
+    ], 401))->add(JsonHttpErrorMiddleware::class)->add(CorsMiddleware::class);
+
+    // api group protected by global ACL only
+    $router->group('/api', function (RouteGroup $router)
+    {
         $router->get('/speak/download/{identifier}', [SynthesisController::class, 'download'])
             ->setName('download');
-    })->add(AccessControlMiddleware::make('GLOBAL_ACL', '*'))
-        ->add(JsonHttpErrorMiddleware::class)->add(CorsMiddleware::class);
+        $router->post('/translate', TranslateAction::class);
+    })->add(AccessControlMiddleware::make('GLOBAL_ACL', '*'))->add(JsonHttpErrorMiddleware::class)->add(CorsMiddleware::class);
 
     $router->get('/', fn (Request $request) => load_action($request, 'page/home'))
         ->setName('app_index');

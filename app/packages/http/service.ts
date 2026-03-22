@@ -1,4 +1,4 @@
-import { basePath, tap } from '$sdk';
+import {basePath, tap} from '$sdk';
 import {
     Client,
     ContentTypeMiddleware,
@@ -9,21 +9,21 @@ import {
     WrapMiddleware,
 } from './client';
 
-export class Sdk extends Service {
-    public static instance?: Sdk;
+export class HttpClient extends Service {
+    public static instance?: HttpClient;
 
-    public static getInstance(baseUrl?: string): Sdk {
+    public static getInstance(baseUrl?: string): HttpClient {
         return (this.instance ??= this.createClient(baseUrl ?? basePath()));
     }
 
-    public static createClient(baseUrl: string): Sdk {
-        const client = tap(new Client({ baseUrl }), (c: Client) => {
+    public static createClient(baseUrl: string): HttpClient {
+        const client = tap(new Client({baseUrl}), (c: Client) => {
             c.addMiddleware(new HttpErrorMiddleware());
             c.addMiddleware(new WrapMiddleware());
             c.addMiddleware(new ContentTypeMiddleware());
             c.addMiddleware(new FormDataMiddleware());
         });
-        return new Sdk(client);
+        return new HttpClient(client);
     }
 
     async request<T = any>(url: string, options?: IFetchRequest & { data?: Record<string, any> }): Promise<T> {
