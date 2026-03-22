@@ -2,7 +2,7 @@
 
 namespace SpeechSynthesis;
 
-use Service\PcmAudioConverter;
+use Service\AudioConverter;
 
 readonly class SpeechSynthesisResult
 {
@@ -70,6 +70,6 @@ readonly class SpeechSynthesisResult
 
     public function getHumanReadableDuration(): string
     {
-        return PcmAudioConverter::secToTimeMicro($this->duration);
+        return AudioConverter::secToTimeMicro($this->duration);
     }
 }

@@ -79,6 +79,13 @@ abstract class BaseController
         return $this->get(\JsonResponseView::class);
     }
 
+    final protected function toErrorJsonResponse(int $code = 500): \JsonResponseView
+    {
+        return \JsonResponseView::newResponse()->setStatusCode($code)->setError(
+            \CurlHandler::getReasonPhrase($code)
+        );
+    }
+
     /**
      * Generates a URL from the given parameters.
      */

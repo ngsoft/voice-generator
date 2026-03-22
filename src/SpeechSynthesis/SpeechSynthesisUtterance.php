@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SpeechSynthesis;
 
+use Enum\AudioFormat;
 use Model\DataModel;
 use OpenApi\Attributes as OA;
 use Sql\ValidationError;
@@ -15,22 +16,22 @@ use Sql\ValidationError;
 class SpeechSynthesisUtterance extends DataModel
 {
     #[OA\Property(description: 'A string containing the text that will be synthesized when the utterance is spoken.', nullable: false)]
-    protected string $text  = '';
+    protected string $text         = '';
     #[OA\Property(description: 'Language of the utterance.', example: 'fr-FR', nullable: false)]
-    protected string $lang  = '';
+    protected string $lang         = '';
     #[OA\Property(description: 'Voice that will be used to speak the utterance.', nullable: false)]
-    protected string $voice = '';
+    protected string $voice        = '';
 
     #[OA\Property(description: 'Speed at which the utterance will be spoken at.', nullable: true, maximum: 10.0, minimum: 0.1)]
-    protected float $rate   = 1.0;
+    protected float $rate          = 1.0;
     #[OA\Property(description: 'Pitch at which the utterance will be spoken at.', nullable: true, maximum: 2.0, minimum: 0.0)]
-    protected float $pitch  = 1.0;
+    protected float $pitch         = 1.0;
 
     #[OA\Property(description: 'Pitch at which the utterance will be spoken at.', nullable: true, maximum: 2.0, minimum: 0.0)]
-    protected float $volume = 1.0;
+    protected float $volume        = 1.0;
 
-    #[OA\Property(description: 'Convert audio file to PCM (wav).', nullable: true)]
-    protected bool $pcm     = false;
+    #[OA\Property(description: 'Audio format.', type: 'string', nullable: true, enum: AudioFormat::class)]
+    protected ?AudioFormat $format = null;
 
     public function getText(): string
     {
@@ -57,14 +58,14 @@ class SpeechSynthesisUtterance extends DataModel
         return $this->pitch;
     }
 
-    public function isPcm(): bool
-    {
-        return $this->pcm;
-    }
-
     public function getVolume(): float
     {
         return $this->volume;
+    }
+
+    public function getFormat(): ?AudioFormat
+    {
+        return $this->format;
     }
 
     protected function validateData(array $data)
@@ -123,9 +124,9 @@ class SpeechSynthesisUtterance extends DataModel
             }
         }
 
-        if (isset($data['pcm']))
+        if (isset($data['format']) && ! ($data['format'] = AudioFormat::tryFrom($data['format'])))
         {
-            $data['pcm'] = $this->toBool($data['pcm']);
+            throw ValidationError::make('format must includes %s', $this->getEnumValues(AudioFormat::class));
         }
 
         parent::validateData($data);

@@ -15,40 +15,41 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return function (Router $router)
 {
+    // api docs
     $router->group('/api', function (RouteGroup $router)
     {
-        // voice list
+        // OpenApi + Redocly
+        $router->get('/doc', OpenApiController::class);
+        $router->get('/doc.json', OpenApiController::class);
+        $router->get('/doc.yaml', OpenApiController::class)
+            ->setName('api_doc_download');
+    })->add(AccessControlMiddleware::make('LOCAL_ACL', '^127.0,::1,^192.168'));
 
-        $acl     = AccessControlMiddleware::make('GLOBAL_ACL', '*');
-        $local   = AccessControlMiddleware::make('LOCAL_ACL', '^127.0,::1,^192.168');
+    // api group
+    $router->group('/api', function (RouteGroup $router)
+    {
         $api_key = RequiredHeaderMiddleware::make([
             'X-Api-Key' => env_get('API_KEY', '', false),
         ], 401);
 
-        $router->get('/voices', [SynthesisController::class, 'getvoices'])->add($api_key)->add($acl)
+        $router->get('/voices', [SynthesisController::class, 'getvoices'])->add($api_key)
             ->setName('voices');
-        $router->get('/voice/{provider}/{name}', [SynthesisController::class, 'getvoice'])->add($api_key)->add($acl)
+        $router->get('/voice/{provider}/{lang}/{name}', [SynthesisController::class, 'getvoice'])->add($api_key)
             ->setName('voice');
-        $router->post('/speak', [SynthesisController::class, 'speak'])->add($api_key)->add($acl)
+        $router->post('/speak', [SynthesisController::class, 'speak'])->add($api_key)
             ->setName('speak');
-        $router->get('/speak/download/{identifier}', [SynthesisController::class, 'download'])->add($acl)
+        $router->get('/providers', [SynthesisController::class, 'getproviders'])->add($api_key);
+        $router->get('/speak/download/{identifier}', [SynthesisController::class, 'download'])
             ->setName('download');
-
-        // OpenApi + Redocly
-        $router->get('/doc', OpenApiController::class)->add($local);
-        $router->get('/doc.json', OpenApiController::class)->add($local);
-        $router->get('/doc.yaml', OpenApiController::class)->add($local)
-            ->setName('api_doc_download');
-
-        // fallback route, to be added last
-        $router->get('/{path:.*}', fn () => throw new NotFoundHttpException());
-    })->add(JsonHttpErrorMiddleware::class)->add(CorsMiddleware::class);
+    })->add(AccessControlMiddleware::make('GLOBAL_ACL', '*'))
+        ->add(JsonHttpErrorMiddleware::class)->add(CorsMiddleware::class);
 
     $router->get('/', fn (Request $request) => load_action($request, 'page/home'))
         ->setName('app_index');
 
     $router->get('/500', fn (Request $request) => load_action($request, 'error/500'));
 
-    // fallback route, to be added last
+    // fallback routes, to be added last
+    $router->get('/api/{path:.*}', fn () => throw new NotFoundHttpException());
     $router->get('/{path:.*}', fn (Request $request) => load_action($request, 'error/404'));
 };

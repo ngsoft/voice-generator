@@ -9,6 +9,7 @@ use NGSOFT\Routing\RouteGenerator;
 use NGSOFT\Routing\Routing;
 use NGSOFT\Vite\Adapter\ViteAdapter;
 use OpenApi\Annotations\OpenApi;
+use Provider\ElevenLabsVoiceProvider;
 use Provider\MicrosoftEdgeVoiceProvider;
 use Provider\SynthesisProviderStack;
 use Psr\Cache\CacheItemPoolInterface;
@@ -75,9 +76,16 @@ return function (Container $container)
                 is_dev() ? 'dev' : 'prod'
             )
         ),
-        SynthesisProviderStack::class => fn (Container $container) => new SynthesisProviderStack([
-            $container->get(MicrosoftEdgeVoiceProvider::class),
-        ]),
+        SynthesisProviderStack::class => function (Container $container)
+        {
+            $stack = [$container->get(MicrosoftEdgeVoiceProvider::class)];
+
+            if ($eleven = env_get('ELEVEN_API_KEY', '', false))
+            {
+                $stack[] = $container->make(ElevenLabsVoiceProvider::class, ['api_key' => $eleven]);
+            }
+            return new SynthesisProviderStack($stack);
+        },
     ]);
 
     $container->alias(TranslatorInterface::class, Translator::class);

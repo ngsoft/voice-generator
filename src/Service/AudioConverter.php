@@ -4,9 +4,9 @@ namespace Service;
 
 use Symfony\Component\Process\Process;
 
-readonly class PcmAudioConverter
+readonly class AudioConverter
 {
-    public static function convert(string $input, string $output): bool
+    public static function convert(string $input, string $output, bool $eraseInput = false): bool
     {
         if ($input === $output)
         {
@@ -21,7 +21,36 @@ readonly class PcmAudioConverter
 
         $proc->run();
 
-        return $proc->isSuccessful() && is_file($output);
+        if ($proc->isSuccessful() && is_file($output))
+        {
+            $eraseInput && @unlink($input);
+            return true;
+        }
+        @unlink($output);
+        return false;
+    }
+
+    public static function convertOgg(string $input, string $output, bool $eraseInput = false): bool
+    {
+        if ($input === $output)
+        {
+            return is_file($input);
+        }
+
+        $proc = Process::fromShellCommandline(sprintf(
+            'ffmpeg -i "%s" -acodec libvorbis -ar 16000 "%s"',
+            $input,
+            $output
+        ));
+        $proc->run();
+
+        if ($proc->isSuccessful() && is_file($output))
+        {
+            $eraseInput && @unlink($input);
+            return true;
+        }
+        @unlink($output);
+        return false;
     }
 
     public static function getMediaDuration(string $input): float

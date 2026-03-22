@@ -3,9 +3,10 @@
 namespace Provider;
 
 use Afaya\EdgeTTS\Service\EdgeTTS;
+use Enum\AudioFormat;
 use Psr\SimpleCache\CacheInterface;
 use Ramsey\Uuid\Uuid;
-use Service\PcmAudioConverter;
+use Service\AudioConverter;
 use SpeechSynthesis\SpeechSynthesisException;
 use SpeechSynthesis\SpeechSynthesisInterface;
 use SpeechSynthesis\SpeechSynthesisResult;
@@ -31,23 +32,20 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 
     public function speak(SpeechSynthesisUtterance $utterance): SpeechSynthesisResult
     {
-        $mask = @umask(0);
-
         if ($utterance->isError())
         {
             throw SpeechSynthesisException::make('Invalid SpeechSynthesisUtterance');
         }
 
+        $mask = @umask(0);
+        @ob_start();
+
         try
         {
-            @ob_start();
             $uuid         = Uuid::uuid4()->toString();
-            $content_type = 'audio/x-mpeg';
+            $content_type = 'audio/mpeg';
             $dest         = resolve_path($this->storage, $uuid);
-            $lame         = "{$dest}.mp3";
-            $pcm          = "{$dest}.wav";
-
-            dump($dest);
+            $file         = "{$dest}.mp3";
             @mkdir(dirname($dest), 0777, true);
 
             $options      = [
@@ -80,40 +78,49 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
                 $options['volume'] = sprintf('+%d', floor(100 * ($utterance->getVolume() - 1))) . '%';
             }
 
-            dump($options);
-
             $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options);
             $this->client->toFile($dest);
 
-            $duration     = PcmAudioConverter::getMediaDuration($lame);
+            $duration     = AudioConverter::getMediaDuration($file);
 
-            if ($utterance->isPcm())
+            if ($format = $utterance->getFormat())
             {
-                if ( ! PcmAudioConverter::convert($lame, $pcm))
+                if (AudioFormat::PCM === $format)
                 {
-                    @unlink($pcm);
-                    throw SpeechSynthesisException::make('PCM Conversion error');
+                    if ( ! AudioConverter::convert($file, $format->addExtension($dest), true))
+                    {
+                        @unlink($file);
+                        throw SpeechSynthesisException::make('PCM Conversion error');
+                    }
                 }
-                @unlink($lame);
-                $content_type = 'audio/x-wav';
+
+                if (AudioFormat::OGG === $format)
+                {
+                    if ( ! AudioConverter::convertOgg($file, $format->addExtension($dest), true))
+                    {
+                        @unlink($file);
+                        throw SpeechSynthesisException::make('OGG Conversion error');
+                    }
+                }
+                $file         = $format->addExtension($dest);
+                $content_type = $format->mime();
             }
 
             return new SpeechSynthesisResult(
                 $this->getName(),
                 $utterance->getVoice(),
                 $uuid,
-                $utterance->isPcm() ? $pcm : $lame,
+                $file,
                 $content_type,
                 $duration
             );
         } catch (\Throwable $error)
         {
-            @umask($mask);
-
             $this->logError($error);
             throw SpeechSynthesisException::make('An error occured during speech synthesis');
         } finally
         {
+            @umask($mask);
             @ob_end_clean();
         }
     }
@@ -129,7 +136,7 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
             try
             {
                 $list = $this->client->getVoices();
-                $this->cache->set('edge-voice-list', $list, 600);
+                ! empty($list) && $this->cache->set($key, $list, 600);
             } catch (\Throwable $exception)
             {
                 $this->logError($exception);
@@ -169,7 +176,7 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 
         if ( ! preg_match('#\.\w+$#', $identifier))
         {
-            $files = ["{$identifier}.mp3", "{$identifier}.wav"];
+            $files = ["{$identifier}.mp3", "{$identifier}.wav", "{$identifier}.ogg"];
         }
 
         foreach ($files as $file)

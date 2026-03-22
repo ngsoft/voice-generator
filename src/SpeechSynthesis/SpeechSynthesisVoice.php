@@ -46,6 +46,97 @@ class SpeechSynthesisVoice extends OpenApiResponseView
     )]
     protected ?string $voiceInfoUri = null;
 
+    private array $data             = [];
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return static
+     */
+    public function setData(array $data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return static
+     */
+    public function addData(array $data)
+    {
+        foreach ($data as $name => $value)
+        {
+            if (is_string($name))
+            {
+                $this->addMeta($name, $value);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return static
+     */
+    public function addMeta(string $name, mixed $value)
+    {
+        if ( ! $this->hasMeta($name))
+        {
+            $this->setMeta($name, $value);
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return static
+     */
+    public function setMeta(string $name, mixed $value)
+    {
+        $this->data = array_replace($this->data, [$name => $value]);
+
+        if (null === $value)
+        {
+            unset($this->data[$name]);
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getMeta(string $name, mixed $default = null)
+    {
+        return $this->getData()[$name] ?? value($default, $name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasMeta(string $name): bool
+    {
+        return $this !== $this->getMeta($name, $this);
+    }
+
     public function isDefault(): bool
     {
         return $this->getAttribute('default', $this->default);

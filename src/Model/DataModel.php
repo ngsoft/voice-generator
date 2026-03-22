@@ -200,12 +200,21 @@ abstract class DataModel implements \IteratorAggregate
 
     /**
      * @param \BackedEnum|class-string<\BackedEnum> $enum
+     * @param bool                                  $toString
      *
-     * @return array
+     * @return int[]|string|string[]
+     *
+     * @psalm-return ($toString is true ? string : string[]|int[])
      */
-    protected function getEnumValues(\BackedEnum|string $enum): array
+    protected function getEnumValues(\BackedEnum|string $enum, bool $toString = false): array|string
     {
-        return array_map(fn (\BackedEnum $case) => $case->value, $enum::cases());
+        $result = array_map(fn (\BackedEnum $case) => $case->value, $enum::cases());
+
+        if ($toString)
+        {
+            return implode(',', $result);
+        }
+        return $result;
     }
 
     protected function validateData(array $data)

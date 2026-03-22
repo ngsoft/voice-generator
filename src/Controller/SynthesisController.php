@@ -24,6 +24,7 @@ class SynthesisController extends BaseController
         new OA\QueryParameter(name: 'search', description: 'Locale of the voice', allowEmptyValue: true),
         new OA\QueryParameter(name: 'limit', description: 'Number of results per page', allowEmptyValue: true),
         new OA\QueryParameter(name: 'page', description: 'page number', allowEmptyValue: true),
+        new OA\QueryParameter(name: 'provider', description: 'provider name', allowEmptyValue: true),
     ])]
     #[OA\Response(
         response: 200,
@@ -40,6 +41,8 @@ class SynthesisController extends BaseController
     #[OA\Response(response: 404, description: 'Not Found', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
     public function getvoices(Request $request): JsonResponse
     {
+        $provider    = $request->query->get('provider');
+
         $searchModel = SearchModel::make($request->query->all());
 
         if ($searchModel->isError())
@@ -47,7 +50,7 @@ class SynthesisController extends BaseController
             return \JsonResponseView::newBadRequest($searchModel->getError())->toResponse();
         }
 
-        $list        = $this->synthesisProviderStack->getVoices($searchModel->getSearch());
+        $list        = $this->synthesisProviderStack->getVoices($searchModel->getSearch(), $provider);
 
         if (empty($list))
         {
@@ -62,8 +65,34 @@ class SynthesisController extends BaseController
         ])->toResponse();
     }
 
-    #[OA\Get('/api/voice/{provider}/{name}', 'Voice informations', description: 'Get voice informations', tags: ['Speech Synthesis'], parameters: [
+    #[OA\Get('/api/providers', 'Voice providers', description: 'Get voice providers list', tags: ['Speech Synthesis'], parameters: [
         new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
+    ])]
+    #[OA\Response(
+        response: 200,
+        description: 'ok',
+        content: new OA\MediaType(
+            'application/json',
+            schema: new OA\Schema(allOf: [
+                new OA\Schema(SuccessResponse::class),
+                new OA\Schema(properties: [
+                    new OA\Property('providers', description: 'provider list', type: 'array', items: new OA\Items(type: 'string')),
+                ]),
+            ])
+        )
+    )]
+    #[OA\Response(response: 403, description: 'Forbidden', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
+    public function getProviders(): JsonResponse
+    {
+        return SuccessResponse::make([])->extend(['providers' => $this->synthesisProviderStack->listProviders()])
+            ->toResponse();
+    }
+
+    #[OA\Get('/api/voice/{provider}/{lang}/{name}', 'Voice informations', description: 'Get voice informations', tags: ['Speech Synthesis'], parameters: [
+        new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
+        new OA\PathParameter(name: 'provider', example: 'edge'),
+        new OA\PathParameter(name: 'lang', example: 'en-US'),
+        new OA\PathParameter(name: 'name', example: '0123456789'),
     ])]
     #[OA\Response(
         response: 200,
@@ -78,9 +107,9 @@ class SynthesisController extends BaseController
     )]
     #[OA\Response(response: 403, description: 'Forbidden', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
     #[OA\Response(response: 404, description: 'Not Found', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
-    public function getvoice(string $provider, string $name): JsonResponse
+    public function getvoice(string $provider, string $lang, string $name): JsonResponse
     {
-        $result = $this->synthesisProviderStack->getVoice($name, $provider);
+        $result = $this->synthesisProviderStack->getVoice($name, $lang, $provider);
 
         if ( ! $result)
         {
@@ -139,7 +168,7 @@ class SynthesisController extends BaseController
             {
                 return $this->getJsonResponse()->addAttributes([
                     'provider'   => $result->provider,
-                    'voice'      => $this->addVoiceUri($this->synthesisProviderStack->getVoice($result->voice, $result->provider)),
+                    'voice'      => $this->addVoiceUri($this->synthesisProviderStack->getVoice($result->voice, $utterance->getLang(), $result->provider)),
                     'seconds'    => $result->duration,
                     'duration'   => $result->getHumanReadableDuration(),
                     'mime'       => $result->content_type,
@@ -182,7 +211,7 @@ class SynthesisController extends BaseController
     }
 
     /**
-     * @param SpeechSynthesisVoice|SpeechSynthesisVoice[] $voices
+     * @param null|SpeechSynthesisVoice|SpeechSynthesisVoice[] $voices
      *
      * @return null|array|SpeechSynthesisVoice
      */
@@ -206,14 +235,15 @@ class SynthesisController extends BaseController
             $uri      = $voice->getVoiceUri();
             $params   = parse_url($uri);
             $provider = $params['scheme'] ?? '';
-            $name     = $params['host']       ?? $voice->getName();
+            $name     = $params['host']   ?? $voice->getName();
+            $lang     = $voice->getLang();
 
             if ($provider && $name)
             {
                 $voice->setVoiceInfoUri(
                     $this->generateUrl(
                         'voice',
-                        compact('name', 'provider')
+                        compact('name', 'provider', 'lang')
                     )
                 );
             }

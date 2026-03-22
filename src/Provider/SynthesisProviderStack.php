@@ -27,7 +27,7 @@ final class SynthesisProviderStack
     {
         foreach ($providers as $provider)
         {
-            $this->add($provider);
+            $provider && $this->add($provider);
         }
     }
 
@@ -52,18 +52,30 @@ final class SynthesisProviderStack
         throw new SpeechSynthesisException('No provider found for this utterance.');
     }
 
-    public function getVoices(?string $lang = null): array
+    public function getVoices(?string $lang = null, ?string $provider = null): array
     {
         $result = [];
 
-        foreach ($this->providers as $provider)
+        $index  = 0;
+
+        foreach ($this->providers as $service)
         {
-            $result = array_merge($result, $provider->getVoices($lang));
+            if ( ! $provider || $provider === $service->getName())
+            {
+                foreach ($service->getVoices($lang) as $voice)
+                {
+                    $name                      = $voice->getFriendlyName();
+                    $result["{$name}{$index}"] = $voice;
+                    ++$index;
+                }
+            }
         }
-        return $result;
+        ksort($result);
+
+        return array_values($result);
     }
 
-    public function getVoice(string $name, ?string $useProvider = null): ?SpeechSynthesisVoice
+    public function getVoice(string $name, ?string $lang = null, ?string $useProvider = null): ?SpeechSynthesisVoice
     {
         $providers = array_filter(
             $this->providers,
@@ -76,7 +88,10 @@ final class SynthesisProviderStack
             {
                 if ($name === $voice->getName())
                 {
-                    return $voice;
+                    if ( ! $lang || $lang === $voice->getLang())
+                    {
+                        return $voice;
+                    }
                 }
             }
         }
@@ -93,5 +108,19 @@ final class SynthesisProviderStack
             }
         }
         return null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function listProviders(): array
+    {
+        $result = [];
+
+        foreach ($this->providers as $provider)
+        {
+            $result[$provider->getName()] = $provider->getName();
+        }
+        return array_values($result);
     }
 }
