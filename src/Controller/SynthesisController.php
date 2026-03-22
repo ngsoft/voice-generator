@@ -84,7 +84,7 @@ class SynthesisController extends BaseController
     #[OA\Response(response: 403, description: 'Forbidden', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
     public function getProviders(): JsonResponse
     {
-        return SuccessResponse::make([])->extend(['providers' => $this->synthesisProviderStack->listProviders()])
+        return SuccessResponse::make()->extend(['providers' => $this->synthesisProviderStack->listProviders()])
             ->toResponse();
     }
 
@@ -126,8 +126,8 @@ class SynthesisController extends BaseController
         new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
     ])]
     #[OA\Response(response: 200, description: 'ok', headers: [
-        new OA\Header(header: 'X-Media-Duration', description: 'Duration in seconds', allowEmptyValue: true),
-        new OA\Header(header: 'X-Media-Time', description: 'Duration in human readable form', allowEmptyValue: true),
+        new OA\Header(header: 'X-Media-Duration', description: 'Duration in seconds', schema: new OA\Schema(), allowEmptyValue: true),
+        new OA\Header(header: 'X-Media-Time', description: 'Duration in human readable form', schema: new OA\Schema(), allowEmptyValue: true),
     ], content: [
         new OA\MediaType('application/json', schema: new OA\Schema(allOf: [
             new OA\Schema(SuccessResponse::class),
@@ -177,11 +177,11 @@ class SynthesisController extends BaseController
                 ])->toResponse();
             }
 
-            return $result->toFileResponseView((bool) env_get('SPEECH_SYNTHESIS_REMOVAL'))->toResponse();
+            return $result->toFileResponseView()->toResponse();
         } catch (\Throwable $error)
         {
             $this->logError($error);
-            return \JsonResponseView::newInternalError($utterance->getError())->toResponse();
+            return \JsonResponseView::newNotFound()->toResponse();
         }
     }
 
@@ -199,13 +199,6 @@ class SynthesisController extends BaseController
         if ( ! $response)
         {
             return \JsonResponseView::newNotFound()->toResponse();
-        }
-
-        if (env_get('SPEECH_SYNTHESIS_REMOVAL'))
-        {
-            $content = @file_get_contents($response->getFile());
-            @unlink($response->getFile());
-            $response->setFile('')->setContent($content);
         }
         return $response->toResponse();
     }

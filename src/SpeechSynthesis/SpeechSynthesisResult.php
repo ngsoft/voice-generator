@@ -36,16 +36,9 @@ readonly class SpeechSynthesisResult
         return @file_get_contents($this->path) ?: '';
     }
 
-    public function toFileResponseView(bool $pull = false): \FileResponseView
+    public function toFileResponseView(): \FileResponseView
     {
-        $reponse = \FileResponseView::newResponse()->setFileName($this->path);
-
-        if ($pull)
-        {
-            $reponse->setFile('')->setContent($this->pullContent());
-        }
-
-        return $reponse
+        return \FileResponseView::newResponse()->setFileName($this->path)
             ->addHeader('X-Media-Duration', number_format($this->duration, 6, '.', ''))
             ->addHeader('X-Media-Time', $this->getHumanReadableDuration());
     }

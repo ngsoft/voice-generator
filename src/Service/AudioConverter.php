@@ -21,6 +21,13 @@ readonly class AudioConverter
 
         $proc->run();
 
+        if ( ! $proc->isSuccessful())
+        {
+            \ApplicationLogger::getLogger()->warn('ffmpeg conversion failed: %s', [
+                trim($proc->getErrorOutput()),
+            ]);
+        }
+
         if ($proc->isSuccessful() && is_file($output))
         {
             $eraseInput && @unlink($input);
@@ -44,6 +51,13 @@ readonly class AudioConverter
         ));
         $proc->run();
 
+        if ( ! $proc->isSuccessful())
+        {
+            \ApplicationLogger::getLogger()->warn('ffmpeg conversion failed: %s', [
+                trim($proc->getErrorOutput()),
+            ]);
+        }
+
         if ($proc->isSuccessful() && is_file($output))
         {
             $eraseInput && @unlink($input);
@@ -63,6 +77,13 @@ readonly class AudioConverter
             ));
 
             $proc->run();
+
+            if ( ! $proc->isSuccessful())
+            {
+                \ApplicationLogger::getLogger()->warn('ffprobe failed: %s', [
+                    trim($proc->getErrorOutput()),
+                ]);
+            }
 
             if (is_numeric($number = trim($proc->getOutput())))
             {

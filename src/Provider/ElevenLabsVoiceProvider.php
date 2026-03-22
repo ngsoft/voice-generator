@@ -14,17 +14,18 @@ use SpeechSynthesis\SpeechSynthesisUtterance;
 use SpeechSynthesis\SpeechSynthesisVoice;
 use Traits\ErrorLoggerTrait;
 
-class ElevenLabsVoiceProvider implements SpeechSynthesisInterface
+readonly class ElevenLabsVoiceProvider implements SpeechSynthesisInterface
 {
     use ErrorLoggerTrait;
 
     private string $storage;
 
-    private string $base_path = 'https://api.elevenlabs.io';
+    private string $base_path;
 
     public function __construct(private readonly string $api_key, private readonly CacheInterface $cache)
     {
-        $this->storage = resolve_path('%data%/eleven_voice');
+        $this->base_path = 'https://api.elevenlabs.io';
+        $this->storage   = resolve_path('%data%/eleven_voice');
 
         if (empty($this->api_key))
         {

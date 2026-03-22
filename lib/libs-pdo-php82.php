@@ -2,7 +2,7 @@
 /**
  * PHP Dev Tools PDO Edition (Supports SQLite)
  * @author Aymeric Anger
- * @version 26.03.4 build on 2026-03-20
+ * @version 26.03.5 build on 2026-03-22
  * @noinspection ALL
  */
 namespace {
@@ -1174,6 +1174,14 @@ if ( ! function_exists('env_get'))
                             {
                                 $SYMFONY_DOTENV_VARS[] = $newKey;
                             }
+                        }
+                    }
+
+                    foreach ($values as &$value)
+                    {
+                        if (is_array($value))
+                        {
+                            $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                         }
                     }
 
