@@ -53,7 +53,7 @@ readonly class AudioConverter
 
         if ( ! $proc->isSuccessful())
         {
-            \ApplicationLogger::getLogger()->warn('ffmpeg conversion failed: %s', [
+            \Services::getLogger()->warn('ffmpeg conversion failed: %s', [
                 trim($proc->getErrorOutput()),
             ]);
         }
@@ -80,7 +80,7 @@ readonly class AudioConverter
 
             if ( ! $proc->isSuccessful())
             {
-                \ApplicationLogger::getLogger()->warn('ffprobe failed: %s', [
+                \Services::getLogger()->warn('ffprobe failed: %s', [
                     trim($proc->getErrorOutput()),
                 ]);
             }
