@@ -1,16 +1,16 @@
-import {svelte} from '@sveltejs/vite-plugin-svelte';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
-import {defineConfig, type UserConfig} from 'vite';
-import {alias, moveSkeletonClasses, viteConfigurator} from './config/vite';
+import { defineConfig, type UserConfig } from 'vite';
+import { alias, moveSkeletonClasses, viteConfigurator } from './config/vite';
 
 const minify = true;
 const config: UserConfig = {
-    build: {minify, sourcemap: true},
+    build: { minify, sourcemap: true },
     plugins: [
         laravel({
             // those are the endpoints to use with the adapter
-            input: ['app/app.css', 'app/theme/mini.scss', 'app/app.ts'],
+            input: ['app/app.css', 'app/app.ts'],
             // public directory relative to the project root
             publicDirectory: 'public',
             // build directory name relative to public
@@ -23,14 +23,14 @@ const config: UserConfig = {
     ],
     css: {
         preprocessorOptions: {
-            scss: {silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'slash-div']},
+            scss: { silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'slash-div'] },
         },
     },
     resolve: {
-        alias: [alias('@', 'app')],
+        alias: [alias('@', 'app'), alias('$sdk', 'app/packages/sdk'), alias('$packages', 'app/packages')],
         conditions: ['browser'],
     },
-    server: {cors: true},
+    server: { cors: true },
     // do not copy index.php
     publicDir: false,
 };

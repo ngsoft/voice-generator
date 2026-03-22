@@ -2,6 +2,7 @@
 // for information about these interfaces
 declare global {
     interface Window {
+        // unsafeWindow;
         // _; // loadash
         // $: typeof import("jquery");
         // jQuery: typeof import("jquery");

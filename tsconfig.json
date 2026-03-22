@@ -20,7 +20,11 @@
     "lib": ["ESNEXT", "DOM", "DOM.Iterable"],
     "paths": {
       "@": ["./app"],
-      "@/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "$sdk": ["./app/packages/sdk"],
+      "$sdk/*": ["./app/packages/sdk/*"],
+      "$packages": ["./app/packages"],
+      "$packages/*": ["./app/packages/*"]
     }
   },
   "include": ["vite.config.ts", "app/**/*.ts", "app/**/*.js", "app/**/*.svelte"],
