@@ -1,11 +1,14 @@
 import type { CallbackFunction } from './types';
 import { isElement, isValidSelector, runAsync } from './utils';
 
-type FinderCallback = (elem: Document | Element | ShadowRoot | HTMLElement) => void;
+type FinderCallback<T = any> = (elem: Document | Element | ShadowRoot | HTMLElement | T) => void;
 type FinderParams = {
     once?: boolean | undefined | null;
     root?: Document | Element | ShadowRoot | HTMLElement | undefined | null;
 };
+
+type FinderPromise<T = any> = Document | Element | ShadowRoot | HTMLElement | T;
+
 export default function finder(
     selector: string,
     callback: FinderCallback,
@@ -105,7 +108,7 @@ finder.one = (
 finder.promise = (
     selector: string,
     root: Document | Element | ShadowRoot | HTMLElement | null = null
-): Promise<Document | Element | ShadowRoot | HTMLElement> => {
+): Promise<FinderPromise> => {
     return new Promise((resolve) => finder.one(selector, resolve, root));
 };
 

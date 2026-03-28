@@ -28,6 +28,11 @@ trait HasAttributes
         return $this;
     }
 
+    public function clearAttributes(): static
+    {
+        return $this->setAttributes([]);
+    }
+
     public function addAttribute(string|\Stringable $name, mixed $value): static
     {
         if ( ! $this->hasAttribute($name))

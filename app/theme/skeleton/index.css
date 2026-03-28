@@ -4,14 +4,14 @@
 @import "./base/theme.css";
 
 @import "./utilities/core.css";
-@import "./utilities/badges.css";
-@import "./utilities/buttons.css";
+/*@import "./utilities/badges.css";*/
+/*@import "./utilities/buttons.css";*/
 @import "./utilities/cards.css";
-@import "./utilities/chips.css";
-@import "./utilities/dividers.css";
+/*@import "./utilities/chips.css";*/
+/*@import "./utilities/dividers.css";*/
 @import "./utilities/placeholders.css";
 @import "./utilities/presets.css";
-@import "./utilities/tables.css";
+/*@import "./utilities/tables.css";*/
 @import "./utilities/typography.css";
 @import "./utilities/form-core.css";
 @import "./utilities/form-groups.css";

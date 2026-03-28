@@ -18,7 +18,7 @@ class TranslationGeneratorCommand extends Command
     {
         static $re  = '#__\(["\'`](.+)["\'`]\)#iU';
         $outputFile = resolve_path('%project_root%/lang/messages.en.yml');
-        $inputDirs  = [resolve_path('%project_root%/view'), resolve_path('%project_root%/src')];
+        $inputDirs  = [resolve_path('%project_root%/view'), resolve_path('%project_root%/src'), resolve_path('%project_root%/app')];
         $strings    = [];
         $cnt        = 0;
 
@@ -90,6 +90,11 @@ class TranslationGeneratorCommand extends Command
         foreach (iterate_files($dir) as $file)
         {
             if (str_ends_with($file->getFilename(), '.php'))
+            {
+                yield normalize_path($file->getPathname());
+            }
+
+            if (str_ends_with($file->getFilename(), '.ts'))
             {
                 yield normalize_path($file->getPathname());
             }

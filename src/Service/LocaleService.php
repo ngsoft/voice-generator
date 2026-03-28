@@ -66,7 +66,7 @@ class LocaleService
     public static function loadDir($locations, $cacheLocation = null)
     {
         $translator = new Translator(
-            env_get('APP_LANG'),
+            env_get('APP_LANG', ''),
             new MessageFormatter(),
             $cacheLocation
         );
@@ -191,7 +191,6 @@ class LocaleService
     public function setBrowserLocaleFromRequest(Request $request)
     {
         $this->browserLocale = strtolower($request->getPreferredLanguage($this->locales ?: null));
-
         return $this;
     }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<?= $lang ?? env_get('APP_LANG', 'en', false) ?>">
+<html lang="<?= __('app_lang') ?>" data-theme="concord">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

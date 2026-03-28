@@ -13,6 +13,30 @@
 'Please enter your name': 'Veuillez entrer votre nom'
 'is not a valid name.': "n'est pas un nom valide."
 'selected name': 'nom sélectionné'
+'Speech Synthesis Player': 'Lecteur de synthèse vocale'
+'Dark Mode': 'Mode sombre'
+'Voices': 'Voix'
+'Provider': 'Service'
+'All': 'Tous'
+'Languages': 'Langues'
+'Lang & voice': 'Langues & voix'
+'Voice': 'Voix'
+'Select a voice': 'Sélectionner un voix'
+'Format': 'Format de fichier'
+'Message': 'Message'
+'Please input text to be said': 'Veuillez entrer le texte à dire'
+'Settings': 'Paramètres'
+'Speed': 'Vitesse'
+'Pitch': 'Intonation'
+'Volume': 'Volume'
+'Api': 'Api'
+'Gives access to the API': 'Gives access to the API'
+'Cancel': 'Annuler'
+'Confirm': 'Valider'
+'Some fields are not valid.': 'Certaines entrées sont invalides.'
+'An error occurred.': "Une erreur s'est produite."
+'Reset': 'Effacer'
+'Listen': 'Écouter'
 File: "Fichier"
 Line: "Ligne"
 Details: "Détails"

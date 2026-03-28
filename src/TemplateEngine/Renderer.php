@@ -32,6 +32,14 @@ class Renderer
     }
 
     /**
+     * Returns current view attributes.
+     */
+    public function getCurrentAttributes(): ?array
+    {
+        return $this->current_attributes;
+    }
+
+    /**
      * Get Current context
      * Context is accessible to functions when loading views.
      */
@@ -160,23 +168,36 @@ class Renderer
                 @include $this->current_file;
             } catch (\Throwable $error)
             {
+                $this->context->removeAttribute('current_block_name');
+                $this->context->removeAttribute('next-view');
                 @ob_end_clean();
                 @chdir($this->cwd);
                 throw $error;
             }
 
+            // check for start_block() without end_block()
             if ($this->context->hasAttribute('current_block_name'))
             {
-                end_block();
+                // close all buffers
+                do
+                {
+                    $tmp = @ob_end_clean();
+                } while (false !== $tmp);
+                throw new \RuntimeException(
+                    sprintf(
+                        'Block "%s" has not been closed',
+                        $this->context->getAttribute('current_block_name')
+                    )
+                );
             }
 
             @chdir($this->cwd);
             $this->current_content = @ob_get_clean() ?: '';
 
             // view extends view
-            if ($extends = $this->context->pullAttribute('next-view'))
+            if ($this->context->hasAttribute('next-view'))
             {
-                $this->stack[] = $extends;
+                $this->stack[] = $this->context->pullAttribute('next-view');
             }
         }
         return $this->current_content;

@@ -5,6 +5,7 @@
 use NGSOFT\Routing\Interface\UrlGeneratorInterface;
 use Service\ViteService;
 use TemplateEngine\Context;
+use TemplateEngine\EscapeStrategy;
 use TemplateEngine\Renderer;
 
 /**
@@ -97,9 +98,13 @@ function render_asset($asset)
 
 function vite(array|string|null $entrypoints = null): string
 {
+    $context = get_context();
     return tap(
-        Services::make(ViteService::class)->getHtml($entrypoints),
-        fn (string $html) => get_context()->updateAttribute(
+        Services::make(ViteService::class)->getHtml(
+            $entrypoints,
+            ! str_contains($context->getAttribute('vite_block', ''), '@vite/client')
+        ),
+        fn (string $html) => $context->updateAttribute(
             'vite_block',
             fn (string $content) => "{$content}{$html}",
             ''
@@ -195,7 +200,16 @@ function get_context(): Context
     return Renderer::getCurrentContext();
 }
 
-function script(string $url, bool $defer = false, bool $block = false): string
+/**
+ * Create a script tag.
+ *
+ * @param string            $url
+ * @param bool              $defer
+ * @param null|false|string $block block name
+ *
+ * @return string
+ */
+function script(string $url, bool $defer = false, false|string|null $block = 'scripts'): string
 {
     $context = get_context();
     $context->updateAttribute(
@@ -218,7 +232,7 @@ function script(string $url, bool $defer = false, bool $block = false): string
     if ($block)
     {
         $context->updateAttribute(
-            'scripts_block',
+            "{$block}_block",
             fn (string $content) => $content . $html,
             ''
         );
@@ -227,7 +241,15 @@ function script(string $url, bool $defer = false, bool $block = false): string
     return $html;
 }
 
-function style(string $url, bool $block = false): string
+/**
+ * Create a style tag.
+ *
+ * @param string            $url
+ * @param null|false|string $block block name
+ *
+ * @return string
+ */
+function style(string $url, false|string|null $block = 'styles'): string
 {
     $context = get_context();
     $context->updateAttribute(
@@ -249,7 +271,7 @@ function style(string $url, bool $block = false): string
 
     if ($block)
     {
-        $context->updateAttribute('styles_block', fn (string $content) => $content . $html);
+        $context->updateAttribute("{$block}_block", fn (string $content) => $content . $html);
     }
     return $html;
 }
@@ -266,6 +288,9 @@ function set_meta(string $name, string $content)
     );
 }
 
+/**
+ * @param string $name Block name
+ */
 function start_block(string $name)
 {
     $context = get_context();
@@ -279,6 +304,11 @@ function start_block(string $name)
     @ob_start();
 }
 
+/**
+ * Ends a block.
+ *
+ * @return string the block content
+ */
 function end_block(): string
 {
     $context = get_context();
@@ -291,4 +321,90 @@ function end_block(): string
     $content = @ob_get_contents() ?: '';
     $context->setAttribute("block_{$name}", $content);
     return $content;
+}
+
+/**
+ * Escape a string.
+ */
+function escape(string|Stringable $input, EscapeStrategy|string $mode = EscapeStrategy::HTML): string
+{
+    return match ($mode instanceof EscapeStrategy ? $mode->value : $mode)
+    {
+        'html_attr', 'html_attr_relaxed' => value(fn () => preg_replace_callback(match ($mode)
+        {
+            'html_attr'         => '#[^a-zA-Z0-9,\.\-_]#Su',
+            'html_attr_relaxed' => '#[^a-zA-Z0-9,\.\-_:@\[\]]#Su',
+        }, static function (array $matches)
+        {
+            $chr = $matches[0];
+            $ord = \ord($chr[0]);
+
+            if (($ord <= 0x1F && "\t" != $chr && "\n" != $chr && "\r" != $chr) || ($ord >= 0x7F && $ord <= 0x9F))
+            {
+                return '&#xFFFD;';
+            }
+
+            if (1 === \strlen($chr))
+            {
+                return match ($ord)
+                {
+                    34      => '&quot;',
+                    38      => '&amp;',
+                    60      => '&lt;',
+                    62      => '&gt;',
+                    default => \sprintf('&#x%02X;', $ord),
+                };
+            }
+            return \sprintf('&#x%04X;', mb_ord($chr, 'UTF-8'));
+        }, $input)),
+        'html'  => htmlspecialchars($input, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+        'css'   => preg_replace_callback('#[^a-zA-Z0-9]#Su', static function (array $matches)
+        {
+            $char = $matches[0];
+            return \sprintf('\%X ', 1 === \strlen($char) ? \ord($char) : mb_ord($char, 'UTF-8'));
+        }, $input),
+        'js'    => preg_replace_callback('#[^a-zA-Z0-9,._]#Su', static function (array $matches)
+        {
+            $char      = $matches[0];
+
+            if (match ($char)
+            {
+                '\\'    => '\\\\',
+                '/'     => '\/',
+                "\x08"  => '\b',
+                "\x0C"  => '\f',
+                "\x0A"  => '\n',
+                "\x0D"  => '\r',
+                "\x09"  => '\t',
+                default => false,
+            })
+            {
+                return $char;
+            }
+
+            $codepoint = mb_ord($char, 'UTF-8');
+
+            if (0x10000 > $codepoint)
+            {
+                return \sprintf('\u%04X', $codepoint);
+            }
+            $u         = $codepoint - 0x10000;
+            $high      = 0xD800 | ($u >> 10);
+            $low       = 0xDC00 | ($u & 0x3FF);
+            return \sprintf('\u%04X\u%04X', $high, $low);
+        }, $input),
+        'url'   => rawurlencode($input),
+        default => $input,
+    };
+}
+
+/**
+ * Load a view to be included.
+ */
+function include_view(string $name, array $attributes = []): string
+{
+    $context  = get_context();
+    /** @var Renderer $renderer */
+    $renderer = clone $context->getAttribute(Renderer::class);
+    return $renderer->renderView($name, array_replace($renderer->getCurrentAttributes() ?? [], $attributes));
 }

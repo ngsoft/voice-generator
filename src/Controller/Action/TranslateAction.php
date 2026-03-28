@@ -5,8 +5,8 @@ namespace Controller\Action;
 use Controller\BaseController;
 use Interfaces\ActionInterface;
 use OpenApi\Attributes as OA;
+use Service\LocaleService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use View\ErrorResponse;
 use View\SuccessResponse;
 
@@ -29,19 +29,26 @@ use View\SuccessResponse;
 #[OA\Tag('Core Components')]
 class TranslateAction extends BaseController implements ActionInterface
 {
-    public function __construct(private readonly TranslatorInterface $translator) {}
+    public function __construct(private readonly LocaleService $localeService) {}
 
     public function execute(Request $request): \ResponseView
     {
-        $text = var_get('text', $body = $this->decodeJsonBody($request, []));
+        $this->localeService->setBrowserLocaleFromRequest($request);
+
+        $text   = var_get('text', $body = $this->decodeJsonBody($request, []));
 
         if ( ! $text)
         {
             return $this->toErrorResponse(400);
         }
+        $locale = null;
 
+        if ($force = env_get('APP_LANG_FORCED'))
+        {
+            $locale = $force;
+        }
         return SuccessResponse::make([
-            'message' => $this->translator->trans($text, locale: var_get('lang', $body)),
+            'message' => $this->localeService->translate($text, locale: var_get('lang', $body, $locale)),
         ])->toResponseView();
     }
 }

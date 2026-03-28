@@ -233,7 +233,7 @@ class SynthesisController extends BaseController
      *
      * @return null|array|SpeechSynthesisVoice
      */
-    private function addVoiceUri(array|SpeechSynthesisVoice|null $voices): array|SpeechSynthesisVoice|null
+    public function addVoiceUri(array|SpeechSynthesisVoice|null $voices): array|SpeechSynthesisVoice|null
     {
         if ( ! $voices)
         {

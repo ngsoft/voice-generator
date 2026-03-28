@@ -52,7 +52,7 @@ class ViteService implements \Stringable
 
         foreach (( ! is_array($entrypoint) ? [$entrypoint] : $entrypoint) as $asset)
         {
-            if ( ! in_array($asset, $this->loaded))
+            if ($load_client || ! in_array($asset, $this->loaded))
             {
                 $load[]         = $asset;
                 $this->loaded[] = $asset;
