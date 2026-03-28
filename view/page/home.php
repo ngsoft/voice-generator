@@ -9,7 +9,7 @@ vite('app/app.ts');
 
     <p class="flex items-center justify-center mb-4"><?= __('That server is powered by'); ?> <img
             class="inline-block h-6" alt="Vite"
-            src="<?= asset('pictures/vite.svg'); ?>">ite
+            src="<?= asset('assets/pictures/vite.svg'); ?>">ite
     </p>
 
     <button type="button" class="btn preset-filled-primary-500"

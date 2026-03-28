@@ -1,13 +1,11 @@
 <?php
 
-use Interfaces\ActionInterface;
 use JetBrains\PhpStorm\NoReturn;
 use Ramsey\Uuid\Uuid;
 use Service\LoggerService;
 use Sql\Driver;
 use Sql\QueryHelper;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 @define('APP_START', microtime(true));
@@ -553,111 +551,4 @@ function log_exception($exception, $logger = null)
             $exception->getMessage()
         ));
     ApplicationLogger::setBackTrace($backtrace);
-}
-
-/**
- * @param Request                                              $request
- * @param ActionInterface|class-string<ActionInterface>|string $action
- * @param bool                                                 $render
- *
- * @return Response
- */
-function load_action(Request $request, ActionInterface|string $action, $render = false): Response
-{
-    static $fallback = 'error/404';
-
-    $logger          = Services::getLogger();
-
-    /** @var ResponseView $result */
-    $result          = call_user_func(function () use ($request, $action, $logger, $fallback)
-    {
-        ob_start();
-
-        if (is_subclass_of($action, ActionInterface::class))
-        {
-            $path = $action;
-        } else
-        {
-            $path = Action::getActionPath($action);
-        }
-
-        $view = null;
-
-        if ($path instanceof ActionInterface)
-        {
-            $view = $path->execute($request);
-        } elseif (is_subclass_of($path, ActionInterface::class) && ActionInterface::class !== $path)
-        {
-            $view = Services::make($path)->execute($request);
-        } elseif ( ! $path)
-        {
-            $orig   = $action;
-            $action = Action::getView($action) ?? $fallback;
-
-            if ($fallback === $action && str_starts_with($orig, '/api'))
-            {
-                return JsonResponseView::newNotFound();
-            }
-            $view   = Services::getPage()->setView($action)->getResponse();
-        }
-
-        if ( ! $path && ! $view)
-        {
-            return JsonResponseView::newNotFound();
-        }
-
-        if ( ! $view && is_file($path))
-        {
-            // X-API-KEY
-            $key = env_get('API_KEY', '', false);
-
-            if ($key)
-            {
-                if ($request->headers->get('X-API-KEY') !== $key)
-                {
-                    Services::getLogger()->error('X-API-KEY not valid');
-                    return JsonResponseView::newUnauthorized();
-                }
-            }
-
-            try
-            {
-                $view = @include $path;
-            } catch (Throwable $exception)
-            {
-                log_exception($exception, $logger);
-                @ob_end_clean();
-                @ob_start();
-
-                if ($exception instanceof HttpException)
-                {
-                    return JsonResponseView::newResponse()
-                        ->setHeaders($exception->getHeaders())
-                        ->setStatusCode($exception->getStatusCode())
-                        ->setMessage($exception->getMessage() ?: CurlHandler::getReasonPhrase($exception->getStatusCode()))
-                        ->toResponse();
-                }
-
-                if ($exception instanceof InvalidArgumentException)
-                {
-                    return JsonResponseView::newBadRequest();
-                }
-                return JsonResponseView::newInternalError();
-            }
-        }
-
-        if ($view instanceof ResponseView)
-        {
-            return $view;
-        }
-
-        return Services::getResponse();
-    });
-
-    if ($render)
-    {
-        render_response($result);
-    }
-
-    return $result->toResponse();
 }

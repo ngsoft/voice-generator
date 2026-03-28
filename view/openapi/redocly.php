@@ -7,7 +7,7 @@
         <base href="<?= $base ?>/">
     <?php endif; ?>
     <title><?= trim(sprintf('%s - %s', $swagger_data['spec']['info']['title'] ?? '', $swagger_data['spec']['info']['description'] ?? ''), '- ') ?></title>
-    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="shortcut icon" href="<?= asset("favicon.ico") ?>">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
     <style>
         body {
@@ -20,7 +20,7 @@
 </head>
 <body>
 <div id="swagger-ui"></div>
-<script crossorigin src="<?= asset('vendor/redocly/redoc.standalone.js', true) ?>"></script>
+<script crossorigin src="<?= asset('assets/vendor/redocly/redoc.standalone.js', true) ?>"></script>
 <script type="text/javascript">
     (() => {
         function loadRedocly(userOptions = {}) {

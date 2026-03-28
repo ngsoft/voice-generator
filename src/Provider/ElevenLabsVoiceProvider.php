@@ -38,6 +38,11 @@ readonly class ElevenLabsVoiceProvider implements SpeechSynthesisInterface
         return 'elevenlabs';
     }
 
+    public function getDescription(): string
+    {
+        return 'ElevenLabs: Free AI Voice Generator & Voice Agents Platform';
+    }
+
     public function speak(SpeechSynthesisUtterance $utterance): SpeechSynthesisResult
     {
         if ($utterance->isError())

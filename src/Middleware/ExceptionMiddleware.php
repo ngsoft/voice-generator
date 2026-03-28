@@ -8,6 +8,7 @@ use Reindeer\SymfonyMiddleware\Contracts\RequestHandlerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use TemplateEngine\Renderer;
 use View\ErrorResponse;
 
 /**
@@ -17,7 +18,7 @@ class ExceptionMiddleware implements HighPriorityMiddlewareInterface, RequestHan
 {
     private ?Response $response = null;
 
-    public function __construct(private readonly CorsMiddleware $corsMiddleware) {}
+    public function __construct(private readonly CorsMiddleware $corsMiddleware, private readonly Renderer $renderer) {}
 
     /**
      * Request handler used to get response from CorsMiddleware
@@ -65,12 +66,13 @@ class ExceptionMiddleware implements HighPriorityMiddlewareInterface, RequestHan
                 return $this->corsMiddleware->process($request, $this);
             }
 
-            return \Services::getPage()->setView(
-                404 === $code ? 'error/404' : 'error/500'
-            )->getResponse(env_get('APP_DEBUG', false) ? [
-                'code'   => $code,
-                'reason' => \CurlHandler::getReasonPhrase($code),
-            ] : [])->toResponse();
+            return $this->renderer->render(
+                404 === $code ? 'error/404' : 'error/500',
+                env_get('APP_DEBUG', false) ? [
+                    'code'   => $code,
+                    'reason' => \CurlHandler::getReasonPhrase($code),
+                ] : []
+            );
         }
     }
 }

@@ -15,7 +15,6 @@ class ViteService implements \Stringable
 
     public function __construct(
         private readonly ViteAdapter $viteAdapter,
-        private readonly \HtmlPage $page,
         private readonly LoggerService $logger,
     ) {
         if (empty($endpoints = env_get('APP_VITE_ENDPOINTS')))
@@ -31,12 +30,6 @@ class ViteService implements \Stringable
     public function __toString(): string
     {
         return $this->getHtml();
-    }
-
-    public function load(array|string|null $entrypoint = null): static
-    {
-        $this->page->addHead($this->getHtml($entrypoint));
-        return $this;
     }
 
     public function getHtml(array|string|null $entrypoint = null, $load_client = false): string

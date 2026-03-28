@@ -2,7 +2,7 @@
 /**
  * PHP Dev Tools PDO Edition (Supports SQLite)
  * @author Aymeric Anger
- * @version 26.03.5 build on 2026-03-22
+ * @version 26.03.5 build on 2026-03-23
  * @noinspection ALL
  */
 namespace {
@@ -1177,11 +1177,11 @@ if ( ! function_exists('env_get'))
                         }
                     }
 
-                    foreach ($values as &$value)
+                    foreach (array_keys($values) as $index)
                     {
-                        if (is_array($value))
+                        if (is_array($values[$index]))
                         {
-                            $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                            $values[$index] = json_encode($values[$index], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                         }
                     }
 

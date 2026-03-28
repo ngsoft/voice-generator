@@ -1,0 +1,9 @@
+@import "tailwindcss";
+/*@import "./tom-select.css";*/
+
+@plugin "@tailwindcss/forms" {
+  strategy: "class";
+}
+
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:where(.dark, .dark *));

@@ -5,7 +5,7 @@
 
 @import "./utilities/core.css";
 @import "./utilities/badges.css";
-/*@import "./utilities/buttons.css";*/
+@import "./utilities/buttons.css";
 @import "./utilities/cards.css";
 @import "./utilities/chips.css";
 @import "./utilities/dividers.css";
@@ -25,3 +25,11 @@
 
 @import "./keyframes/progress-circular.css";
 @import "./keyframes/progress-linear.css";
+
+.select,
+.input,
+.textarea,
+.input-group {
+  color: var(--color-surface-950-50);
+  background-color: var(--color-surface-50-950);
+}

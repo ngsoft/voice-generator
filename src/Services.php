@@ -42,11 +42,6 @@ abstract class Services
     private static $translator;
 
     /**
-     * @var null|HtmlPage
-     */
-    private static $page;
-
-    /**
      * @var null|OpenApi
      */
     private static $openApi   = null;
@@ -113,63 +108,53 @@ abstract class Services
     /**
      * @return HtmlPage
      */
-    public static function getPage()
-    {
-        if ( ! isset(self::$page))
-        {
-            $request    = self::getRequest();
-            $page       = new HtmlPage();
-            $page->setIcon('favicon.ico');
-            $attributes = [];
-            $page->setFallback('error/500');
-            $page->setNotFound('error/404');
-
-            if ($base = $request->getBasePath())
-            {
-                $page->addHead(str_format('<base href="%s">', ["{$base}/"]));
-            }
-
-            if ($theme = env_get('VITE_DAIZY_UI_THEME_LIGHT'))
-            {
-                $page->setBodyAttribute('data-theme', $theme);
-            }
-
-            if ($theme = env_get('VITE_SKELETON_THEME'))
-            {
-                $attributes['data-theme'] = $theme;
-            }
-            $page->setDocType(env_get('APP_LANG'), $attributes);
-
-            if ($styles = Config::getItem('page.styles'))
-            {
-                if ( ! is_array($styles))
-                {
-                    $styles = [$styles];
-                }
-
-                foreach ($styles as $style)
-                {
-                    $page->addStyle(asset($style));
-                }
-            }
-
-            if ($scripts = Config::getItem('page.scripts'))
-            {
-                if ( ! is_array($scripts))
-                {
-                    $scripts = [$scripts];
-                }
-
-                foreach ($scripts as $script)
-                {
-                    $page->addScript(asset($script));
-                }
-            }
-
-            self::$page = $page;
-        }
-        return self::$page;
-    }
+    //    public static function getPage()
+    //    {
+    //        if (!isset(self::$page)) {
+    //            $request = self::getRequest();
+    //            $page = new HtmlPage();
+    //            $page->setIcon('favicon.ico');
+    //            $attributes = [];
+    //            $page->setFallback('error/500');
+    //            $page->setNotFound('error/404');
+    //
+    //            if ($base = $request->getBasePath()) {
+    //                $page->addHead(str_format('<base href="%s">', ["{$base}/"]));
+    //            }
+    //
+    //            if ($theme = env_get('VITE_DAIZY_UI_THEME_LIGHT')) {
+    //                $page->setBodyAttribute('data-theme', $theme);
+    //            }
+    //
+    //            if ($theme = env_get('VITE_SKELETON_THEME')) {
+    //                $attributes['data-theme'] = $theme;
+    //            }
+    //            $page->setDocType(env_get('APP_LANG'), $attributes);
+    //
+    //            if ($styles = Config::getItem('page.styles')) {
+    //                if (!is_array($styles)) {
+    //                    $styles = [$styles];
+    //                }
+    //
+    //                foreach ($styles as $style) {
+    //                    $page->addStyle(asset($style));
+    //                }
+    //            }
+    //
+    //            if ($scripts = Config::getItem('page.scripts')) {
+    //                if (!is_array($scripts)) {
+    //                    $scripts = [$scripts];
+    //                }
+    //
+    //                foreach ($scripts as $script) {
+    //                    $page->addScript(asset($script));
+    //                }
+    //            }
+    //
+    //            self::$page = $page;
+    //        }
+    //        return self::$page;
+    //    }
 
     /**
      * @return LocaleService
@@ -180,7 +165,7 @@ abstract class Services
     }
 
     /**
-     * @return ?Routing
+     * @return Routing
      */
     public static function getRouter()
     {
@@ -198,7 +183,7 @@ abstract class Services
             }
         }
 
-        return $config instanceof Closure ? $router : null;
+        return $router;
     }
 
     /**

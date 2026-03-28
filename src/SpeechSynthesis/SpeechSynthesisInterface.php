@@ -9,6 +9,8 @@ interface SpeechSynthesisInterface
 {
     public function getName(): string;
 
+    public function getDescription(): string;
+
     /**
      * @param SpeechSynthesisUtterance $utterance
      *

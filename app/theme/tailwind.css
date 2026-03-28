@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "./skeleton/index.css";
 /*@import "@skeletonlabs/skeleton";*/
-@import "@skeletonlabs/skeleton-svelte";
+/*@import "@skeletonlabs/skeleton-svelte";*/
 
 /*@import "@skeletonlabs/skeleton/themes/cerberus";*/
 @import "./skeleton/themes/terminus.css";
@@ -11,8 +11,7 @@
 /** @see https://daisyui.com/docs/config/ */
 @plugin "daisyui" {
     themes: winter --default, forest --prefersdark, light, dark;
-    /* themes: all; */
-    /* prefix: "d-" */
+    exclude: card;
 }
 
 /** adds .form-input .form-textarea .form-select .form-multiselect .form-checkbox .form-radio */

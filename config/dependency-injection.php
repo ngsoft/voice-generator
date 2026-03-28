@@ -31,6 +31,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Translation\Translator;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use TemplateEngine\Context;
+use TemplateEngine\Renderer;
 
 /**
  * Register your services there.
@@ -64,7 +66,17 @@ return function (Container $container)
         {
             return Services::getResponse();
         },
-        HtmlPage::class               => fn () => Services::getPage(),
+        Context::class                => fn () => new Context(),
+        Renderer::class               => fn (Context $context, Request $request) => (new Renderer(resolve_path('%project_root%/view'), $context))->setAttributes([
+            'request'       => $request,
+            'base_path'     => rtrim($request->getBasePath(), '/'),
+            'head_block'    => '',
+            'vite_block'    => '',
+            'meta_block'    => '',
+            'preload_block' => '',
+            'scripts_block' => '',
+            'styles_block'  => '',
+        ]),
         Routing::class                => fn (Container $container, LoggerService $logger) => tap(new Routing(), fn (Routing $routing) => $routing
             ->addDefinitions([LoggerInterface::class => fn () => $logger])
             ->setContainerFactory(new DefaultContainerBuilder($container))),

@@ -2,6 +2,7 @@
 
 // register routes/actions
 
+use Controller\Action\HomeAction;
 use Controller\Action\TranslateAction;
 use Controller\OpenApiController;
 use Controller\SynthesisController;
@@ -13,6 +14,7 @@ use NGSOFT\Routing\RouteGroup;
 use NGSOFT\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use TemplateEngine\Renderer;
 
 return function (Router $router)
 {
@@ -48,12 +50,10 @@ return function (Router $router)
         $router->post('/translate', TranslateAction::class);
     })->add(AccessControlMiddleware::make('GLOBAL_ACL', '*'))->add(JsonHttpErrorMiddleware::class)->add(CorsMiddleware::class);
 
-    $router->get('/', fn (Request $request) => load_action($request, 'page/home'))
+    $router->get('/', HomeAction::class)
         ->setName('app_index');
-
-    $router->get('/500', fn (Request $request) => load_action($request, 'error/500'));
 
     // fallback routes, to be added last
     $router->get('/api/{path:.*}', fn () => throw new NotFoundHttpException());
-    $router->get('/{path:.*}', fn (Request $request) => load_action($request, 'error/404'));
+    $router->get('/{path:.*}', fn (Request $request, Renderer $renderer) => $renderer->render('error/404'));
 };

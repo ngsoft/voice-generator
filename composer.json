@@ -11,7 +11,7 @@
     "psr-4": {
       "": ["src/"]
     },
-    "files": ["lib/libs-pdo-php82.php", "src/functions.php", "src/view.php"]
+    "files": ["lib/libs-pdo-php82.php", "src/functions.php"]
   },
   "require": {
     "php": ">=8.2",

@@ -53,11 +53,15 @@ final class SynthesisProviderStack
         throw new SpeechSynthesisException('No provider found for this utterance.');
     }
 
+    /**
+     * @param null|string $lang
+     * @param null|string $provider
+     *
+     * @return SpeechSynthesisVoice[]
+     */
     public function getVoices(?string $lang = null, ?string $provider = null): array
     {
         $result = [];
-
-        $index  = 0;
 
         foreach ($this->providers as $service)
         {
@@ -65,9 +69,8 @@ final class SynthesisProviderStack
             {
                 foreach ($service->getVoices($lang) as $voice)
                 {
-                    $name                      = $voice->getFriendlyName();
-                    $result["{$name}{$index}"] = $voice;
-                    ++$index;
+                    $name                              = $voice->getFriendlyName();
+                    $result[$name . $voice->getLang()] = $voice;
                 }
             }
         }
@@ -112,7 +115,7 @@ final class SynthesisProviderStack
     }
 
     /**
-     * @return string[]
+     * @return array<string,string>
      */
     public function listProviders(): array
     {
@@ -120,9 +123,9 @@ final class SynthesisProviderStack
 
         foreach ($this->providers as $provider)
         {
-            $result[$provider->getName()] = $provider->getName();
+            $result[$provider->getName()] = $provider->getDescription();
         }
-        return array_values($result);
+        return $result;
     }
 
     public function prune(\DateTimeInterface $before)

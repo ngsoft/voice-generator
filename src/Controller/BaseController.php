@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
+use TemplateEngine\Renderer;
 use Traits\ErrorLoggerTrait;
 
 abstract class BaseController
@@ -156,7 +157,10 @@ abstract class BaseController
      */
     final protected function render(string $view, array $parameters = []): \ResponseView
     {
-        return $this->getRenderer()->setView($view)->getResponse($parameters, true);
+        return (new \ResponseView())
+            ->setContent($this->renderView($view, $parameters))
+            ->setStatusCode($this->getRenderer()->getAttribute('status_code', 200))
+            ->setHeaders($this->getRenderer()->getContext()->headers->all());
     }
 
     /**
@@ -164,39 +168,11 @@ abstract class BaseController
      */
     final protected function renderView(string $view, array $parameters = []): string
     {
-        return $this->getRenderer()->setView($view)->render($parameters, true);
+        return $this->getRenderer()->renderView($view, $parameters);
     }
 
-    final protected function renderTemplate(string $view, array $parameters = []): \ResponseView
+    private function getRenderer(): Renderer
     {
-        $___file = resolve_path('%project_root%/view', $view);
-
-        if ( ! str_ends_with($___file, '.php'))
-        {
-            $___file .= '.php';
-        }
-
-        $content = '';
-
-        if (is_file($___file))
-        {
-            @chdir(resolve_path('%view%'));
-            @ob_start();
-            extract($parameters);
-            @include $___file;
-            $content = @ob_get_clean();
-            @chdir(resolve_path('%project_root%'));
-        }
-
-        if ( ! $content)
-        {
-            return $this->render('error/404');
-        }
-        return (new \ResponseView())->setContent($content);
-    }
-
-    private function getRenderer(): \HtmlPage
-    {
-        return $this->get(\HtmlPage::class);
+        return $this->get(Renderer::class);
     }
 }

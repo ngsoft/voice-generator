@@ -30,6 +30,11 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
         return 'edge';
     }
 
+    public function getDescription(): string
+    {
+        return 'Microsoft Edge Read Aloud Natural Voices';
+    }
+
     public function speak(SpeechSynthesisUtterance $utterance): SpeechSynthesisResult
     {
         if ($utterance->isError())

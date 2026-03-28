@@ -21,7 +21,7 @@ class LoggerService implements LoggerInterface
     private bool $backtrace         = false;
     private string $prefix          = '';
 
-    private array $ignore_backtrace = ['CommandTrait.php', 'ErrorLoggerTrait.php'];
+    private array $ignore_backtrace = ['CommandTrait.php', 'ErrorLoggerTrait.php', 'BaseController.php'];
 
     public function __construct(private ?\ApplicationLogger $logger = null)
     {

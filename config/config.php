@@ -10,6 +10,6 @@ Config::setItem('page.scripts', [
      *
      * @see https://zeptojs.com
      */
-    'vendor/zepto/zepto.min.js',
+    'assets/vendor/zepto/zepto.min.js',
 ]);
 Config::setItem('page.styles', []);

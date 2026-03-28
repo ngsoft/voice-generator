@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-@import "./theme/tailwind.css";
+@import "./theme/theme.css";
+/*@import "./theme/tailwind.css";*/
 /*@import "tailwindcss";*/
 
 /*@custom-variant dark (&:where(.dark, .dark *));*/
@@ -9,6 +10,17 @@
   --base-font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --font-sans: var(--base-font-family);
   --heading-font-family: var(--base-font-family);
+  --color-surface-50: oklch(99.11% 0 none);
+  --color-surface-100: oklch(90.97% 0 none);
+  --color-surface-200: oklch(82.97% 0 none);
+  --color-surface-300: oklch(74.44% 0 none);
+  --color-surface-400: oklch(66% 0 none);
+  --color-surface-500: oklch(56.93% 0 none);
+  --color-surface-600: oklch(49.97% 0 none);
+  --color-surface-700: oklch(42.76% 0 none);
+  --color-surface-800: oklch(35.23% 0 none);
+  --color-surface-900: oklch(27.27% 0 none);
+  --color-surface-950: oklch(18.67% 0 none);
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -18,11 +30,15 @@
 }
 
 body {
-  @apply p-0 m-0 w-screen h-screen overflow-y-auto;
+  @apply p-0 m-0 w-screen h-screen overflow-y-auto bg-(--color-surface-50) dark:bg-(--color-surface-950);
+}
+
+body > header:first-of-type {
+  @apply flex items-center p-4 bg-[rgba(255,255,255,.2)];
 }
 
 main {
-  @apply w-full h-full md:max-w-[90vw] mx-auto p-2 flex flex-col justify-center items-center;
+  @apply w-full mt-10 md:max-w-[90vw] mx-auto p-2 flex flex-col justify-center items-center;
 }
 
 .alert-dismissible {

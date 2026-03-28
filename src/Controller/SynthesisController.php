@@ -77,7 +77,7 @@ class SynthesisController extends BaseController
         ])->toResponse();
     }
 
-    #[OA\Get('/api/providers', 'Voice providers', description: 'Get voice providers list', tags: ['Speech Synthesis'], parameters: [
+    #[OA\Get('/api/providers', 'List providers', description: 'Get voice providers list', tags: ['Speech Synthesis'], parameters: [
         new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
     ])]
     #[OA\Response(
@@ -88,7 +88,10 @@ class SynthesisController extends BaseController
             schema: new OA\Schema(allOf: [
                 new OA\Schema(SuccessResponse::class),
                 new OA\Schema(properties: [
-                    new OA\Property('providers', description: 'provider list', type: 'array', items: new OA\Items(type: 'string')),
+                    new OA\Property('providers', description: 'provider list', type: 'array', items: new OA\Items(properties: [
+                        new OA\Property('name', description: 'provider name', type: 'string'),
+                        new OA\Property('description', description: 'provider description', type: 'string'),
+                    ], type: 'object')),
                 ]),
             ])
         )
@@ -96,7 +99,13 @@ class SynthesisController extends BaseController
     #[OA\Response(response: 403, description: 'Forbidden', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
     public function getProviders(): JsonResponse
     {
-        return SuccessResponse::make()->extend(['providers' => $this->synthesisProviderStack->listProviders()])
+        $providers = [];
+
+        foreach ($this->synthesisProviderStack->listProviders() as $name => $description)
+        {
+            $providers[] = compact('name', 'description');
+        }
+        return SuccessResponse::make()->extend(compact('providers'))
             ->toResponse();
     }
 

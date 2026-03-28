@@ -96,4 +96,28 @@ trait HasAttributes
         }
         return $this->attributes[$name];
     }
+
+    /**
+     * @param string     $name
+     * @param callable   $callback
+     * @param null|mixed $default
+     *
+     * @return static
+     */
+    public function updateAttribute(string $name, $callback, mixed $default = null): static
+    {
+        $this->setAttribute($name, value($callback, $this->getAttribute($name, $default)));
+        return $this;
+    }
+
+    public function pullAttribute(string $name, mixed $default = null): mixed
+    {
+        try
+        {
+            return $this->getAttribute($name, $default);
+        } finally
+        {
+            $this->removeAttribute($name);
+        }
+    }
 }

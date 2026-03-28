@@ -1,4 +1,4 @@
-import {basePath, tap} from '$sdk';
+import { basePath, tap } from '$sdk';
 import {
     Client,
     ContentTypeMiddleware,
@@ -17,7 +17,7 @@ export class HttpClient extends Service {
     }
 
     public static createClient(baseUrl: string): HttpClient {
-        const client = tap(new Client({baseUrl}), (c: Client) => {
+        const client = tap(new Client({ baseUrl }), (c: Client) => {
             c.addMiddleware(new HttpErrorMiddleware());
             c.addMiddleware(new WrapMiddleware());
             c.addMiddleware(new ContentTypeMiddleware());
