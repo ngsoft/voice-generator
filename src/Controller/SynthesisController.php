@@ -231,7 +231,9 @@ class SynthesisController extends BaseController
     /**
      * @param null|SpeechSynthesisVoice|SpeechSynthesisVoice[] $voices
      *
-     * @return null|array|SpeechSynthesisVoice
+     * @return null|SpeechSynthesisVoice|SpeechSynthesisVoice[]
+     *
+     * @psalm-return ($voices is SpeechSynthesisVoice[] ? SpeechSynthesisVoice[] : SpeechSynthesisVoice|null)
      */
     public function addVoiceUri(array|SpeechSynthesisVoice|null $voices): array|SpeechSynthesisVoice|null
     {

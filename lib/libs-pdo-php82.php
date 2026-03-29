@@ -2,7 +2,7 @@
 /**
  * PHP Dev Tools PDO Edition (Supports SQLite)
  * @author Aymeric Anger
- * @version 26.03.5 build on 2026-03-23
+ * @version 26.03.6 build on 2026-03-29
  * @noinspection ALL
  */
 namespace {
@@ -882,6 +882,58 @@ if (PHP_VERSION_ID < 80500)
         function array_last(array $array)
         {
             return count($array) ? current(array_slice($array, -1)) : null;
+        }
+    }
+}
+
+if (PHP_VERSION_ID < 80600)
+{
+    if ( ! function_exists('clamp'))
+    {
+        /**
+         * clamp checks if a comparable value is within a certain bound.
+         * If the value is in range it returns the value, if the value is not in range it returns the nearest bound.
+         *
+         * @template T
+         * @template Min of T
+         * @template Max of T
+         *
+         * @param T   $value
+         * @param Min $min
+         * @param Max $max
+         *
+         * @return Max|Min|T
+         *
+         * @see https://wiki.php.net/rfc/clamp_v2
+         */
+        function clamp($value, $min, $max)
+        {
+            if (is_float($min) && is_nan($min))
+            {
+                throw new \ValueError('clamp(): Argument #2 ($min) must not be NAN');
+            }
+
+            if (is_float($min) && is_nan($max))
+            {
+                throw new \ValueError('clamp(): Argument #3 ($max) must not be NAN');
+            }
+
+            if ($min > $max)
+            {
+                throw new \ValueError('clamp(): Argument #2 ($min) must be smaller than or equal to argument #3 ($max)');
+            }
+
+            if ($value > $max)
+            {
+                return $max;
+            }
+
+            if ($value < $min)
+            {
+                return $min;
+            }
+
+            return $value;
         }
     }
 }

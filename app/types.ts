@@ -7,6 +7,7 @@ export interface Voice {
     name: string;
     friendlyName: string;
     voiceUri: string;
+    provider: string;
 }
 
 export interface Langs {

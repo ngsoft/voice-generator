@@ -1,8 +1,8 @@
 Options -Indexes
 
 DirectoryIndex index.php
-# AuthType None
-# Require all granted
+AuthType None
+Require all granted
 
 <IfModule rewrite_module>
     Options +FollowSymlinks

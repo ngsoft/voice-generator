@@ -2,6 +2,8 @@
 @import "./skeleton/index.css";
 @import "./skeleton/themes/concord.css";
 
+@import "preline/variants.css";
+
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 

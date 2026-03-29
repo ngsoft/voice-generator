@@ -162,6 +162,7 @@ readonly class ElevenLabsVoiceProvider implements SpeechSynthesisInterface
                             'name'         => "{$id}",
                             'friendlyName' => trim(explode(' - ', var_get('name', $voice, $id))[0]),
                             'voiceUri'     => sprintf('%s://%s', $this->getName(), $id),
+                            'provider'     => $this->getName(),
                         ])->addMeta('model_id', var_get('model_id', $language));
                     }
                 }

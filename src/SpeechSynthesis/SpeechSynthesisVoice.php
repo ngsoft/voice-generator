@@ -30,6 +30,12 @@ class SpeechSynthesisVoice extends OpenApiResponseView
     protected string $name          = '';
 
     #[OA\Property(
+        description: 'Returns the voice provider name.',
+        nullable: false
+    )]
+    protected string $provider      = '';
+
+    #[OA\Property(
         description: 'Returns a human-readable friendly name that represents the voice.',
         nullable: true
     )]
@@ -162,6 +168,11 @@ class SpeechSynthesisVoice extends OpenApiResponseView
         return $this->getAttribute('voiceInfoUri', $this->voiceInfoUri);
     }
 
+    public function getProvider(): string
+    {
+        return $this->getAttribute('provider', $this->provider);
+    }
+
     public function getName(): string
     {
         return $this->getAttribute('name', $this->name);
@@ -197,8 +208,13 @@ class SpeechSynthesisVoice extends OpenApiResponseView
         return $this->setAttribute('friendlyName', $friendlyName);
     }
 
-    public function setVoiceInfoUri(?string $voiceInfoUri): SpeechSynthesisVoice
+    public function setVoiceInfoUri(?string $voiceInfoUri): static
     {
         return $this->setAttribute('voiceInfoUri', $voiceInfoUri);
+    }
+
+    public function setProvider(string $provider): static
+    {
+        return $this->setAttribute('provider', $provider);
     }
 }

@@ -1,4 +1,6 @@
 import '@/components/darkmode-switch';
+import type { HSSelect, ISingleOption } from 'preline/non-auto';
+import { getSelect } from '@/components/advanced-select';
 import { app_get } from '@/components/data-loader';
 import { speakRequest } from '@/components/http-client';
 import { showModal } from '@/components/modal';
@@ -7,7 +9,7 @@ import { finder } from '$sdk';
 
 finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
     const providers: Provider | null = app_get('providers'),
-        voices: { [lang_name: string]: { [provider_name: string]: Voice[] } } | null = app_get('voices'),
+        voices: { [lang_name: string]: Voice[] } | null = app_get('voices'),
         langs: Langs | null = app_get('langs');
 
     if (voices && langs && providers) {
@@ -27,28 +29,31 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 audio: form.querySelector('#audio') as HTMLAudioElement,
                 player: form.querySelector('#audio-player') as HTMLDivElement,
             },
-            voice_options: HTMLOptionElement[] = [],
-            voice_groups: HTMLOptGroupElement[] = [],
-            voice_map = new Map<string, Voice & { provider: string }>(),
-            voice_group_map = new Map<HTMLOptionElement, HTMLOptGroupElement>();
+            voice_select: HSSelect = getSelect(controls.voice),
+            voice_options: ISingleOption[] = [],
+            voice_map = new Map<string, Voice>();
 
-        // build voices options
+        // lang autocomplete
+        getSelect(controls.lang);
+
+        // build voices options select
         for (const lang_name in voices) {
-            const group = $(`<optgroup label="${lang_name}"></optgroup>`).get(0) as HTMLOptGroupElement;
-            group.setAttribute('data-providers', JSON.stringify(Object.keys(providers)));
-            voice_groups.push(group);
-            controls.voice.appendChild(group);
-            for (const provider_name in voices[lang_name]) {
-                for (const voice of voices[lang_name][provider_name]) {
-                    const name = `${voice.lang}|${voice.name}`;
-                    const option = $(
-                        `<option value="${name}">${voice.friendlyName} (${provider_name}: ${voice.lang})</option>`
-                    ).get(0) as HTMLOptionElement;
-                    voice_map.set(name, { ...voice, provider: provider_name });
-                    voice_options.push(option);
-                    voice_group_map.set(option, group);
-                    group.appendChild(option);
-                }
+            for (const voice of voices[lang_name]) {
+                const opt: ISingleOption = {
+                    title: `${voice.friendlyName} (${voice.provider}: ${voice.lang})`,
+                    val: `${voice.lang}|${voice.name}`,
+                    options: {
+                        apiFields: {
+                            provider: voice.provider,
+                            lang: voice.lang,
+                        },
+                    },
+                };
+                voice_options.push(opt);
+                const option = $(`<option value="${opt.val}">${opt.title}</option>`).get(0) as HTMLOptionElement;
+                voice_map.set(opt.val, voice);
+                controls.voice.appendChild(option);
+                voice_select.addOption({ ...opt });
             }
         }
 
@@ -56,25 +61,21 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
             const provider = controls.provider.value,
                 lang = controls.lang.value;
 
-            console.debug('filterVoices', provider, lang);
-            for (const group of voice_groups) {
-                const providers = JSON.parse(group.getAttribute('data-providers') ?? '[]') as string[];
-                if (!reset && 'all' !== provider && !providers.includes(provider)) {
-                    group.remove();
-                } else if (!reset && 'all' !== lang && group.getAttribute('label') !== lang) {
-                    group.remove();
-                } else if (!group.parentElement) {
-                    controls.voice.appendChild(group);
-                }
-            }
+            voice_select.close();
 
-            for (const option of voice_options) {
-                if (!reset && 'all' !== provider && voice_map.get(option.value)?.provider !== provider) {
-                    option.remove();
-                } else if (!option.parentElement) {
-                    voice_group_map.get(option)?.appendChild(option);
+            // remove all options
+            voice_select.removeOption(voice_options.map((opt) => opt.val));
+            // add options based on filters
+            for (const opt of voice_options) {
+                if (!reset && 'all' !== provider && opt.options?.apiFields?.provider !== provider) {
+                    continue;
                 }
+                if (!reset && 'all' !== lang && opt.options?.apiFields?.lang !== lang) {
+                    continue;
+                }
+                voice_select.addOption({ ...opt });
             }
+            voice_select.setValue('');
             controls.voice.selectedIndex = 0;
         }
 
@@ -83,6 +84,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 event.preventDefault();
                 if (!form.checkValidity()) {
                     await showModal('Some fields are not valid.');
+                    return;
                 }
                 $(controls.player).addClass('opacity-0 invisible');
 

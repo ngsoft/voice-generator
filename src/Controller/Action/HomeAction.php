@@ -59,17 +59,14 @@ class HomeAction extends BaseController implements ActionInterface
 
             if ($ok)
             {
-                $prefix                     = explode('-', $lang)[0];
-                $provider                   = explode('://', $voice->getVoiceUri())[0];
-                $langs[$prefix]           ??= [];
-                $langs[$prefix][]           = $lang;
-                $langs[$prefix]             = array_unique($langs[$prefix]);
+                $prefix           = explode('-', $lang)[0];
+                $langs[$prefix] ??= [];
+                $langs[$prefix][] = $lang;
+                $langs[$prefix]   = array_unique($langs[$prefix]);
                 sort($langs[$prefix]);
-                $result[$lang]            ??= [];
-                $result[$lang][$provider] ??= [];
-                $result[$lang][$provider][] = $voice;
+                $result[$lang]  ??= [];
+                $result[$lang][]  = $voice;
                 ksort($result);
-                ksort($result[$lang]);
                 $this->synthesisController->addVoiceUri($voice);
             }
         }

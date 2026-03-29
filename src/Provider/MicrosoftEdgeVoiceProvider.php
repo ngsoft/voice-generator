@@ -168,6 +168,7 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
                     'name'         => var_get('ShortName', $voice),
                     'friendlyName' => trim(var_get('DisplayName', $voice)),
                     'voiceUri'     => sprintf('%s://%s', $this->getName(), $shortName),
+                    'provider'     => $this->getName(),
                 ]);
             }
         }
