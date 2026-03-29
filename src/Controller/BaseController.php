@@ -157,10 +157,11 @@ abstract class BaseController
      */
     final protected function render(string $view, array $parameters = []): \ResponseView
     {
-        return (new \ResponseView())
+        $response = new \ResponseView();
+        return $response
             ->setContent($this->renderView($view, $parameters))
             ->setStatusCode($this->getRenderer()->getAttribute('status_code', 200))
-            ->setHeaders($this->getRenderer()->getContext()->headers->all());
+            ->setHeaders(array_replace($response->getAllHeaders(), $this->getRenderer()->getContext()->headers->all()));
     }
 
     /**

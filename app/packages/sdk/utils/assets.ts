@@ -26,5 +26,5 @@ export function basePath(doc?: Document): string {
 }
 
 export function asset(name: string, base?: string): string {
-    return `${fixPath(base ?? basePath())}/assets/${name}`;
+    return `${fixPath(base ?? basePath())}/${name}`;
 }

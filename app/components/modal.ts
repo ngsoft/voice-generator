@@ -89,7 +89,7 @@ export async function showModal(
                 </button>
             </div>
             <div class="my-4">
-              <p class="text-pretty text-center">${options.message}</p>
+              <p class="text-pretty">${options.message}</p>
             </div>
         </div>
     </div>`;

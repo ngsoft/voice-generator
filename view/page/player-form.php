@@ -10,7 +10,7 @@ title($title = __('Speech Synthesis Player'));
                 <input type="checkbox" id="dark-mode-switch" class="peer sr-only">
                 <span class="absolute inset-0 m-auto h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
                 <span
-                    class="absolute inset-y-0 start-0 m-auto size-6 rounded-full bg-gray-500 transition-[inset-inline-start] peer-checked:start-6 peer-checked:*:scale-0 dark:bg-gray-400">
+                    class="absolute inset-y-0 inset-s-0 m-auto size-6 rounded-full bg-gray-500 transition-[inset-inline-start] peer-checked:inset-s-6 peer-checked:*:scale-0 dark:bg-gray-400">
                     <span
                         class="absolute inset-0 m-auto size-4 rounded-full bg-gray-200 transition-transform dark:bg-gray-700"></span>
                 </span>
@@ -61,7 +61,7 @@ title($title = __('Speech Synthesis Player'));
 
             <span class="flex items-center md:col-span-2">
                 <span class="h-px flex-1 bg-gray-300 dark:bg-gray-600"></span>
-                <span class="shrink-0 px-4 text-gray-900 dark:text-white"><?= __('Lang & voice') ?></span>
+                <span class="shrink-0 px-4 text-gray-900 dark:text-white"><?= __('Voices') ?></span>
                 <span class="h-px flex-1 bg-gray-300 dark:bg-gray-600"></span>
             </span>
 
@@ -79,8 +79,8 @@ title($title = __('Speech Synthesis Player'));
                     <span class="label-text text-sm font-medium"><?= __('Format') ?></span>
                     <select id="format" name="format" class="select py-2 px-4">
                         <option value="mp3">MP3</option>
-                        <option value="wav">PCM 16bits</option>
-                        <option value="ogg">OGG Vorbis 16bits</option>
+                        <option value="wav">PCM (wav)</option>
+                        <option value="ogg">OGG Vorbis</option>
                     </select>
                 </label>
             </div>
@@ -91,7 +91,7 @@ title($title = __('Speech Synthesis Player'));
                     <textarea
                         required
                         placeholder="<?= __('Please input text to be said') ?>"
-                        class="textarea rounded-container resize-none "
+                        class="textarea rounded-container resize-none py-2 px-4"
                         id="text" name="text" rows="4"></textarea>
                 </label>
             </div>
@@ -139,26 +139,26 @@ title($title = __('Speech Synthesis Player'));
             </div>
 
 
-            <div class="min-h-[50px] max-md:px-[5%] md:col-span-2 my-4">
+            <div class="min-h-12.5 max-md:px-[5%] md:col-span-2 my-6">
                 <div id="audio-player"
-                     class="flex max-lg:flex-col-reverse justify-center gap-5 items-center p-0 pt-4 transition-all duration-500 opacity-0 invisible h-0">
+                     class="flex max-lg:flex-col-reverse justify-center gap-5 items-center p-0 pt-4 transition-all duration-500 overflow-hidden opacity-0 invisible">
                     <div>
                         <audio controls autoplay id="audio"></audio>
                     </div>
 
-                    <button type="button" id="download"
-                            class="flex gap-x-2 items-center btn preset-outlined-surface-500 rounded-lg border py-2 px-4"
-                            title="Download File">
+                    <a href="#" target="_blank" download="" id="download"
+                       class="flex gap-x-2 items-center btn preset-outlined-surface-500 rounded-lg border py-2 px-4"
+                       title="Download File">
                         <span id="filename">azerty.wav</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                              fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="max-h-[20px] rounded">
+                             class="max-h-5 rounded">
                             <path d="M12 15V3"></path>
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <path d="m7 10 5 5 5-5"></path>
                         </svg>
-                    </button>
+                    </a>
 
                 </div>
             </div>

@@ -7,6 +7,7 @@
     "vite": "cross-env APP_URL=http://127.0.0.1:8600 vite",
     "watch": "cross-env APP_URL=http://127.0.0.1:8600 CHOKIDAR_USEPOLLING=true vite build --mode development --watch",
     "build": "vite build",
+    "build:prod": "cross-env APP_ENV=prod vite build",
     "preview": "vite preview",
     "clean": "rm -rf build && rm -rf dist && rm -rf public/build/manifest.json && rm -rf public/build/assets",
     "check": "svelte-check --tsconfig ./tsconfig.json && biome check app",
@@ -36,15 +37,11 @@
     "svelte-preprocess": "^6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.14",
-    "sass": "^1.85.0",
     "tslib": "^2",
     "typescript": "^5",
     "vite": "^7.1.12"
   },
-  "dependencies": {
-    "mini.css": "^3.0.1",
-    "tom-select": "^2.4.3"
-  },
+  "dependencies": {},
   "trustedDependencies": [
     "svelte-preprocess"
   ]

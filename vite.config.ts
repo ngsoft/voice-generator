@@ -1,12 +1,14 @@
-import {svelte} from '@sveltejs/vite-plugin-svelte';
+// import {svelte} from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
 import {defineConfig, type UserConfig} from 'vite';
 import {alias, moveSkeletonClasses, viteConfigurator} from './config/vite';
 
-const minify = true;
+const dev = 'prod' !== process.env.APP_ENV;
+
+
 const config: UserConfig = {
-    build: {minify, sourcemap: true},
+    build: {minify: true, sourcemap: dev},
     plugins: [
         laravel({
             // those are the endpoints to use with the adapter
@@ -14,12 +16,12 @@ const config: UserConfig = {
             // public directory relative to the project root
             publicDirectory: 'public',
             // build directory name relative to public
-            buildDirectory: 'build',
+            buildDirectory: dev ? 'build' : 'assets/app',
             refresh: true,
             hotFile: 'public/build/hot',
         }),
         tailwindcss(),
-        svelte(),
+        //svelte(),
     ],
     css: {
         preprocessorOptions: {

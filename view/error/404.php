@@ -11,6 +11,6 @@
     </div>
 </main>
 <?php
-extend('layout');
+extend('vite');
 title(__("Not found"));
 status_code(404);

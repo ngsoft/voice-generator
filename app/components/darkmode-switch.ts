@@ -11,6 +11,7 @@ const store = new LocalStore(localStorage, environment.app.id),
 
 function toggleDarkMode(on: boolean) {
     environment.document.documentElement.classList.toggle('dark', on);
+    darkModeSwitch.prop('checked', on);
 }
 
 darkModeSwitch.on('change', () => {

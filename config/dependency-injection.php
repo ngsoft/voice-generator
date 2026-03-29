@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Middleware\AuthorizationMiddleware;
 use NGSOFT\Container\Container;
 use NGSOFT\Routing\Container\DefaultContainerBuilder;
 use NGSOFT\Routing\Interface\UrlGeneratorInterface;
@@ -42,32 +43,32 @@ return function (Container $container)
     $translator = Services::getTranslator();
     // console component
     $container->setMany([
-        ApplicationLogger::class      => Services::getLogger(),
-        Application::class            => new Application(
+        ApplicationLogger::class       => Services::getLogger(),
+        Application::class             => new Application(
             env_get('APP_NAME', env_get('APP_ID')),
             env_get('APP_VERSION')
         ),
-        ArgvInput::class              => new ArgvInput(),
-        ConsoleOutput::class          => new ConsoleOutput(),
-        RequestStack::class           => fn (Request $request) => new RequestStack([$request]),
-        SessionInterface::class       => fn (Request $request) => $request->hasSession()
+        ArgvInput::class               => new ArgvInput(),
+        ConsoleOutput::class           => new ConsoleOutput(),
+        RequestStack::class            => fn (Request $request) => new RequestStack([$request]),
+        SessionInterface::class        => fn (Request $request) => $request->hasSession()
             ? $request->getSession()
             : tap($request, fn (Request $request) => $request->setSession(new Session()))->getSession(),
-        ViteAdapter::class            => fn (Request $request) => (new ViteAdapter(
+        ViteAdapter::class             => fn (Request $request) => (new ViteAdapter(
             resolve_path('%project_root%'),
             resolve_path('%public%')
         ))->setHotFile(resolve_path('%public%', 'build/hot'))
             ->setBasePath($request->getBasePath())
-            ->setBuildDirectory('build'),
-        Request::class                => Services::getRequest(),
-        LocaleService::class          => $translator,
-        Translator::class             => $translator->getTranslator(),
-        JsonResponseView::class       => function ()
+            ->setBuildDirectory(is_dev() ? 'build' : 'assets/app'),
+        Request::class                 => Services::getRequest(),
+        LocaleService::class           => $translator,
+        Translator::class              => $translator->getTranslator(),
+        JsonResponseView::class        => function ()
         {
             return Services::getResponse();
         },
-        Context::class                => fn () => new Context(),
-        Renderer::class               => fn (Context $context, Request $request) => (new Renderer(resolve_path('%project_root%/view'), $context))->setAttributes([
+        Context::class                 => fn () => new Context(),
+        Renderer::class                => fn (Context $context, Request $request) => (new Renderer(resolve_path('%project_root%/view'), $context))->setAttributes([
             'request'       => $request,
             'base_path'     => rtrim($request->getBasePath(), '/'),
             'head_block'    => '',
@@ -77,18 +78,22 @@ return function (Container $container)
             'scripts_block' => '',
             'styles_block'  => '',
         ]),
-        Routing::class                => fn (Container $container, LoggerService $logger) => tap(new Routing(), fn (Routing $routing) => $routing
+        Routing::class                 => fn (Container $container, LoggerService $logger) => tap(new Routing(), fn (Routing $routing) => $routing
             ->addDefinitions([LoggerInterface::class => fn () => $logger])
             ->setContainerFactory(new DefaultContainerBuilder($container))),
-        OpenApi::class                => fn () => Services::getOpenApi(),
-        CacheItemPoolInterface::class => fn () => new FilesystemTagAwareAdapter(
+        AuthorizationMiddleware::class => fn () => new AuthorizationMiddleware(
+            env_get('API_KEY', '', false),
+            env_get('API_KEY', '', false)
+        ),
+        OpenApi::class                 => fn () => Services::getOpenApi(),
+        CacheItemPoolInterface::class  => fn () => new FilesystemTagAwareAdapter(
             env_get('APP_ID', '', false),
             directory: resolve_path(
                 '%project_root%/var/cache',
                 is_dev() ? 'dev' : 'prod'
             )
         ),
-        SynthesisProviderStack::class => function (Container $container)
+        SynthesisProviderStack::class  => function (Container $container)
         {
             $stack = [$container->get(MicrosoftEdgeVoiceProvider::class)];
 

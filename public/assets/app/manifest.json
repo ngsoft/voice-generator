@@ -1,0 +1,17 @@
+{
+  "app/app.css": {
+    "file": "assets/app-0FK7S-fh.css",
+    "src": "app/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "app/app.ts": {
+    "file": "assets/app-DT4FXD-d.js",
+    "name": "app",
+    "src": "app/app.ts",
+    "isEntry": true
+  }
+}

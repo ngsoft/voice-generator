@@ -1,15 +1,11 @@
 import '@/components/darkmode-switch';
 import { app_get } from '@/components/data-loader';
+import { speakRequest } from '@/components/http-client';
 import { showModal } from '@/components/modal';
 import type { Langs, Provider, Voice } from '@/types';
 import { finder } from '$sdk';
-import { debug } from '$sdk/environment';
 
-function getProvider(voice: Voice): string {
-    return voice.voiceUri.split('://')[0];
-}
-
-finder.one(`form#synthesis-player-form`, (form: HTMLFormElement) => {
+finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
     const providers: Provider | null = app_get('providers'),
         voices: { [lang_name: string]: { [provider_name: string]: Voice[] } } | null = app_get('voices'),
         langs: Langs | null = app_get('langs');
@@ -25,7 +21,7 @@ finder.one(`form#synthesis-player-form`, (form: HTMLFormElement) => {
                 rate: form.querySelector('#rate') as HTMLInputElement,
                 pitch: form.querySelector('#pitch') as HTMLInputElement,
                 volume: form.querySelector('#volume') as HTMLInputElement,
-                download: form.querySelector('#download') as HTMLButtonElement,
+                download: form.querySelector('#download') as HTMLAnchorElement,
                 submitButton: form.querySelector('#submitButton') as HTMLButtonElement,
                 filename: form.querySelector('#filename') as HTMLSpanElement,
                 audio: form.querySelector('#audio') as HTMLAudioElement,
@@ -93,32 +89,27 @@ finder.one(`form#synthesis-player-form`, (form: HTMLFormElement) => {
                 const voice_name = controls.voice.value,
                     voice = voice_map.get(voice_name);
                 if (voice) {
-                    const url = voice.voiceUri;
-                    const data = await fetch(url, {
-                        method: 'POST',
-                        body: JSON.stringify({
+                    const format = controls.format.value,
+                        resp = await speakRequest({
                             text: controls.text.value,
                             lang: voice.lang,
                             voice: voice.name,
                             rate: parseFloat(controls.rate.value),
                             pitch: parseFloat(controls.pitch.value),
                             volume: parseFloat(controls.volume.value),
-                            format: controls.format.value,
-                        }),
-                        headers: { Accept: 'application/json', 'content-type': 'application/json' },
-                    }).then((response) => response.json());
-
-                    if (data.url) {
+                            format,
+                        });
+                    if (resp.success && resp.url) {
+                        controls.audio.pause();
+                        const filename = `${resp.url.split('/').slice(-1)[0]}.${format}`;
+                        $(controls.download).attr({ href: resp.url, download: filename });
+                        $(controls.filename).text(filename);
+                        $(controls.audio).attr('src', resp.url);
                         $(controls.player).removeClass('opacity-0 invisible');
-                        controls.audio.setAttribute('src', data.url);
-                        controls.filename.innerHTML = `${data.url.split('/').slice(-1)[0]}.${controls.format.value}`;
-
                         try {
                             await controls.audio.play();
-                        } catch (_) {
-                            await showModal('An error occurred.');
-                        }
-                        return;
+                            return;
+                        } catch (_) {}
                     }
                     await showModal('An error occurred.');
                 }
@@ -152,63 +143,5 @@ finder.one(`form#synthesis-player-form`, (form: HTMLFormElement) => {
                     }
                 }
             });
-
-        $(controls.download).on('click', () => {
-            const url = controls.audio.getAttribute('src');
-            const link = $(
-                `<a href="${url}" download="${controls.download.innerText}" class="visually-hidden">Download file</a>`
-            ).get(0);
-            document.body.appendChild(link);
-            link.click();
-            requestAnimationFrame(() => link.remove());
-        });
     }
 });
-
-const form = document.getElementById('player-form') as HTMLFormElement | null;
-
-if (form) {
-    const _base_url: string | null = app_get('base_url'),
-        providers: Provider | null = app_get('providers'),
-        voices: { [lang: string]: Voice[] } | null = app_get('voices'),
-        langs: Langs | null = app_get('langs');
-    debug(voices, langs, providers);
-    if (voices) {
-        const controls = {
-            form,
-            provider: document.getElementById('provider') as HTMLSelectElement,
-            lang: document.getElementById('lang') as HTMLSelectElement,
-            voice: document.getElementById('voice') as HTMLSelectElement,
-            text: document.getElementById('text') as HTMLTextAreaElement,
-            download: document.getElementById('download') as HTMLButtonElement,
-            submitButton: document.getElementById('submitButton') as HTMLButtonElement,
-            filename: document.getElementById('filename') as HTMLSpanElement,
-            audio: document.getElementById('audio') as HTMLAudioElement,
-            player: document.getElementById('audio-player') as HTMLDivElement,
-        };
-
-        for (const name in providers) {
-            $(controls.provider).append($(`<option value="${name}">${providers[name]}</option>`));
-        }
-
-        for (const prefix in langs) {
-            const group = $(`<optgroup label="${prefix}"></optgroup>`);
-            $(controls.lang).append(group);
-            for (const lang of langs[prefix]) {
-                group.append($(`<option value="${lang}">${lang}</option>`));
-            }
-        }
-
-        for (const lang in voices) {
-            const group = $(`<optgroup label="${lang}">`);
-            $(controls.voice).append(group);
-            for (const voice of voices[lang]) {
-                group.append(
-                    $(
-                        `<option value="${getProvider(voice)}|${voice.lang}|${voice.name}">${voice.friendlyName}</option>`
-                    )
-                );
-            }
-        }
-    }
-}
