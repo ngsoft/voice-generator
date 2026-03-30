@@ -150,8 +150,6 @@ abstract class Services
             call_user_func(
                 function ($file, $cfg)
                 {
-                    require_secure($cfg);
-
                     // check modifications on cfg
                     if (@filemtime($file) <= @filemtime($cfg))
                     {
@@ -177,6 +175,8 @@ abstract class Services
                         @mkdir(dirname($file), 0777, true);
                         @file_put_contents($file, implode("\n", $meta));
                     }
+
+                    require_once $cfg;
 
                     require_once $file;
                 },
