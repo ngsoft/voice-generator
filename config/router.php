@@ -19,7 +19,7 @@ use TemplateEngine\Renderer;
 return function (Router $router)
 {
     // api docs
-    is_dev() && $router->group('/api', function (RouteGroup $router)
+    $router->group('/api', function (RouteGroup $router)
     {
         // OpenApi + Redocly
         $router->get('/doc', OpenApiController::class);

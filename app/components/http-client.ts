@@ -29,7 +29,6 @@ export async function speakRequest(data: SpeakRequest): Promise<SpeakResponse> {
         const headers: Record<string, string> = {},
             authorization = await getSessionAuthorization();
 
-        console.debug('authorization', authorization);
         if (authorization) {
             headers.Authorization = `Bearer ${authorization}`;
         }
