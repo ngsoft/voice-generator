@@ -150,10 +150,11 @@ abstract class Services
             call_user_func(
                 function ($file, $cfg)
                 {
+                    require_secure($cfg);
+
                     // check modifications on cfg
                     if (@filemtime($file) <= @filemtime($cfg))
                     {
-                        require_secure($cfg);
                         $request = self::getRequest();
                         $meta    = [
                             '<?php',
