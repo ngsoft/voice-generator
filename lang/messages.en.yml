@@ -1,4 +1,3 @@
-'app_lang': 'app_lang'
 'Page not found': 'Page not found'
 "Oops!! The page you're looking for doesn't exist on this site. Discover more": "Oops!! The page you're looking for doesn't exist on this site. Discover more"
 'here': 'here'
@@ -16,7 +15,7 @@
 'Provider': 'Provider'
 'All': 'All'
 'Languages': 'Languages'
-'Lang & voice': 'Lang & voice'
+'Select a language': 'Select a language'
 'Voice': 'Voice'
 'Select a voice': 'Select a voice'
 'Format': 'Format'

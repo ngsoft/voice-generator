@@ -9,6 +9,7 @@ use Controller\SynthesisController;
 use Middleware\AccessControlMiddleware;
 use Middleware\AuthorizationMiddleware;
 use Middleware\RequiredHeaderMiddleware;
+use Middleware\WebAccessControlMiddleware;
 use NGSOFT\Routing\Middleware\CorsMiddleware;
 use NGSOFT\Routing\Middleware\JsonHttpErrorMiddleware;
 use NGSOFT\Routing\RouteGroup;
@@ -53,6 +54,7 @@ return function (Router $router)
     // home page (page/player-form)
     $router->get('/', HomeAction::class)
         ->add(AuthorizationMiddleware::class)
+        ->add(WebAccessControlMiddleware::make('WEB_ACL', '*'))
         ->setName('app_index');
 
     // fallback routes, to be added last

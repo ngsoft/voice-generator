@@ -1,11 +1,11 @@
 import '@/components/darkmode-switch';
-import type { HSSelect, ISingleOption } from 'preline/non-auto';
-import { getSelect } from '@/components/advanced-select';
-import { app_get } from '@/components/data-loader';
-import { speakRequest } from '@/components/http-client';
-import { showModal } from '@/components/modal';
-import type { Langs, Provider, Voice } from '@/types';
-import { finder } from '$sdk';
+import type {HSSelect, ISingleOption} from 'preline/non-auto';
+import {getSelect} from '@/components/advanced-select';
+import {app_get} from '@/components/data-loader';
+import {speakRequest} from '@/components/http-client';
+import {showModal} from '@/components/modal';
+import type {Langs, Provider, Voice} from '@/types';
+import {finder} from '$sdk';
 
 finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
     const providers: Provider | null = app_get('providers'),
@@ -31,10 +31,9 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
             },
             voice_select: HSSelect = getSelect(controls.voice),
             voice_options: ISingleOption[] = [],
-            voice_map = new Map<string, Voice>();
-
-        // lang autocomplete
-        getSelect(controls.lang);
+            voice_map = new Map<string, Voice>(),
+            // lang autocomplete
+            lang_select = getSelect(controls.lang);
 
         // build voices options select
         for (const lang_name in voices) {
@@ -53,7 +52,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 const option = $(`<option value="${opt.val}">${opt.title}</option>`).get(0) as HTMLOptionElement;
                 voice_map.set(opt.val, voice);
                 controls.voice.appendChild(option);
-                voice_select.addOption({ ...opt });
+                voice_select.addOption({...opt});
             }
         }
 
@@ -73,7 +72,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 if (!reset && 'all' !== lang && opt.options?.apiFields?.lang !== lang) {
                     continue;
                 }
-                voice_select.addOption({ ...opt });
+                voice_select.addOption({...opt});
             }
             voice_select.setValue('');
             controls.voice.selectedIndex = 0;
@@ -104,14 +103,15 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                     if (resp.success && resp.url) {
                         controls.audio.pause();
                         const filename = `${resp.url.split('/').slice(-1)[0]}.${format}`;
-                        $(controls.download).attr({ href: resp.url, download: filename });
+                        $(controls.download).attr({href: resp.url, download: filename});
                         $(controls.filename).text(filename);
                         $(controls.audio).attr('src', resp.url);
                         $(controls.player).removeClass('opacity-0 invisible');
                         try {
                             await controls.audio.play();
                             return;
-                        } catch (_) {}
+                        } catch (_) {
+                        }
                     }
                     await showModal('An error occurred.');
                 }
@@ -119,6 +119,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
             .on('reset', (_event: Event) => {
                 [controls.pitch, controls.volume, controls.rate].forEach((target) => $(target).next().html('1.0'));
                 filterVoices(true);
+                lang_select.setValue('all');
                 $(controls.player).addClass('opacity-0 invisible');
             })
             .on('change', (event: Event) => {
