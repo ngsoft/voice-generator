@@ -198,7 +198,7 @@ class SynthesisController extends BaseController
                     'mime'       => $result->content_type,
                     'identifier' => $result->identifier,
                     'url'        => $this->generateUrl('download', ['identifier' => $result->identifier]),
-                    'expires_at' => $expires->format(\DateTimeInterface::ATOM),
+                    'expires_at' => $expires?->format(\DateTimeInterface::ATOM),
                 ])->toResponse();
             }
 
