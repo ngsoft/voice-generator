@@ -18,7 +18,9 @@
             ".vscode/*.json",
             //   Waiting for more support, extremely buggy
             "!**/*.{svelte,vue,astro}",
-            "!app/theme/tailwind.css",
+            "!app/app.d.ts",
+            "!app/theme/theme.css",
+            "!app/theme/skeleton/*",
             "!biome.jsonc",
             "!node_modules",
             "!vendor"

@@ -142,7 +142,7 @@ export class CacheMiddleware implements IMiddleware<IFetchRequest, Promise<IFetc
         const entry = this.getCache(key);
 
         // No entry found or corrupt, pass to next and cache the response
-        if (!entry || !entry.cache || !entry.cache.timestamp || entry.cache.age === undefined) {
+        if (!entry?.cache?.timestamp || entry.cache.age === undefined) {
             return next(options).then((response) => this.setCache(key, response));
         }
 

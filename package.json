@@ -3,9 +3,9 @@
   "type": "module",
   "scripts": {
     "init": "composer update && npm install",
-    "dev": "concurrently -c auto -p pid \"npm run vite\" \"npm run serve\"",
+    "dev": "concurrently -c auto -p pid \"npm run watch\" \"npm run serve\"",
     "vite": "cross-env APP_URL=http://127.0.0.1:8600 vite",
-    "watch": "cross-env APP_URL=http://127.0.0.1:8600 CHOKIDAR_USEPOLLING=true vite build --mode development --watch",
+    "watch": "cross-env APP_URL=http://127.0.0.1:8600 vite build --mode development --watch",
     "build": "vite build",
     "build:prod": "cross-env APP_ENV=prod vite build",
     "preview": "vite preview",
@@ -42,7 +42,11 @@
     "vite": "^7.1.12"
   },
   "dependencies": {
-    "preline": "^4.1.3"
+    "@iconify-json/lucide": "^1.2.102",
+    "@iconify-json/tabler": "^1.2.33",
+    "@iconify/tailwind4": "^1.2.3",
+    "@skeletonlabs/skeleton": "^4.15.1",
+    "flyonui": "^2.4.1"
   },
   "trustedDependencies": [
     "svelte-preprocess"

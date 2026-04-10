@@ -25,8 +25,9 @@
       "$sdk/*": ["./app/packages/sdk/*"],
       "$packages": ["./app/packages"],
       "$packages/*": ["./app/packages/*"]
-    }
+    },
+    "types": ["node", "zepto"]
   },
-  "include": ["vite.config.ts", "app/**/*.ts", "app/**/*.js", "app/**/*.svelte"],
+  "include": ["vite.config.ts", "app/**/*.ts", "app/**/*.js", "app/**/*.svelte", "**/*.spec.ts"],
   "exclude": ["node_modules/**", "vendor/**"]
 }

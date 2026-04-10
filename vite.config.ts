@@ -8,7 +8,9 @@ const dev = 'prod' !== process.env.APP_ENV;
 
 
 const config: UserConfig = {
-    build: {minify: true, sourcemap: dev},
+    build: {
+        sourcemap: dev, minify: true, chunkSizeWarningLimit: 500
+    },
     plugins: [
         laravel({
             // those are the endpoints to use with the adapter
@@ -35,6 +37,7 @@ const config: UserConfig = {
     server: {cors: true},
     // do not copy index.php
     publicDir: false,
+
 };
 
 export default defineConfig(

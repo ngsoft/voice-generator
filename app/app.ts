@@ -1,3 +1,4 @@
+import "@/libs";
 import '@/components/darkmode-switch';
 import type {HSSelect, ISingleOption} from 'preline/non-auto';
 import {getSelect} from '@/components/advanced-select';
