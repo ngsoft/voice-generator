@@ -7,10 +7,7 @@
 @import "./skeleton/index.css";
 @import "./skeleton/themes/concord.css";
 
-@plugin "flyonui" {
-    themes: light --default, black --prefersdark;
-    /*exclude: button;*/
-}
+@plugin "flyonui";
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
