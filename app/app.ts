@@ -1,4 +1,6 @@
-import "@/libs";
+import {initializeRange} from '@/components/range-slider';
+
+import('@/libs');
 import '@/components/darkmode-switch';
 import type {HSSelect, ISingleOption} from 'preline/non-auto';
 import {getSelect} from '@/components/advanced-select';
@@ -34,7 +36,13 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
             voice_options: ISingleOption[] = [],
             voice_map = new Map<string, Voice>(),
             // lang autocomplete
-            lang_select = getSelect(controls.lang);
+            lang_select = getSelect(controls.lang),
+            format_select = getSelect(controls.format),
+            provider_select = getSelect(controls.provider);
+
+        initializeRange(controls.rate);
+        initializeRange(controls.pitch);
+        initializeRange(controls.volume);
 
         // build voices options select
         for (const lang_name in voices) {
@@ -86,7 +94,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                     await showModal('Some fields are not valid.');
                     return;
                 }
-                $(controls.player).addClass('opacity-0 invisible');
+                $(controls.player).addClass('opacity-0 invisible h-0');
 
                 const voice_name = controls.voice.value,
                     voice = voice_map.get(voice_name);
@@ -107,7 +115,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                         $(controls.download).attr({href: resp.url, download: filename});
                         $(controls.filename).text(filename);
                         $(controls.audio).attr('src', resp.url);
-                        $(controls.player).removeClass('opacity-0 invisible');
+                        $(controls.player).removeClass('opacity-0 invisible h-0');
                         try {
                             await controls.audio.play();
                             return;
@@ -118,10 +126,11 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 }
             })
             .on('reset', (_event: Event) => {
-                [controls.pitch, controls.volume, controls.rate].forEach((target) => $(target).next().html('1.0'));
                 filterVoices(true);
+                provider_select.setValue('all');
+                format_select.setValue('mp3');
                 lang_select.setValue('all');
-                $(controls.player).addClass('opacity-0 invisible');
+                $(controls.player).addClass('opacity-0 invisible h-0');
             })
             .on('change', (event: Event) => {
                 const target = (event.target as HTMLElement).closest('input,textarea,select') as
@@ -132,11 +141,6 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 if (target) {
                     const name = target.getAttribute('name');
                     switch (name) {
-                        case 'pitch':
-                        case 'volume':
-                        case 'rate':
-                            $(target).next().html(parseFloat(target.value).toFixed(1));
-                            break;
                         case 'provider':
                         case 'lang':
                             filterVoices();

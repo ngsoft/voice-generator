@@ -26,7 +26,7 @@
       "$packages": ["./app/packages"],
       "$packages/*": ["./app/packages/*"]
     },
-    "types": ["node", "zepto"]
+    "types": ["node", "zepto", "vite/client", "./app/app.d.ts"]
   },
   "include": ["vite.config.ts", "app/**/*.ts", "app/**/*.js", "app/**/*.svelte", "**/*.spec.ts"],
   "exclude": ["node_modules/**", "vendor/**"]

@@ -1,17 +1,26 @@
 {
   "app/app.css": {
-    "file": "assets/app-BbmpjlmM.css",
-    "src": "app/app.css",
-    "isEntry": true,
+    "file": "assets/app-B1jgW6pa.css",
     "name": "app",
     "names": [
       "app.css"
-    ]
+    ],
+    "src": "app/app.css",
+    "isEntry": true
   },
   "app/app.ts": {
-    "file": "assets/app-sFyXU8de.js",
+    "file": "assets/app-COwYzyCM.js",
     "name": "app",
     "src": "app/app.ts",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "app/libs.ts"
+    ]
+  },
+  "app/libs.ts": {
+    "file": "assets/libs-BkcIJk8P.js",
+    "name": "libs",
+    "src": "app/libs.ts",
+    "isDynamicEntry": true
   }
 }

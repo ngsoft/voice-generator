@@ -1,4 +1,4 @@
-import { environment } from '$sdk/environment';
+import { environment } from '@';
 
 export async function getSessionAuthorization(): Promise<string | null> {
     try {

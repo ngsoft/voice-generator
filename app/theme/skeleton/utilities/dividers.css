@@ -2,16 +2,16 @@
 
 /* Horizontal Rule */
 @utility hr {
-  display: block;
-  width: 100%;
-  border-color: var(--color-surface-200-800);
-  border-top-width: 1px;
+	border-color: var(--color-surface-200-800);
+	border-top-width: 1px;
+	display: block;
+	width: 100%;
 }
 
 /* Vertical Rule */
 @utility vr {
-  display: inline-block;
-  height: 100%;
-  border-color: var(--color-surface-200-800);
-  border-left-width: 1px;
+	border-color: var(--color-surface-200-800);
+	border-left-width: 1px;
+	display: inline-block;
+	height: 100%;
 }

@@ -1,16 +1,21 @@
 import type { Writable } from 'svelte/store';
+import { environment } from '@';
 import { LocalStore } from '$sdk';
-import { environment } from '$sdk/environment';
 
 type DarkModeValue = 'auto' | 'on' | 'off';
 
 const store = new LocalStore(localStorage, environment.app.id),
+    doc = $(environment.document.documentElement),
     enabled: Writable<DarkModeValue | null> = store.writable('dark-mode-enabled', null),
     lightMode: MediaQueryList = globalThis.matchMedia('(prefers-color-scheme: light)'),
-    darkModeSwitch: ZeptoCollection = $('#dark-mode-switch');
+    darkModeSwitch = $('#dark-mode-switch'),
+    { light, dark, skeleton } = environment.app.theme;
 
 function toggleDarkMode(on: boolean) {
-    environment.document.documentElement.classList.toggle('dark', on);
+    doc.toggleClass('dark', on).attr({
+        'data-skeleton': skeleton,
+        'data-theme': on ? dark : light,
+    });
     darkModeSwitch.prop('checked', on);
 }
 

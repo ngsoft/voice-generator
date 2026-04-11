@@ -14,7 +14,8 @@ readonly class AudioConverter
         }
 
         $proc = Process::fromShellCommandline(sprintf(
-            'ffmpeg -i "%s" -acodec pcm_s16le -ar 16000 "%s"',
+            '"%s" -i "%s" -acodec pcm_s16le -ar 16000 "%s"',
+            $_ENV['FFMPEG_LOCATION'] ?? 'ffmpeg',
             $input,
             $output
         ));
@@ -45,7 +46,8 @@ readonly class AudioConverter
         }
 
         $proc = Process::fromShellCommandline(sprintf(
-            'ffmpeg -i "%s" -acodec libvorbis -ar 16000 "%s"',
+            '"%s" -i "%s" -acodec libvorbis -ar 16000 "%s"',
+            $_ENV['FFMPEG_LOCATION'] ?? 'ffmpeg',
             $input,
             $output
         ));
@@ -72,7 +74,8 @@ readonly class AudioConverter
         if (is_file($input))
         {
             $proc = Process::fromShellCommandline(sprintf(
-                'ffprobe -i "%s" -show_entries format=duration -v quiet -of csv="p=0"',
+                '"%s" -i "%s" -show_entries format=duration -v quiet -of csv="p=0"',
+                $_ENV['FFPROBE_LOCATION'] ?? 'ffprobe',
                 $input
             ));
 

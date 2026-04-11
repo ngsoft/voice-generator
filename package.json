@@ -9,7 +9,7 @@
     "build": "vite build",
     "build:prod": "cross-env APP_ENV=prod vite build",
     "preview": "vite preview",
-    "clean": "rm -rf build && rm -rf dist && rm -rf public/build/manifest.json && rm -rf public/build/assets",
+    "clean": "rm -rf build && rm -rf dist && rm -rf public/build/manifest.json && rm -rf public/build/assets && rm -rf public/assets/app/manifest.json && rm -rf public/assets/app/assets",
     "check": "svelte-check --tsconfig ./tsconfig.json && biome check app",
     "fix": "biome check app --write --unsafe && biome check config/vite --write --unsafe",
     "serve": "npm run serve:stop && symfony server:start --no-tls --use-gzip --allow-all-ip --port=8600",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
     "@internationalized/date": "^3.10.0",
-    "@sveltejs/vite-plugin-svelte": "^6",
+    "@sveltejs/vite-plugin-svelte": "^7",
     "@tailwindcss/forms": "^0.5",
     "@tailwindcss/typography": "^0.5",
     "@tailwindcss/vite": "^4",
@@ -28,7 +28,7 @@
     "@types/zepto": "^1.0.36",
     "concurrently": "^9.2.1",
     "cross-env": "^10",
-    "laravel-vite-plugin": "^2",
+    "laravel-vite-plugin": "^3",
     "match-operator": "^0.3.1",
     "rxjs": "^7.8.2",
     "svelte": "^5.53.7",
@@ -38,17 +38,17 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.14",
     "tslib": "^2",
-    "typescript": "^5",
-    "vite": "^7.1.12"
+    "typescript": "^6",
+    "vite": "^8"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.102",
     "@iconify-json/tabler": "^1.2.33",
     "@iconify/tailwind4": "^1.2.3",
     "@skeletonlabs/skeleton": "^4.15.1",
-    "flyonui": "^2.4.1"
+    "flyonui": "^2.4.1",
+    "node-waves": "^0.7.6",
+    "preline": "^4.1.3"
   },
-  "trustedDependencies": [
-    "svelte-preprocess"
-  ]
+  "trustedDependencies": ["svelte-preprocess"]
 }

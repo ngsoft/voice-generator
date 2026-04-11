@@ -2,10 +2,12 @@
 @import "./theme/theme.css";
 
 :root,
-[data-theme] {
+[data-theme],
+[data-skeleton] {
   --base-font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --font-sans: var(--base-font-family);
   --heading-font-family: var(--base-font-family);
+  --text-scaling: 1;
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -13,12 +15,16 @@
   text-rendering: optimizeLegibility;
 }
 
+.dark {
+  color-scheme: dark;
+}
+
 body {
-  @apply p-0 m-0 w-screen h-screen overflow-y-auto;
+  @apply p-0 m-0 w-screen min-h-screen overflow-y-auto;
 }
 
 main {
-  @apply w-full mt-10 md:max-w-[90vw] mx-auto p-2 flex flex-col justify-center items-center;
+  @apply w-full pt-10 md:max-w-[90vw] mx-auto p-2 flex flex-col justify-center items-center;
 }
 
 .alert-dismissible {

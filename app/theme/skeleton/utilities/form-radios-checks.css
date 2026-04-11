@@ -8,93 +8,93 @@
 */
 
 @utility checkbox {
-  --tw-ring-color: var(--color-surface-200-800);
-  width: --spacing(5);
-  height: --spacing(5);
-  accent-color: var(--color-surface-300-700);
+	--tw-ring-color: var(--color-surface-200-800);
 
-  cursor: pointer;
-  background-color: var(--color-surface-300-700);
-  border-radius: var(--radius-sm);
+	cursor: pointer;
+	background-color: var(--color-surface-300-700);
+	accent-color: var(--color-surface-300-700);
+	border-radius: var(--radius-sm);
+	height: --spacing(5);
+	width: --spacing(5);
 
-  @variant focus-within {
-    --tw-ring-color: var(--color-primary-500);
-  }
-  @variant hover {
-    filter: brightness(105%);
-  }
-  @variant focus {
-    filter: brightness(105%);
-  }
+	@variant focus-within {
+		--tw-ring-color: var(--color-primary-500);
+	}
+	@variant hover {
+		filter: brightness(105%);
+	}
+	@variant focus {
+		filter: brightness(105%);
+	}
 
-  &:checked {
-    accent-color: var(--color-primary-500);
-    background-color: var(--color-primary-500);
+	&:checked {
+		background-color: var(--color-primary-500);
+		accent-color: var(--color-primary-500);
 
-    @variant hover {
-      accent-color: var(--color-primary-500);
-      background-color: var(--color-primary-500);
-    }
-    @variant focus {
-      accent-color: var(--color-primary-500);
-      background-color: var(--color-primary-500);
-      border: 0;
-    }
-  }
+		@variant hover {
+			background-color: var(--color-primary-500);
+			accent-color: var(--color-primary-500);
+		}
+		@variant focus {
+			background-color: var(--color-primary-500);
+			accent-color: var(--color-primary-500);
+			border: 0;
+		}
+	}
 
-  &:indeterminate {
-    accent-color: var(--color-primary-500);
-    background-color: var(--color-primary-500);
+	&:indeterminate {
+		background-color: var(--color-primary-500);
+		accent-color: var(--color-primary-500);
 
-    @variant hover {
-      accent-color: var(--color-primary-500);
-      background-color: var(--color-primary-500);
-    }
-    @variant focus {
-      accent-color: var(--color-primary-500);
-      background-color: var(--color-primary-500);
-      border: 0;
-    }
-  }
+		@variant hover {
+			background-color: var(--color-primary-500);
+			accent-color: var(--color-primary-500);
+		}
+		@variant focus {
+			background-color: var(--color-primary-500);
+			accent-color: var(--color-primary-500);
+			border: 0;
+		}
+	}
 }
 
 @utility radio {
-  --tw-ring-color: var(--color-surface-200-800);
-  width: --spacing(5);
-  width: --spacing(5);
-  height: --spacing(5);
-  height: --spacing(5);
-  accent-color: var(--color-surface-300-700);
+	--tw-ring-color: var(--color-surface-200-800);
 
-  cursor: pointer;
-  background-color: var(--color-surface-300-700);
-  border-radius: var(--radius-sm);
+	cursor: pointer;
+	background-color: var(--color-surface-300-700);
+	accent-color: var(--color-surface-300-700);
+	border-radius: var(--radius-sm);
+	height: --spacing(5);
+	width: --spacing(5);
 
-  /* Base Size --- */
-  border-radius: 100%;
+	/* Base Size --- */
+	border-radius: 100%;
+	height: --spacing(5);
+	width: --spacing(5);
 
-  @variant focus-within {
-    --tw-ring-color: var(--color-primary-500);
-  }
-  @variant hover {
-    filter: brightness(105%);
-  }
-  @variant focus {
-    filter: brightness(105%);
-  }
+	@variant focus-within {
+		--tw-ring-color: var(--color-primary-500);
+	}
+	@variant hover {
+		filter: brightness(105%);
+	}
+	@variant focus {
+		filter: brightness(105%);
+	}
 
-  &:checked {
-    accent-color: var(--color-primary-500);
-    background-color: var(--color-primary-500);
+	&:checked {
+		background-color: var(--color-primary-500);
+		accent-color: var(--color-primary-500);
 
-    @variant hover {
-      accent-color: var(--color-primary-500);
-      background-color: var(--color-primary-500);
-    }
-    @variant focus {
-      accent-color: var(--color-primary-500);
-      background-color: var(--color-primary-500);
-      border: 0;
-    }
-  }
+		@variant hover {
+			background-color: var(--color-primary-500);
+			accent-color: var(--color-primary-500);
+		}
+		@variant focus {
+			background-color: var(--color-primary-500);
+			accent-color: var(--color-primary-500);
+			border: 0;
+		}
+	}
 }

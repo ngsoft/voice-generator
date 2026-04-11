@@ -9,6 +9,7 @@ use NGSOFT\Routing\Interface\UrlGeneratorInterface;
 use NGSOFT\Routing\RouteGenerator;
 use NGSOFT\Routing\Routing;
 use NGSOFT\Vite\Adapter\ViteAdapter;
+use NGSOFT\Vite\Adapter\ViteAdapterOptions;
 use OpenApi\Annotations\OpenApi;
 use Provider\ElevenLabsVoiceProvider;
 use Provider\MicrosoftEdgeVoiceProvider;
@@ -54,12 +55,17 @@ return function (Container $container)
         SessionInterface::class        => fn (Request $request) => $request->hasSession()
             ? $request->getSession()
             : tap($request, fn (Request $request) => $request->setSession(new Session()))->getSession(),
-        ViteAdapter::class             => fn (Request $request) => (new ViteAdapter(
+        ViteAdapter::class             => fn (Request $request) => new ViteAdapter(
             resolve_path('%project_root%'),
-            resolve_path('%public%')
-        ))->setHotFile(resolve_path('%public%', 'build/hot'))
-            ->setBasePath($request->getBasePath())
-            ->setBuildDirectory(is_dev() ? 'build' : 'assets/app'),
+            resolve_path('%public%'),
+            new ViteAdapterOptions(
+                buildDirectory: is_dev() ? 'build' : 'assets/app',
+                basePath: $request->getBasePath(),
+                fixScriptsImports: true,
+                fixStylesImports: true,
+                hotFile: resolve_path('%public%/build/hot'),
+            )
+        ),
         Request::class                 => Services::getRequest(),
         LocaleService::class           => $translator,
         Translator::class              => $translator->getTranslator(),

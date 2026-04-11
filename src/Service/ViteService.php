@@ -61,14 +61,7 @@ class ViteService implements \Stringable
 
         try
         {
-            $html = $this->viteAdapter->loadEntryPoints($load);
-
-            // remove multiple client definitions
-            if ( ! $client && preg_match('#<script.+@vite/client.+script>\n#i', $html, $capture))
-            {
-                $html = str_replace($capture[0], '', $html);
-            }
-            return $html;
+            return $this->viteAdapter->loadEntryPoints($load, loadClient: $client);
         } catch (ViteException $error)
         {
             $this->logger->error(

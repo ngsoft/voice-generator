@@ -1,22 +1,40 @@
 @import "tailwindcss";
-/*@import "./skeleton/index.css";*/
-/*@import "./skeleton/themes/concord.css";*/
+
+@import "node-waves/dist/waves.min.css";
 @import "flyonui/variants.css";
-/*@import "preline/variants.css";*/
+@import "flyonui/src/vendor/waves.css";
 
+@import "./skeleton/index.css";
+@import "./skeleton/themes/concord.css";
 
-@source "node_modules/flyonui/dist/index.js";
-
+@plugin "flyonui" {
+    themes: light --default, black --prefersdark;
+    /*exclude: button;*/
+}
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
-@plugin "flyonui" {
-    themes: slack --default, black --prefersdark;
-}
+
 @plugin "@iconify/tailwind4";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer utilities {
+
+    .btn {
+        flex-shrink: initial;
+    }
+
+    .appearance-textfield {
+        -webkit-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .appearance-textfield::-webkit-inner-spin-button,
+    .appearance-textfield::-webkit-outer-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+
     .visually-hidden {
         position: absolute;
         width: 1px;
@@ -41,6 +59,8 @@
         clip: auto;
         clip-path: none;
     }
+
+
 }
 
 .preset-glass-neutral {

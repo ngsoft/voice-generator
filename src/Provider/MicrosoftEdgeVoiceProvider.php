@@ -140,12 +140,16 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
         {
             try
             {
+                set_default_error_handler();
                 $list = $this->client->getVoices();
                 ! empty($list) && $this->cache->set($key, $list, 600);
             } catch (\Throwable $exception)
             {
                 $this->logError($exception);
                 return [];
+            } finally
+            {
+                restore_error_handler();
             }
         }
 

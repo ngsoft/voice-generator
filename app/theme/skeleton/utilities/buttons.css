@@ -1,139 +1,141 @@
 /* Components: Buttons */
 
 @utility btn {
-  display: inline-flex;
-  flex-direction: row;
-  gap: --spacing(2);
-  align-items: center;
-  justify-content: center;
-  padding-block: --spacing(1);
-  padding-inline: --spacing(4);
+	border-radius: var(--radius-base);
 
-  /* Size */
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
-  white-space: nowrap;
+	/* Icon Spacing */
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: --spacing(2);
 
-  /* Typography */
-  text-decoration-line: none;
-  border-radius: var(--radius-base);
-  transition-timing-function: var(--default-transition-timing-function);
-  transition-duration: var(--default-transition-duration);
+	/* Typography */
+	text-decoration-line: none;
+	white-space: nowrap;
 
-  /* Transitions */
-  transition-property:
-    color,
-    background-color,
-    border-color,
-    outline-color,
-    text-decoration-color,
-    fill,
-    stroke,
-    --tw-gradient-from,
-    --tw-gradient-via,
-    --tw-gradient-to,
-    opacity,
-    box-shadow,
-    transform,
-    translate,
-    scale,
-    rotate,
-    filter,
-    -webkit-backdrop-filter,
-    backdrop-filter,
-    display,
-    content-visibility,
-    overlay,
-    pointer-events;
+	/* Size */
+	font-size: var(--text-base);
+	line-height: var(--text-base--line-height);
+	padding-block: --spacing(1);
+	padding-inline: --spacing(4);
 
-  &:not(:disabled) {
-    &:hover {
-      filter: brightness(125%);
-      @variant dark {
-        filter: brightness(75%);
-      }
-    }
-  }
+	/* Transitions */
+	transition-property:
+		color,
+		background-color,
+		border-color,
+		outline-color,
+		text-decoration-color,
+		fill,
+		stroke,
+		--tw-gradient-from,
+		--tw-gradient-via,
+		--tw-gradient-to,
+		opacity,
+		box-shadow,
+		transform,
+		translate,
+		scale,
+		rotate,
+		filter,
+		-webkit-backdrop-filter,
+		backdrop-filter,
+		display,
+		content-visibility,
+		overlay,
+		pointer-events;
+	transition-timing-function: var(--default-transition-timing-function);
+	transition-duration: var(--default-transition-duration);
+
+	@variant not-disabled {
+		@variant hover {
+			filter: brightness(125%);
+			@variant dark {
+				filter: brightness(75%);
+			}
+		}
+	}
 }
 
 @utility btn-icon {
-  box-sizing: content-box;
+	box-sizing: content-box;
+	border-radius: var(--radius-base);
 
-  /* Center Icons */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--text-base);
-  height: var(--text-base);
-  padding: --spacing(2);
+	/* Center Icons */
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
 
-  /* Size */
-  font-size: var(--text-base);
-  white-space: nowrap;
+	/* Typography */
+	text-decoration-line: none;
+	white-space: nowrap;
 
-  /* Typography */
-  text-decoration-line: none;
-  border-radius: var(--radius-base);
+	/* Size */
+	font-size: var(--text-base);
+	width: var(--text-base);
+	height: var(--text-base);
+	padding: --spacing(2);
 
-  &:not(:disabled) {
-    &:hover {
-      filter: brightness(125%);
-      @variant dark {
-        filter: brightness(75%);
-      }
-    }
-  }
+	@variant not-disabled {
+		@variant hover {
+			filter: brightness(125%);
+			@variant dark {
+				filter: brightness(75%);
+			}
+		}
+	}
 }
 
 /* Sizes --- */
 
 /* Button */
 @utility btn-sm {
-  padding-block: --spacing(1);
-  padding-inline: --spacing(3);
-  font-size: var(--text-xs);
-  line-height: var(--text-xs--line-height);
+	font-size: var(--text-xs);
+	line-height: var(--text-xs--line-height);
+	padding-block: --spacing(1);
+	padding-inline: --spacing(3);
 }
 @utility btn-base {
-  padding-block: --spacing(1);
-  padding-inline: --spacing(4);
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+	font-size: var(--text-base);
+	line-height: var(--text-base--line-height);
+	padding-block: --spacing(1);
+	padding-inline: --spacing(4);
 }
 @utility btn-lg {
-  padding-block: --spacing(2);
-  padding-inline: --spacing(5);
-  font-size: var(--text-xl);
-  line-height: var(--text-xl--line-height);
+	font-size: var(--text-xl);
+	line-height: var(--text-xl--line-height);
+	padding-block: --spacing(2);
+	padding-inline: --spacing(5);
 }
 
 /* Button Icon */
 @utility btn-icon-sm {
-  width: var(--text-xs);
-  height: var(--text-xs);
-  padding: --spacing(1.5);
-  font-size: var(--text-xs);
+	font-size: var(--text-xs);
+	width: var(--text-xs);
+	height: var(--text-xs);
+	padding: --spacing(1.5);
 }
 @utility btn-icon-base {
-  width: var(--text-base);
-  height: var(--text-base);
-  padding: --spacing(2);
-  font-size: var(--text-base);
+	font-size: var(--text-base);
+	width: var(--text-base);
+	height: var(--text-base);
+	padding: --spacing(2);
 }
 @utility btn-icon-lg {
-  width: var(--text-xl);
-  height: var(--text-xl);
-  padding: --spacing(3);
-  font-size: var(--text-xl);
+	font-size: var(--text-xl);
+	width: var(--text-xl);
+	height: var(--text-xl);
+	padding: --spacing(3);
 }
 
 /* Group --- */
 
 @utility btn-group {
-  display: inline-flex;
-  gap: --spacing(2);
-  align-items: center;
-  padding: --spacing(2);
-  overflow: hidden;
-  border-radius: var(--radius-container);
+	border-radius: var(--radius-container);
+	display: inline-flex;
+	align-items: center;
+	gap: --spacing(2);
+	padding: --spacing(2);
+	overflow: hidden;
 }
