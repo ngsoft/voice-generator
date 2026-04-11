@@ -8,7 +8,7 @@
     <link rel="shortcut icon" href="<?= asset('favicon.ico') ?>">
     <?= ($meta_block ?? '') . ($preload_block ?? '') . ($styles_block ?? '') . ($head_block ?? '') . ($vite_block ?? '') ?>
 </head>
-<body>
+<body class="">
 <?= $content ?? '' ?>
 <?= ($scripts_block ?? '') ?>
 </body>

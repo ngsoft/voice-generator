@@ -5,7 +5,7 @@
     "init": "composer update && npm install",
     "dev": "concurrently -c auto -p pid \"npm run watch\" \"npm run serve\"",
     "vite": "cross-env APP_URL=http://127.0.0.1:8600 vite",
-    "watch": "cross-env APP_URL=http://127.0.0.1:8600 vite build --mode development --watch",
+    "watch": "cross-env APP_URL=http://127.0.0.1:8600 vite build --mode dev --watch",
     "build": "vite build",
     "build:prod": "cross-env APP_ENV=prod vite build",
     "preview": "vite preview",
@@ -25,7 +25,6 @@
     "@tailwindcss/typography": "^0.5",
     "@tailwindcss/vite": "^4",
     "@types/node": "^24.9.1",
-    "@types/zepto": "^1.0.36",
     "concurrently": "^9.2.1",
     "cross-env": "^10",
     "laravel-vite-plugin": "^3",
@@ -42,6 +41,7 @@
     "vite": "^8"
   },
   "dependencies": {
+    "@types/zepto": "^1.0.36",
     "@iconify-json/lucide": "^1.2.102",
     "@iconify-json/tabler": "^1.2.33",
     "@iconify/tailwind4": "^1.2.3",

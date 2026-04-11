@@ -3,7 +3,7 @@
 @import "node-waves/dist/waves.min.css";
 @import "flyonui/variants.css";
 @import "flyonui/src/vendor/waves.css";
-
+@import "./daisy-ui/index.css";
 @import "./skeleton/index.css";
 @import "./skeleton/themes/concord.css";
 

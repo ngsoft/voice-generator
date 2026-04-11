@@ -1,0 +1,40 @@
+@import "./themes/abyss.css";
+@import "./themes/acid.css";
+@import "./themes/aqua.css";
+@import "./themes/autumn.css";
+@import "./themes/bumblebee.css";
+@import "./themes/business.css";
+@import "./themes/caramellatte.css";
+@import "./themes/cmyk.css";
+@import "./themes/coffee.css";
+@import "./themes/cupcake.css";
+@import "./themes/cyberpunk.css";
+@import "./themes/dim.css";
+@import "./themes/dracula.css";
+@import "./themes/emerald.css";
+@import "./themes/fantasy.css";
+@import "./themes/forest.css";
+@import "./themes/garden.css";
+@import "./themes/halloween.css";
+@import "./themes/lemonade.css";
+@import "./themes/lofi.css";
+@import "./themes/night.css";
+@import "./themes/nord.css";
+@import "./themes/retro.css";
+@import "./themes/silk.css";
+@import "./themes/sunset.css";
+@import "./themes/synthwave.css";
+@import "./themes/valentine.css";
+@import "./themes/winter.css";
+@import "./themes/wireframe.css";
+
+:root,
+[data-theme] {
+  color: var(--color-base-content);
+  scrollbar-color: color-mix(in oklch, currentColor 35%, #0000) #0000;
+  background: var(--page-scroll-bg, var(--root-bg));
+}
+
+:where(:root, [data-theme]) {
+  --root-bg: var(--color-base-100);
+}

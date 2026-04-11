@@ -1,14 +1,14 @@
-import {initializeRange} from '@/components/range-slider';
+import { initializeRange } from '@/components/range-slider';
 
 import('@/libs');
 import '@/components/darkmode-switch';
-import type {HSSelect, ISingleOption} from 'preline/non-auto';
-import {getSelect} from '@/components/advanced-select';
-import {app_get} from '@/components/data-loader';
-import {speakRequest} from '@/components/http-client';
-import {showModal} from '@/components/modal';
-import type {Langs, Provider, Voice} from '@/types';
-import {finder} from '$sdk';
+import type { HSSelect, ISingleOption } from 'preline/non-auto';
+import { getSelect } from '@/components/advanced-select';
+import { app_get } from '@/components/data-loader';
+import { speakRequest } from '@/components/http-client';
+import { showModal } from '@/components/modal';
+import type { Langs, Provider, Voice } from '@/types';
+import { finder } from '$sdk';
 
 finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
     const providers: Provider | null = app_get('providers'),
@@ -61,7 +61,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 const option = $(`<option value="${opt.val}">${opt.title}</option>`).get(0) as HTMLOptionElement;
                 voice_map.set(opt.val, voice);
                 controls.voice.appendChild(option);
-                voice_select.addOption({...opt});
+                voice_select.addOption({ ...opt });
             }
         }
 
@@ -81,7 +81,7 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 if (!reset && 'all' !== lang && opt.options?.apiFields?.lang !== lang) {
                     continue;
                 }
-                voice_select.addOption({...opt});
+                voice_select.addOption({ ...opt });
             }
             voice_select.setValue('');
             controls.voice.selectedIndex = 0;
@@ -112,15 +112,14 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                     if (resp.success && resp.url) {
                         controls.audio.pause();
                         const filename = `${resp.url.split('/').slice(-1)[0]}.${format}`;
-                        $(controls.download).attr({href: resp.url, download: filename});
+                        $(controls.download).attr({ href: resp.url, download: filename });
                         $(controls.filename).text(filename);
                         $(controls.audio).attr('src', resp.url);
                         $(controls.player).removeClass('opacity-0 invisible h-0');
                         try {
                             await controls.audio.play();
                             return;
-                        } catch (_) {
-                        }
+                        } catch (_) {}
                     }
                     await showModal('An error occurred.');
                 }
