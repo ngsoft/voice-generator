@@ -4,17 +4,20 @@ import('@/libs');
 import '@/components/darkmode-switch';
 import type { HSSelect, ISingleOption } from 'preline/non-auto';
 import { getSelect } from '@/components/advanced-select';
+import { configStore, type SavedConfig, savedConfigReminder } from '@/components/config-store';
 import { app_get } from '@/components/data-loader';
 import { speakRequest } from '@/components/http-client';
-import { showModal } from '@/components/modal';
+import { displayModal } from '@/components/modal';
 import type { Langs, Provider, Voice } from '@/types';
 import { finder } from '$sdk';
+import { debug } from '$sdk/environment';
 
 finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
     const providers: Provider | null = app_get('providers'),
         voices: { [lang_name: string]: Voice[] } | null = app_get('voices'),
         langs: Langs | null = app_get('langs');
-
+    let locked = false,
+        loaded = false;
     if (voices && langs && providers) {
         const controls = {
                 form,
@@ -31,18 +34,17 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 filename: form.querySelector('#filename') as HTMLSpanElement,
                 audio: form.querySelector('#audio') as HTMLAudioElement,
                 player: form.querySelector('#audio-player') as HTMLDivElement,
+                loader: form.querySelector('.loading') as HTMLSpanElement,
             },
             voice_select: HSSelect = getSelect(controls.voice),
             voice_options: ISingleOption[] = [],
             voice_map = new Map<string, Voice>(),
-            // lang autocomplete
-            lang_select = getSelect(controls.lang),
-            format_select = getSelect(controls.format),
-            provider_select = getSelect(controls.provider);
-
-        initializeRange(controls.rate);
-        initializeRange(controls.pitch);
-        initializeRange(controls.volume);
+            lang_select: HSSelect = getSelect(controls.lang),
+            format_select: HSSelect = getSelect(controls.format),
+            provider_select: HSSelect = getSelect(controls.provider),
+            rate_range = initializeRange(controls.rate),
+            pitch_range = initializeRange(controls.pitch),
+            volume_range = initializeRange(controls.volume);
 
         // build voices options select
         for (const lang_name in voices) {
@@ -63,6 +65,10 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 controls.voice.appendChild(option);
                 voice_select.addOption({ ...opt });
             }
+        }
+
+        function loader(on: boolean = true) {
+            $(controls.loader).toggleClass('hidden', !(locked = on));
         }
 
         function filterVoices(reset: boolean = false) {
@@ -90,8 +96,18 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
         $(form)
             .on('submit', async (event: Event) => {
                 event.preventDefault();
+                if (locked) {
+                    await displayModal({
+                        message: 'One request at a time',
+                        title: '<span class="text-error">Error</span>',
+                    });
+                    return;
+                }
                 if (!form.checkValidity()) {
-                    await showModal('Some fields are not valid.');
+                    await displayModal({
+                        message: 'Some fields are not valid.',
+                        title: '<span class="text-error">Error</span>',
+                    });
                     return;
                 }
                 $(controls.player).addClass('opacity-0 invisible h-0');
@@ -99,17 +115,40 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 const voice_name = controls.voice.value,
                     voice = voice_map.get(voice_name);
                 if (voice) {
+                    loader();
+                    $(controls.loader).toggleClass('hidden', false);
                     const format = controls.format.value,
                         resp = await speakRequest({
                             text: controls.text.value,
                             lang: voice.lang,
                             voice: voice.name,
-                            rate: parseFloat(controls.rate.value),
-                            pitch: parseFloat(controls.pitch.value),
-                            volume: parseFloat(controls.volume.value),
+                            rate: rate_range.value,
+                            pitch: pitch_range.value,
+                            volume: volume_range.value,
                             format,
                         });
+                    loader(false);
                     if (resp.success && resp.url) {
+                        // save config
+                        configStore.set({
+                            voice: voice_name,
+                            rate: rate_range.value,
+                            pitch: pitch_range.value,
+                            volume: volume_range.value,
+                            format,
+                        });
+
+                        if (!loaded) {
+                            const { confirmed } = await displayModal({
+                                title: 'Information',
+                                message: 'Your configuration has been saved',
+                            });
+                            if (confirmed) {
+                                loaded = true;
+                                savedConfigReminder.set(true);
+                            }
+                        }
+
                         controls.audio.pause();
                         const filename = `${resp.url.split('/').slice(-1)[0]}.${format}`;
                         $(controls.download).attr({ href: resp.url, download: filename });
@@ -121,7 +160,10 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                             return;
                         } catch (_) {}
                     }
-                    await showModal('An error occurred.');
+                    await displayModal({
+                        message: 'An error occurred.',
+                        title: '<span class="text-error">Error</span>',
+                    });
                 }
             })
             .on('reset', (_event: Event) => {
@@ -130,6 +172,8 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                 format_select.setValue('mp3');
                 lang_select.setValue('all');
                 $(controls.player).addClass('opacity-0 invisible h-0');
+                debug('erasing saved configuration');
+                configStore.set(null);
             })
             .on('change', (event: Event) => {
                 const target = (event.target as HTMLElement).closest('input,textarea,select') as
@@ -150,5 +194,27 @@ finder.one(`form#synthesis-player-form`, async (form: HTMLFormElement) => {
                     }
                 }
             });
+
+        // load stored config
+
+        configStore.subscribe((value: SavedConfig | null) => {
+            if (value) {
+                if (voice_map.has(value.voice)) {
+                    debug('loading saved configuration', value);
+                    voice_select.setValue(value.voice);
+                    format_select.setValue(value.format);
+                    rate_range.value = value.rate;
+                    pitch_range.value = value.pitch;
+                    volume_range.value = value.volume;
+                    loaded = true;
+                }
+            }
+        })();
+
+        savedConfigReminder.subscribe((value) => {
+            if (value) {
+                loaded = true;
+            }
+        })();
     }
 });

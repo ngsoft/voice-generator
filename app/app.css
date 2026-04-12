@@ -43,3 +43,9 @@ main {
       transform 0.45s;
   }
 }
+
+.theme-selector[data-value="auto"] > *:not([data-value="auto"]),
+.theme-selector[data-value="on"] > *:not([data-value="on"]),
+.theme-selector[data-value="off"] > *:not([data-value="off"]) {
+  @apply hidden;
+}

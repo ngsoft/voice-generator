@@ -1,29 +1,15 @@
 <?php
-extend('vite');
+extend('site', ['display_nav' => true]);
 title($title = __('Speech Synthesis Player'));
 ?>
-<header class="flex items-center p-4 border-b border-surface-200-800 bg-surface-50-950/75 backdrop-blur-lg select-none">
-    <div class="container mx-auto flex items-center justify-evenly">
-        <span class="logo ps-4 capitalize h5"><?= trim($title ?? env_get('APP_TITLE', 'My App', false)); ?></span>
-        <label class="ms-auto select-none flex items-center gap-x-2 cursor-pointer">
-            <span class="ms-auto relative block h-8 w-12 [-webkit-tap-highlight-color:transparent]">
-                <input type="checkbox" id="dark-mode-switch" class="peer sr-only">
-                <span class="absolute inset-0 m-auto h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                <span
-                    class="absolute inset-y-0 inset-s-0 m-auto size-6 rounded-full bg-gray-500 transition-[inset-inline-start] peer-checked:inset-s-6 peer-checked:*:scale-0 dark:bg-gray-400">
-                    <span
-                        class="absolute inset-0 m-auto size-4 rounded-full bg-gray-200 transition-transform dark:bg-gray-700"></span>
-                </span>
-            </span>
-            <span><?= __('Dark Mode') ?></span>
-        </label>
-    </div>
-</header>
 <main>
-    <div class="card p-6 rounded-lg max-md:w-full min-w-[70%]">
-        <h3 class="h3 mb-8"><?= __("Voices") ?></h3>
+    <div class="card border p-6 rounded-lg max-md:w-full min-w-[70%] select-none">
+        <h3 class="h3 px-4"><?= __("Voices") ?></h3>
+
+        <div class="divider after:border-t-2 before:border-t-2 mt-2 mb-6 text-base"><?= __('Lang & voice') ?></div>
         <form autocomplete="off" method="post"
-              class="mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 select-none w-full" id="synthesis-player-form">
+              class="mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 w-full"
+              id="synthesis-player-form">
 
             <div class="md:col-span-2">
                 <div class="select-floating">
@@ -80,7 +66,7 @@ title($title = __('Speech Synthesis Player'));
                 <div class="input-floating">
                     <div class="input input-lg rounded-full">
                         <div class="flex gap-x-4 items-center justify-between w-full">
-                            <span>0.1</span>
+                            <span class="w-10">0.1</span>
                             <input class="range range-primary range-lg max-w-50"
                                    id="rate"
                                    name="rate"
@@ -110,7 +96,7 @@ title($title = __('Speech Synthesis Player'));
                                     </button>
                                 </span>
                             </label>
-                            <span>10.0</span>
+                            <span class="w-10 text-end">10.0</span>
                         </div>
                     </div>
                     <label for="rate"
@@ -123,7 +109,7 @@ title($title = __('Speech Synthesis Player'));
                 <div class="input-floating">
                     <div class="input input-lg rounded-full">
                         <div class="flex gap-x-4 items-center justify-between w-full">
-                            <span>0.0</span>
+                            <span class="w-10">0.0</span>
                             <input class="range range-primary range-lg max-w-50"
                                    type="range"
                                    id="pitch"
@@ -153,7 +139,7 @@ title($title = __('Speech Synthesis Player'));
                                     </button>
                               </span>
                             </label>
-                            <span>2.0</span>
+                            <span class="w-10 text-end">2.0</span>
                         </div>
                     </div>
                     <label for="pitch"
@@ -165,7 +151,7 @@ title($title = __('Speech Synthesis Player'));
                 <div class="input-floating">
                     <div class="input input-lg rounded-full">
                         <div class="flex gap-x-4 items-center justify-between w-full">
-                            <span>0.0</span>
+                            <span class="w-10">0.0</span>
                             <input id="volume"
                                    name="volume"
                                    class="range range-primary range-lg max-w-50"
@@ -183,8 +169,7 @@ title($title = __('Speech Synthesis Player'));
                                     value="1.0"
                                     min="0.0"
                                     max="2.0"
-                                    step="0.1"
-                                    aria-roledescription="Number field">
+                                    step="0.1">
                                 <span class="my-auto flex gap-2">
                                     <button type="button" value="-0.1"
                                             class="btn btn-primary btn-soft size-5.5 min-h-0 rounded-full p-0"
@@ -200,7 +185,7 @@ title($title = __('Speech Synthesis Player'));
                                     </button>
                                 </span>
                             </label>
-                            <span>2.0</span>
+                            <span class="w-10 text-end">2.0</span>
                         </div>
                     </div>
                     <label for="volume"
@@ -208,7 +193,9 @@ title($title = __('Speech Synthesis Player'));
                 </div>
 
             </div>
-            <div class="md:col-span-2 mt-3">
+            <div
+                class="divider after:border-t-2 before:border-t-2 my-1 text-base md:col-span-2"><?= __('Text') ?></div>
+            <div class="md:col-span-2">
                 <div class="textarea-floating">
 
                     <textarea
@@ -220,15 +207,16 @@ title($title = __('Speech Synthesis Player'));
                 </div>
             </div>
 
+
             <div class="md:col-span-2">
                 <div id="audio-player"
-                     class="flex max-lg:flex-col-reverse justify-center gap-5 items-center p-0 pt-4 transition-all duration-500 overflow-hidden opacity-0 invisible h-0">
+                     class="flex max-lg:flex-col-reverse justify-center gap-5 items-center p-0 transition-all duration-500 overflow-hidden opacity-0 invisible h-0">
                     <div>
                         <audio controls autoplay id="audio"></audio>
                     </div>
 
                     <a href="#" target="_blank" download="" id="download"
-                       class="btn btn-outline border-dashed waves waves-light flex gap-x-2 items-center py-2 px-4"
+                       class="btn btn-outline btn-info waves waves-info border-2 border-dashed flex gap-x-2 items-center py-2 px-4"
                        title="Download File">
                         <span id="filename"></span>
                         <span class="icon-[lucide--download] size-5 shrink-0"></span>
@@ -237,7 +225,8 @@ title($title = __('Speech Synthesis Player'));
                 </div>
             </div>
 
-            <div class="md:col-span-2 flex justify-between items-center gap-6 mt-6 w-full">
+
+            <div class="md:col-span-2 flex justify-between items-center gap-6 my-2 w-full">
                 <button
                     class="btn btn-lg btn-secondary waves waves-light rounded-lg p-4 w-[25%]"
                     type="reset">
@@ -245,9 +234,11 @@ title($title = __('Speech Synthesis Player'));
                 </button>
 
                 <button
-                    class="btn btn-lg btn-primary waves waves-light rounded-lg p-4 w-full"
+                    class="btn btn-lg btn-primary waves waves-light rounded-lg p-4 w-full relative"
                     type="submit">
-                    <?= __('Listen') ?>
+                    <span class="loading loading-spinner text-neutral absolute left-5 hidden"></span>
+                    <span><?= __('Listen') ?></span>
+
                 </button>
             </div>
         </form>

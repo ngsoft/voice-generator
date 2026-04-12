@@ -1,4 +1,4 @@
-export function initializeRange(range: HTMLInputElement) {
+export function initializeRange(range: HTMLInputElement): { value: number } {
     const controls = {
         range,
         container: $(range).parent().get(0) as HTMLDivElement,
@@ -39,15 +39,13 @@ export function initializeRange(range: HTMLInputElement) {
             range.value = value.toFixed(1);
             controls.input.value = value.toFixed(1);
         }
-
-        console.debug(range.id, 'value', range.value, controls.input.value);
     }
 
     $(range.form).on('reset', () => {
         updateRange(controls.initialValue);
     });
 
-    $(controls.container).on('change keyup click', (event) => {
+    $(controls.container).on('change keydown click', (event) => {
         const target = (event.target as HTMLElement).closest('input, button') as
             | HTMLInputElement
             | HTMLButtonElement
@@ -57,10 +55,14 @@ export function initializeRange(range: HTMLInputElement) {
         }
 
         if (event instanceof KeyboardEvent) {
-            if ('button' === $(target).attr('type') && ['Enter', ' '].includes(event.key)) {
+            if (['button', 'number', 'text'].includes($(target).attr('type')) && ['Enter', ' '].includes(event.key)) {
                 event.preventDefault();
                 event.stopPropagation();
-                updateRange(parseFloat(target.value) + parseFloat(range.value));
+                if ('button' === $(target).attr('type')) {
+                    updateRange(parseFloat(target.value) + parseFloat(range.value));
+                    return;
+                }
+                updateRange(target.value);
                 return;
             }
             if (controls.input === target && ['+', '-'].includes(event.key)) {
@@ -79,4 +81,15 @@ export function initializeRange(range: HTMLInputElement) {
             updateRange(parseFloat(target.value));
         }
     });
+
+    return {
+        get value(): number {
+            return parseFloat(range.value);
+        },
+        set value(value: number) {
+            if (value >= controls.min && value <= controls.max) {
+                updateRange(value);
+            }
+        },
+    };
 }

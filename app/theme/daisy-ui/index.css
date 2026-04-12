@@ -27,6 +27,7 @@
 @import "./themes/valentine.css";
 @import "./themes/winter.css";
 @import "./themes/wireframe.css";
+@import "./components/modal.css";
 
 :root,
 [data-theme] {

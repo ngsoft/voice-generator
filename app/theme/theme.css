@@ -7,7 +7,9 @@
 @import "./skeleton/index.css";
 @import "./skeleton/themes/concord.css";
 
-@plugin "flyonui";
+@plugin "flyonui" {
+    exclude: modal;
+}
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 

@@ -1,5 +1,6 @@
 <?php
 
+use Command\ClearCacheCommand;
 use Command\ClearTranslationCacheCommand;
 use Command\HelloCommand;
 use Command\TranslationGeneratorCommand;
@@ -13,4 +14,5 @@ return function (ConsoleApplication $app)
     $app->add(HelloCommand::class);
     $app->add(TranslationGeneratorCommand::class);
     $app->add(ClearTranslationCacheCommand::class);
+    $app->add(ClearCacheCommand::class);
 };

@@ -14,11 +14,10 @@ class ClearTranslationCacheCommand extends Command
 {
     use CommandTrait;
 
-    protected function executeCommand(CommandHelper $io, InputInterface $input)
+    public function clearCache(bool $log = true): bool
     {
-        $code = Command::SUCCESS;
+        $ok   = true;
         $root = resolve_path('%var%/lang');
-        $this->logAndPrint('Removing translation cache from %s', [$root]);
 
         foreach (iterate_files($root) as $info)
         {
@@ -26,14 +25,22 @@ class ClearTranslationCacheCommand extends Command
             {
                 if (@unlink($info->getPathname()))
                 {
-                    $this->logAndPrint('Removed ' . $info->getFilename());
+                    $log && $this->logAndPrint('Removed ' . $info->getFilename());
                 } else
                 {
-                    $code = Command::FAILURE;
-                    $this->logAndPrint('Could not delete ' . $info->getFilename(), level: LoggerService::ERR);
+                    $ok = false;
+                    $log && $this->logAndPrint('Could not delete ' . $info->getFilename(), level: LoggerService::ERR);
                 }
             }
         }
+
+        return $ok;
+    }
+
+    protected function executeCommand(CommandHelper $io, InputInterface $input)
+    {
+        $this->logAndPrint('Removing translation cache');
+        $code = $this->clearCache() ? self::SUCCESS : self::FAILURE;
 
         if ( ! $code)
         {

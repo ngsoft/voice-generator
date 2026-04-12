@@ -7,6 +7,6 @@
     </div>
 </main>
 <?php
-extend('vite');
+extend('site');
 title(isset($reason) ? __($reason) : __("Internal Server Error"));
 status_code($code ?? 500);

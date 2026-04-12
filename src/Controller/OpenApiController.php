@@ -26,9 +26,9 @@ class OpenApiController extends BaseController implements ActionInterface
                 ->setContent($oa->toYaml())
                 ->setFileName('openapi.yaml');
         }
-        return $this->render('openapi/redocly', ['swagger_data' => [
+        return $this->render('openapi/redoc-site', ['swagger_data' => [
             'spec'   => json_decode($oa->toJson(), true),
-            'config' => ['downloadDefinitionUrl' => $this->generatePath('api_doc_download')],
-        ], 'base' => $request->getBasePath()]);
+            'config' => ['downloadDefinitionUrl' => $this->generatePath('api_doc_download'), 'colorMode' => true],
+        ], 'vite_data' => ['force_color_mode' => 'off'], 'base' => $request->getBasePath()]);
     }
 }

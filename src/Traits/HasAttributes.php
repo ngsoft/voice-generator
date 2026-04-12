@@ -73,9 +73,12 @@ trait HasAttributes
     /**
      * @param iterable<string|\Stringable,mixed> $attributes
      */
-    public function setAttributes(iterable $attributes): static
+    public function setAttributes(iterable $attributes, bool $clear = true): static
     {
-        $this->attributes = [];
+        if ($clear)
+        {
+            $this->attributes = [];
+        }
 
         foreach ($attributes as $key => $value)
         {

@@ -20,6 +20,7 @@ class Renderer
     private string $current_content         = '';
     private ?string $current_file           = null;
     private ?array $current_attributes      = null;
+    private ?Context $previous_context      = null;
 
     public function __construct(
         string $storage,
@@ -29,6 +30,12 @@ class Renderer
         $this->storage = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $storage), '/');
         $this->cwd     = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', getcwd()), '/');
         self::$currentContext ??= $this->context;
+    }
+
+    public function __clone(): void
+    {
+        $this->context = clone $this->context;
+        $this->resetContext();
     }
 
     /**
@@ -141,7 +148,7 @@ class Renderer
 
         while (null !== $view = array_shift($this->stack))
         {
-            $this->current_file    = resolve_path($this->storage, $view);
+            $this->current_file     = resolve_path($this->storage, $view);
 
             if ( ! str_ends_with($this->current_file, '.php'))
             {
@@ -152,9 +159,11 @@ class Renderer
             {
                 throw new \RuntimeException("Cannot find view '{$view}'");
             }
-            self::$currentContext  = $this->context;
+
+            $this->previous_context = self::$currentContext;
+            self::$currentContext   = $this->context;
             $this->context->setAttribute(Renderer::class, $this);
-            $attributes            = array_replace(
+            $attributes             = array_replace(
                 $this->context->getAttributes(),
                 $this->current_attributes,
                 ['content' => $this->current_content]
@@ -168,8 +177,7 @@ class Renderer
                 @include $this->current_file;
             } catch (\Throwable $error)
             {
-                $this->context->removeAttribute('current_block_name');
-                $this->context->removeAttribute('next-view');
+                $this->resetContext();
                 @ob_end_clean();
                 @chdir($this->cwd);
                 throw $error;
@@ -192,7 +200,7 @@ class Renderer
             }
 
             @chdir($this->cwd);
-            $this->current_content = @ob_get_clean() ?: '';
+            $this->current_content  = @ob_get_clean() ?: '';
 
             // view extends view
             if ($this->context->hasAttribute('next-view'))
@@ -200,6 +208,18 @@ class Renderer
                 $this->stack[] = $this->context->pullAttribute('next-view');
             }
         }
+
+        if ($this->previous_context)
+        {
+            self::$currentContext   = $this->previous_context;
+            $this->previous_context = null;
+        }
         return $this->current_content;
+    }
+
+    private function resetContext(): void
+    {
+        $this->context->removeAttribute('current_block_name');
+        $this->context->removeAttribute('next-view');
     }
 }

@@ -23,11 +23,12 @@ return function (Router $router)
     $router->group('/api', function (RouteGroup $router)
     {
         // OpenApi + Redocly
-        $router->get('/doc', OpenApiController::class);
+        $router->get('/doc', OpenApiController::class)
+            ->setName('api_doc');
         $router->get('/doc.json', OpenApiController::class);
         $router->get('/doc.yaml', OpenApiController::class)
             ->setName('api_doc_download');
-    })->add(AccessControlMiddleware::make('LOCAL_ACL', '^127.0,::1,^192.168'));
+    })->add(WebAccessControlMiddleware::make('LOCAL_ACL', '^127.0,::1,^192.168', 'error/404'));
 
     // api group protected by api key and global ACL
     $router->group('/api', function (RouteGroup $router)

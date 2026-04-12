@@ -3,7 +3,9 @@
 /** @noinspection HtmlUnknownTarget */
 
 use NGSOFT\Routing\Interface\UrlGeneratorInterface;
+use NGSOFT\Routing\Internal\FastRouteResult;
 use Service\ViteService;
+use Symfony\Component\HttpFoundation\Request;
 use TemplateEngine\Context;
 use TemplateEngine\EscapeStrategy;
 use TemplateEngine\Renderer;
@@ -118,11 +120,15 @@ function vite(array|string|null $entrypoints = null): string
  */
 function title($title, $withSuffix = true)
 {
+    $ctx = get_context();
+    $ctx->addAttribute('title', $title);
+
     if ($withSuffix)
     {
         $title = rtrim(sprintf('%s - %s', $title, __(env_get('APP_TITLE', '', false))), ' -');
     }
-    Services::make(Renderer::class)->setAttribute(
+
+    $ctx->setAttribute(
         'page_title',
         $title
     );
@@ -151,7 +157,7 @@ function attr($attr, $value = '__VALUE_UNDEFINED__')
 /**
  * @param string $view
  */
-function extend($view)
+function extend($view, array $attributes = [])
 {
     if (get_context()->hasAttribute('next-view'))
     {
@@ -161,6 +167,11 @@ function extend($view)
         'next-view',
         $view
     );
+
+    if ( ! empty($attributes))
+    {
+        get_context()->setAttributes($attributes, false);
+    }
 }
 
 /**
@@ -318,7 +329,7 @@ function end_block(): string
         return '';
     }
     $name    = $context->pullAttribute('current_block_name');
-    $content = @ob_get_contents() ?: '';
+    $content = @ob_get_clean() ?: '';
     $context->setAttribute("block_{$name}", $content);
     return $content;
 }
@@ -407,4 +418,19 @@ function include_view(string $name, array $attributes = []): string
     /** @var Renderer $renderer */
     $renderer = clone $context->getAttribute(Renderer::class);
     return $renderer->renderView($name, array_replace($renderer->getCurrentAttributes() ?? [], $attributes));
+}
+
+function is_url(string $input): bool
+{
+    /** @var Request $request */
+    $request          = Services::getRequest();
+
+    $fastroute_result = $request->attributes->get('_fast_route_results');
+
+    /** @noinspection PhpInternalEntityUsedInspection */
+    if ($fastroute_result instanceof FastRouteResult && $route = $fastroute_result->getRoute())
+    {
+        return in_array($input, [$route->getPattern(), $route->getName()]);
+    }
+    return false;
 }

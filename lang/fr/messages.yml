@@ -1,3 +1,14 @@
+'app_title': 'Synthèse Vocale'
+'Error': 'Erreur'
+'<span class="text-error">Error</span>': '<span class="text-error">Erreur</span>'
+'Your configuration has been saved': 'Votre configuration a été sauvegardée'
+'Select your color mode': 'Sélectionner votre mode de couleurs'
+'System theme': 'Détection système'
+'Dark theme': 'Mode sombre'
+'Light theme': 'Mode clair'
+'Menu': 'Menu'
+'Api Documentation': "Documentation de l'Api"
+'One request at a time': 'Une seule demande a la fois'
 'Page not found': 'Page introuvable'
 "Oops!! The page you're looking for doesn't exist on this site. Discover more": "Oups!! La page que vous recherchez n'existe pas sur ce site. En savoir plus"
 'here': 'ici'
