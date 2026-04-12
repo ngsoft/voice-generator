@@ -177,6 +177,8 @@ abstract class Services
                         @file_put_contents($file, implode("\n", $meta));
                     }
 
+                    require_once $cfg;
+
                     require_once $file;
                 },
                 $file = resolve_path($data, 'openapi', is_dev() ? 'dev' : 'prod', 'OpenApiMetadata.php'),

@@ -18,4 +18,5 @@ Config::setMany([
         // load metadata from controllers
         resolve_path('%project_root%/src/Controller'),
     ],
+
 ]);
