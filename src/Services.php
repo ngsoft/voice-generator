@@ -153,6 +153,7 @@ abstract class Services
                     // check modifications on cfg
                     if (@filemtime($file) <= @filemtime($cfg))
                     {
+                        require_once $cfg;
                         $request = self::getRequest();
                         $meta    = [
                             '<?php',
@@ -175,8 +176,6 @@ abstract class Services
                         @mkdir(dirname($file), 0777, true);
                         @file_put_contents($file, implode("\n", $meta));
                     }
-
-                    require_once $cfg;
 
                     require_once $file;
                 },
