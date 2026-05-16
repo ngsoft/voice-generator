@@ -368,13 +368,13 @@ function escape(string|Stringable $input, EscapeStrategy|string $mode = EscapeSt
             }
             return \sprintf('&#x%04X;', mb_ord($chr, 'UTF-8'));
         }, $input)),
-        'html'  => htmlspecialchars($input, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-        'css'   => preg_replace_callback('#[^a-zA-Z0-9]#Su', static function (array $matches)
+        'html'                           => htmlspecialchars($input, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+        'css'                            => preg_replace_callback('#[^a-zA-Z0-9]#Su', static function (array $matches)
         {
             $char = $matches[0];
             return \sprintf('\%X ', 1 === \strlen($char) ? \ord($char) : mb_ord($char, 'UTF-8'));
         }, $input),
-        'js'    => preg_replace_callback('#[^a-zA-Z0-9,._]#Su', static function (array $matches)
+        'js'                             => preg_replace_callback('#[^a-zA-Z0-9,._]#Su', static function (array $matches)
         {
             $char      = $matches[0];
 
@@ -404,8 +404,8 @@ function escape(string|Stringable $input, EscapeStrategy|string $mode = EscapeSt
             $low       = 0xDC00 | ($u & 0x3FF);
             return \sprintf('\u%04X\u%04X', $high, $low);
         }, $input),
-        'url'   => rawurlencode($input),
-        default => $input,
+        'url'                            => rawurlencode($input),
+        default                          => $input,
     };
 }
 

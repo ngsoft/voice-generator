@@ -20,55 +20,25 @@ class HomeAction extends BaseController implements ActionInterface
     public function execute(Request $request): \ResponseView
     {
         $this->localeService->setBrowserLocaleFromRequest($request);
-        $filter  = env_get('LANG_FILTER', '', false);
+        $voices = $this->synthesisController->filterAndSortVoices(
+            $this->synthesisProviderStack->getVoices(),
+            env_get('LANG_FILTER', '', false)
+        );
 
-        $filters = [];
-
-        if ($filter)
-        {
-            foreach (explode(',', $filter) as $lang)
-            {
-                if ($lang = trim(strtolower($lang)))
-                {
-                    $filters[$lang] = $lang;
-                }
-            }
-        }
-
-        $voices  = $this->synthesisProviderStack->getVoices();
-        $langs   = [];
-        $result  = [];
+        $langs  = [];
+        $result = [];
 
         foreach ($voices as $voice)
         {
-            $ok    = empty($filters);
-            $lang  = $voice->getLang();
-            $lower = strtolower($lang);
-
-            if ( ! $ok)
-            {
-                foreach ($filters as $filter)
-                {
-                    if (str_contains($lower, $filter))
-                    {
-                        $ok = true;
-                        break;
-                    }
-                }
-            }
-
-            if ($ok)
-            {
-                $prefix           = explode('-', $lang)[0];
-                $langs[$prefix] ??= [];
-                $langs[$prefix][] = $lang;
-                $langs[$prefix]   = array_unique($langs[$prefix]);
-                sort($langs[$prefix]);
-                $result[$lang]  ??= [];
-                $result[$lang][]  = $voice;
-                ksort($result);
-                $this->synthesisController->addVoiceUri($voice);
-            }
+            $lang             = $voice->getLang();
+            $prefix           = explode('-', $lang)[0];
+            $langs[$prefix] ??= [];
+            $langs[$prefix][] = $lang;
+            $langs[$prefix]   = array_unique($langs[$prefix]);
+            sort($langs[$prefix]);
+            $result[$lang]  ??= [];
+            $result[$lang][]  = $voice;
+            $this->synthesisController->addVoiceUri($voice);
         }
 
         return $this->render('page/player-form', [

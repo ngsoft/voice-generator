@@ -69,6 +69,8 @@ class SynthesisController extends BaseController
             return \JsonResponseView::newNotFound()->toResponse();
         }
 
+        $list        = $this->filterAndSortVoices($list, env_get('LANG_FILTER', '', false));
+
         return VoiceListResponse::make([
             'voices' => $this->addVoiceUri($searchModel->paginate($list)),
             'total'  => count($list),
@@ -226,6 +228,53 @@ class SynthesisController extends BaseController
             return \JsonResponseView::newNotFound()->toResponse();
         }
         return $response->toResponse();
+    }
+
+    /**
+     * @param SpeechSynthesisVoice[] $voices
+     * @param string                 $filter
+     *
+     * @return array
+     */
+    public function filterAndSortVoices(array $voices, string $filter = ''): array
+    {
+        $filters = [];
+
+        if ($filter)
+        {
+            foreach (explode(',', $filter) as $lang)
+            {
+                if ($lang = trim(strtolower($lang)))
+                {
+                    $filters[$lang] = $lang;
+                }
+            }
+        }
+
+        $byLang  = [];
+
+        foreach ($voices as $voice)
+        {
+            $lang  = $voice->getLang();
+            $lower = strtolower($lang);
+            $ok    = empty($filters) || array_any($filters, fn (string $filter) => str_contains($lower, $filter));
+
+            if ($ok)
+            {
+                $byLang[$lang] ??= [];
+                $byLang[$lang][] = $voice;
+            }
+        }
+        ksort($byLang);
+
+        $result  = [];
+
+        foreach ($byLang as $list)
+        {
+            $result = array_merge($result, $list);
+        }
+
+        return $result;
     }
 
     /**
