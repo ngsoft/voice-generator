@@ -7,5 +7,3 @@ environment.app.theme = {
 };
 
 export { environment };
-
-console.debug('env', environment);

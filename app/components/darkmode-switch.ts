@@ -7,7 +7,7 @@ type DarkModeValue = 'auto' | 'on' | 'off';
 
 const store = localStore,
     doc = $(environment.document.documentElement),
-    enabled: Writable<DarkModeValue | null> = store.writable('dark-mode-enabled', null),
+    enabled: Writable<DarkModeValue | null> = store.writable('dark-mode-enabled', 'auto'),
     lightMode: MediaQueryList = globalThis.matchMedia('(prefers-color-scheme: light)'),
     darkModeSwitch = $('#dark-mode-switch'),
     darkModeToggle = $('.theme-selector'),
