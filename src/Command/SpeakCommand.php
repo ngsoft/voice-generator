@@ -66,6 +66,26 @@ class SpeakCommand extends Command
                     @unlink($result->path);
                 }
             }
+        } elseif ('Darwin' === PHP_OS)
+        {
+            $result = $this->synthesisProviderStack->speak(
+                SpeechSynthesisUtterance::make(compact('voice', 'text', 'lang', 'format'))
+            );
+
+            if ($result->path)
+            {
+                try
+                {
+                    $proc = Process::fromShellCommandline(
+                        sprintf('afplay "%s"', $result->path)
+                    );
+                    $proc->run();
+                    return $proc->getExitCode();
+                } finally
+                {
+                    @unlink($result->path);
+                }
+            }
         }
         return self::FAILURE;
     }
