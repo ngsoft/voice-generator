@@ -15,7 +15,7 @@ readonly class AudioConverter
 
         $proc = Process::fromShellCommandline(sprintf(
             '"%s" -i "%s" -acodec pcm_s16le -ar 16000 "%s"',
-            $_ENV['FFMPEG_LOCATION'] ?? 'ffmpeg',
+            self::findExecutable('ffmpeg', $_ENV['FFMPEG_LOCATION'] ?? 'ffmpeg'),
             $input,
             $output
         ));
@@ -47,7 +47,7 @@ readonly class AudioConverter
 
         $proc = Process::fromShellCommandline(sprintf(
             '"%s" -i "%s" -acodec libvorbis -ar 16000 "%s"',
-            $_ENV['FFMPEG_LOCATION'] ?? 'ffmpeg',
+            self::findExecutable('ffmpeg', $_ENV['FFMPEG_LOCATION'] ?? 'ffmpeg'),
             $input,
             $output
         ));
@@ -75,7 +75,7 @@ readonly class AudioConverter
         {
             $proc = Process::fromShellCommandline(sprintf(
                 '"%s" -i "%s" -show_entries format=duration -v quiet -of csv="p=0"',
-                $_ENV['FFPROBE_LOCATION'] ?? 'ffprobe',
+                self::findExecutable('ffprobe', $_ENV['FFPROBE_LOCATION'] ?? 'ffprobe'),
                 $input
             ));
 
@@ -107,5 +107,41 @@ readonly class AudioConverter
         $fullSeconds = floor($seconds);
         $seconds -= $fullSeconds;
         return sprintf('%02d:%02d:%02d.%06d', $hours, $minutes, $fullSeconds, round($seconds, 6) * 1000000);
+    }
+
+    private static function findExecutable(string $hint, string $env): string
+    {
+        static $cache = [];
+
+        if (isset($cache[$hint]))
+        {
+            return $cache[$hint];
+        }
+
+        $list         = [$env];
+
+        if ($env !== $hint)
+        {
+            $list[] = $hint;
+        }
+
+        $cache[$hint] = $hint;
+
+        foreach ($list as $exe)
+        {
+            $proc = Process::fromShellCommandline(sprintf(
+                '"%s" --help',
+                $exe
+            ));
+
+            $proc->run();
+
+            if ($proc->isSuccessful())
+            {
+                $cache[$hint] = $exe;
+                break;
+            }
+        }
+        return $cache[$hint];
     }
 }

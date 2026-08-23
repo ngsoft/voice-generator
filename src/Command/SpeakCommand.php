@@ -60,6 +60,7 @@ class SpeakCommand extends Command
                         sprintf('"%s/cmdmp3.exe" "%s"', resolve_path('%project_root%/bin'), $result->path)
                     );
                     $proc->run();
+                    dump($proc->getErrorOutput(), $proc->getOutput(), $proc->getCommandLine());
                     return $proc->getExitCode();
                 } finally
                 {
