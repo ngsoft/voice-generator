@@ -87,6 +87,15 @@ class SpeakCommand extends Command
                     @unlink($result->path);
                 }
             }
+        } elseif ((bool) env_get('WSL_DISTRO_NAME'))
+        {
+            // replay command under WSL
+            $proc = Process::fromShellCommandline(
+                sprintf('php.exe bin/console speak "%s" --voice "%s" --lang "%s"', $text, $voice, $lang)
+            );
+
+            $proc->run();
+            return $proc->getExitCode();
         }
         return self::FAILURE;
     }
