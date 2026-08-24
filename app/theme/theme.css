@@ -1,5 +1,4 @@
-@import "tailwindcss";
-
+@import "tailwindcss" source(none);
 
 @import "node-waves/dist/waves.min.css";
 @import "flyonui/variants.css";
@@ -15,6 +14,11 @@
 @plugin "@tailwindcss/typography";
 
 @plugin "@iconify/tailwind4";
+
+
+@source "../../node_modules/flyonui/dist/*.js";
+@source "../../{app,package}/**/*.{js,ts,svelte,scss,css,html}";
+@source "../../view/**/*.php";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
