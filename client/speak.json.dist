@@ -1,0 +1,14 @@
+{
+  "$comment": "Copiez ce fichier en speak.json à côté de l'exécutable, puis retirez ce dont vous n'avez pas besoin. Les champs présents surchargent l'environnement et les fichiers .env ; les champs absents sont ignorés. Toute clé inconnue est une erreur, sauf $comment et $schema.",
+  "env": "dev",
+  "phpBinary": "C:/WebSdk/lib/php/8.2/php.exe",
+  "consolePath": "D:/dev/php8/apis/voice/bin/console",
+  "workingDir": "D:/dev/php8/apis/voice",
+  "phpArgs": ["-d", "memory_limit=512M"],
+  "lang": "en-US",
+  "voice": "en-US-AvaMultilingualNeural",
+  "timeout": "60s",
+  "verbosity": "quiet",
+  "noAnsi": true,
+  "interactive": false
+}

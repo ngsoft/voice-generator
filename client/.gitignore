@@ -1,0 +1,12 @@
+speak
+speak.exe
+/bin/
+
+# .env est versionné ; toute surcharge locale ne l'est pas
+# (le .gitignore racine ignore déjà .env.*)
+.env.local
+.env.*.local
+
+# configuration locale posée à côté de l'exécutable ;
+# seul le modèle speak.json.dist est versionné
+speak.json
