@@ -22,15 +22,15 @@ class SpeechSynthesisUtterance extends DataModel
     #[OA\Property(description: 'Voice that will be used to speak the utterance.', nullable: false)]
     protected string $voice        = '';
 
-    #[OA\Property(description: 'Speed at which the utterance will be spoken at.', nullable: true, maximum: 10.0, minimum: 0.1)]
+    #[OA\Property(description: 'Speaking rate of the utterance (0.1–10). Defaults to 1.', nullable: true, maximum: 10.0, minimum: 0.1)]
     protected float $rate          = 1.0;
-    #[OA\Property(description: 'Pitch at which the utterance will be spoken at.', nullable: true, maximum: 2.0, minimum: 0.0)]
+    #[OA\Property(description: 'Pitch of the utterance (0–2). Defaults to 1.', nullable: true, maximum: 2.0, minimum: 0.0)]
     protected float $pitch         = 1.0;
 
-    #[OA\Property(description: 'Pitch at which the utterance will be spoken at.', nullable: true, maximum: 2.0, minimum: 0.0)]
+    #[OA\Property(description: 'Volume of the utterance (0–2). Defaults to 1.', nullable: true, maximum: 2.0, minimum: 0.0)]
     protected float $volume        = 1.0;
 
-    #[OA\Property(description: 'Audio format.', type: 'string', nullable: true, enum: AudioFormat::class)]
+    #[OA\Property(description: 'Output audio format. Defaults to the provider format when omitted.', type: 'string', nullable: true, enum: AudioFormat::class)]
     protected ?AudioFormat $format = null;
 
     public function getText(): string

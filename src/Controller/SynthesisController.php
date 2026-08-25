@@ -14,7 +14,7 @@ use View\ErrorResponse;
 use View\SuccessResponse;
 use View\VoiceListResponse;
 
-#[OA\Tag('Speech Synthesis')]
+#[OA\Tag(name: 'Speech Synthesis', description: 'List voices, synthesize speech, and download generated audio.')]
 class SynthesisController extends BaseController
 {
     private readonly int $ttl;
@@ -31,12 +31,12 @@ class SynthesisController extends BaseController
         }
     }
 
-    #[OA\Get('/api/voices', 'List Voices', description: 'Get all available voices', tags: ['Speech Synthesis'], parameters: [
-        new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
-        new OA\QueryParameter(name: 'search', description: 'Locale of the voice', allowEmptyValue: true),
-        new OA\QueryParameter(name: 'limit', description: 'Number of results per page', allowEmptyValue: true),
-        new OA\QueryParameter(name: 'page', description: 'page number', allowEmptyValue: true),
-        new OA\QueryParameter(name: 'provider', description: 'provider name', allowEmptyValue: true),
+    #[OA\Get('/api/voices', 'List Voices', description: 'List available speech synthesis voices, with optional locale, provider, and pagination filters.', tags: ['Speech Synthesis'], parameters: [
+        new OA\HeaderParameter(name: 'X-Api-Key', description: 'API key', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
+        new OA\QueryParameter(name: 'search', description: 'Filter voices by locale or name substring', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
+        new OA\QueryParameter(name: 'limit', description: 'Number of results per page', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 10)),
+        new OA\QueryParameter(name: 'page', description: 'Page number (1-based)', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1)),
+        new OA\QueryParameter(name: 'provider', description: 'Filter by provider name (e.g. edge)', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
     ])]
     #[OA\Response(
         response: 200,
@@ -79,8 +79,8 @@ class SynthesisController extends BaseController
         ])->toResponse();
     }
 
-    #[OA\Get('/api/providers', 'List providers', description: 'Get voice providers list', tags: ['Speech Synthesis'], parameters: [
-        new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
+    #[OA\Get('/api/providers', 'List providers', description: 'List configured speech synthesis providers and their descriptions.', tags: ['Speech Synthesis'], parameters: [
+        new OA\HeaderParameter(name: 'X-Api-Key', description: 'API key', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
     ])]
     #[OA\Response(
         response: 200,
@@ -111,11 +111,11 @@ class SynthesisController extends BaseController
             ->toResponse();
     }
 
-    #[OA\Get('/api/voice/{provider}/{lang}/{name}', 'Voice informations', description: 'Get voice informations', tags: ['Speech Synthesis'], parameters: [
-        new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
-        new OA\PathParameter(name: 'provider', example: 'edge'),
-        new OA\PathParameter(name: 'lang', example: 'en-US'),
-        new OA\PathParameter(name: 'name', example: '0123456789'),
+    #[OA\Get('/api/voice/{provider}/{lang}/{name}', 'Voice informations', description: 'Get details for a single voice identified by provider, language, and name.', tags: ['Speech Synthesis'], parameters: [
+        new OA\HeaderParameter(name: 'X-Api-Key', description: 'API key', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
+        new OA\PathParameter(name: 'provider', description: 'Voice provider name', required: true, example: 'edge', schema: new OA\Schema(type: 'string')),
+        new OA\PathParameter(name: 'lang', description: 'BCP 47 language tag of the voice', required: true, example: 'en-US', schema: new OA\Schema(type: 'string')),
+        new OA\PathParameter(name: 'name', description: 'Voice name / identifier', required: true, example: 'en-US-AvaMultilingualNeural', schema: new OA\Schema(type: 'string')),
     ])]
     #[OA\Response(
         response: 200,
@@ -142,15 +142,16 @@ class SynthesisController extends BaseController
         return SuccessResponse::make()->extend($this->addVoiceUri($result))->toResponse();
     }
 
-    #[OA\Post('/api/speak', 'Generate Synthesis', description: 'Get all available voices', requestBody: new OA\RequestBody(required: true, content: new OA\MediaType(
+    #[OA\Post('/api/speak', 'Generate Synthesis', description: 'Synthesize speech from text. With Accept: application/json, returns metadata and a download URL; otherwise returns the audio file.', requestBody: new OA\RequestBody(required: true, content: new OA\MediaType(
         'application/json',
         schema: new OA\Schema(SpeechSynthesisUtterance::class)
     )), tags: ['Speech Synthesis'], parameters: [
-        new OA\HeaderParameter(name: 'X-Api-Key', allowEmptyValue: true),
+        new OA\HeaderParameter(name: 'X-Api-Key', description: 'API key', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
+        new OA\HeaderParameter(name: 'Accept', description: 'Prefer application/json for metadata, or an audio/* type for the binary file', required: false, schema: new OA\Schema(type: 'string', example: 'application/json')),
     ])]
-    #[OA\Response(response: 200, description: 'ok', headers: [
-        new OA\Header(header: 'X-Media-Duration', description: 'Duration in seconds', schema: new OA\Schema(), allowEmptyValue: true),
-        new OA\Header(header: 'X-Media-Time', description: 'Duration in human readable form', schema: new OA\Schema(), allowEmptyValue: true),
+    #[OA\Response(response: 200, description: 'Synthesized audio metadata (JSON) or binary audio file', headers: [
+        new OA\Header(header: 'X-Media-Duration', description: 'Duration in seconds', schema: new OA\Schema(type: 'number', format: 'float'), allowEmptyValue: true),
+        new OA\Header(header: 'X-Media-Time', description: 'Duration in human-readable form (HH:MM:SS.microseconds)', schema: new OA\Schema(type: 'string'), allowEmptyValue: true),
     ], content: [
         new OA\MediaType('application/json', schema: new OA\Schema(allOf: [
             new OA\Schema(SuccessResponse::class),
@@ -212,8 +213,10 @@ class SynthesisController extends BaseController
         }
     }
 
-    #[OA\Get('/api/speak/download/{identifier}', 'Download File', description: 'Download speech synthesis file', tags: ['Speech Synthesis'])]
-    #[OA\Response(response: 200, description: 'file to download', content: [
+    #[OA\Get('/api/speak/download/{identifier}', 'Download File', description: 'Download a previously generated speech synthesis audio file by its identifier.', tags: ['Speech Synthesis'], parameters: [
+        new OA\PathParameter(name: 'identifier', description: 'File identifier returned by POST /api/speak', required: true, schema: new OA\Schema(type: 'string')),
+    ])]
+    #[OA\Response(response: 200, description: 'Audio file to download', content: [
         new OA\MediaType('audio/x-wav', schema: new OA\Schema()),
         new OA\MediaType('audio/x-mpeg', schema: new OA\Schema()),
     ])]

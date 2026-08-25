@@ -1,0 +1,615 @@
+openapi: 3.0.0
+info:
+  title: 'Speech Synthesis'
+  description: 'Speech Synthesis API'
+  license:
+    name: MIT
+    url: 'https://mit-license.org/2023/license.txt'
+  version: 2026.04.2
+servers:
+  -
+    url: 'http://localhost'
+paths:
+  /api/translate:
+    post:
+      tags:
+        - 'Core Components'
+      description: 'Translate a message key or text using the application locale catalog.'
+      operationId: 'Translate text'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - text
+              properties:
+                text:
+                  description: 'Message key or text to translate'
+                  type: string
+                  nullable: false
+                lang:
+                  description: 'Target locale (e.g. en, fr). Uses the request/app locale when omitted.'
+                  type: string
+                  example: fr
+                  nullable: true
+              type: object
+      responses:
+        '200':
+          description: 'Translated message'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/voices:
+    get:
+      tags:
+        - 'Speech Synthesis'
+      description: 'List available speech synthesis voices, with optional locale, provider, and pagination filters.'
+      operationId: 'List Voices'
+      parameters:
+        -
+          name: X-Api-Key
+          in: header
+          description: 'API key'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: string
+        -
+          name: search
+          in: query
+          description: 'Filter voices by locale or name substring'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: string
+        -
+          name: limit
+          in: query
+          description: 'Number of results per page'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: integer
+            example: 10
+            minimum: 1
+        -
+          name: page
+          in: query
+          description: 'Page number (1-based)'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: integer
+            example: 1
+            minimum: 1
+        -
+          name: provider
+          in: query
+          description: 'Filter by provider name (e.g. edge)'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'Internal Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/providers:
+    get:
+      tags:
+        - 'Speech Synthesis'
+      description: 'List configured speech synthesis providers and their descriptions.'
+      operationId: 'List providers'
+      parameters:
+        -
+          name: X-Api-Key
+          in: header
+          description: 'API key'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/SuccessResponse' }
+                  - { properties: { providers: { description: 'provider list', type: array, items: { properties: { name: { description: 'provider name', type: string }, description: { description: 'provider description', type: string } }, type: object } } }, type: object }
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/api/voice/{provider}/{lang}/{name}':
+    get:
+      tags:
+        - 'Speech Synthesis'
+      description: 'Get details for a single voice identified by provider, language, and name.'
+      operationId: 'Voice informations'
+      parameters:
+        -
+          name: X-Api-Key
+          in: header
+          description: 'API key'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: string
+        -
+          name: provider
+          in: path
+          description: 'Voice provider name'
+          required: true
+          schema:
+            type: string
+          example: edge
+        -
+          name: lang
+          in: path
+          description: 'BCP 47 language tag of the voice'
+          required: true
+          schema:
+            type: string
+          example: en-US
+        -
+          name: name
+          in: path
+          description: 'Voice name / identifier'
+          required: true
+          schema:
+            type: string
+          example: en-US-AvaMultilingualNeural
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/SuccessResponse' }
+                  - { $ref: '#/components/schemas/SpeechSynthesisVoice' }
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/speak:
+    post:
+      tags:
+        - 'Speech Synthesis'
+      description: 'Synthesize speech from text. With Accept: application/json, returns metadata and a download URL; otherwise returns the audio file.'
+      operationId: 'Generate Synthesis'
+      parameters:
+        -
+          name: X-Api-Key
+          in: header
+          description: 'API key'
+          required: false
+          allowEmptyValue: true
+          schema:
+            type: string
+        -
+          name: Accept
+          in: header
+          description: 'Prefer application/json for metadata, or an audio/* type for the binary file'
+          required: false
+          schema:
+            type: string
+            example: application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpeechSynthesisUtterance'
+      responses:
+        '200':
+          description: 'Synthesized audio metadata (JSON) or binary audio file'
+          headers:
+            X-Media-Duration:
+              description: 'Duration in seconds'
+              schema:
+                type: number
+                format: float
+              allowEmptyValue: true
+            X-Media-Time:
+              description: 'Duration in human-readable form (HH:MM:SS.microseconds)'
+              schema:
+                type: string
+              allowEmptyValue: true
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/SuccessResponse' }
+                  - { properties: { provider: { description: 'Provider name', type: string, example: edge, nullable: false }, voice: { description: 'Voice name', nullable: false, oneOf: [{ $ref: '#/components/schemas/SpeechSynthesisVoice' }] }, seconds: { description: 'Duration in seconds', type: number, format: float, example: 1.0E-6, nullable: false }, duration: { description: 'Duration in time string', type: string, example: '00:00:00.000001', nullable: false }, mime: { description: 'Mime type of the file', type: string, example: audio/x-wav, nullable: false }, identifier: { description: 'File identifier', type: string, nullable: false }, url: { description: 'URL to download the file', type: string, nullable: false }, expires_at: { description: 'Expiry datetime', type: string, nullable: true } }, type: object }
+            audio/x-wav:
+              schema: {  }
+            audio/x-mpeg:
+              schema: {  }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'Internal Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/api/speak/download/{identifier}':
+    get:
+      tags:
+        - 'Speech Synthesis'
+      description: 'Download a previously generated speech synthesis audio file by its identifier.'
+      operationId: 'Download File'
+      parameters:
+        -
+          name: identifier
+          in: path
+          description: 'File identifier returned by POST /api/speak'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Audio file to download'
+          content:
+            audio/x-wav:
+              schema: {  }
+            audio/x-mpeg:
+              schema: {  }
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    AccessResponse:
+      properties:
+        id:
+          description: 'Permission identifier'
+          type: integer
+          nullable: true
+          minimum: 1
+        user_id:
+          description: 'User identifier'
+          type: integer
+          nullable: true
+          minimum: 1
+        permission:
+          description: 'Permission type'
+          type: integer
+          enum:
+            - 0
+            - 4
+            - 6
+        permission_type:
+          description: 'Permission type'
+          type: string
+          enum:
+            - none
+            - read
+            - write
+        access_group:
+          description: 'Access Group name'
+          type: string
+          enum:
+            - api
+      type: object
+    ErrorResponse:
+      description: 'This is the default error response for the API.'
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/SuccessResponse'
+        -
+          properties:
+            success:
+              description: 'Response status'
+              type: boolean
+              example: false
+              nullable: false
+          type: object
+    HelloResponse:
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/SuccessResponse'
+        -
+          properties:
+            message:
+              description: 'Hello message'
+              type: string
+              example: 'Hello {name}!'
+              nullable: false
+            url:
+              description: 'api url'
+              type: string
+              nullable: false
+            page_url:
+              description: 'web url'
+              type: string
+              nullable: false
+            user:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/UserResponse'
+              nullable: true
+              description: User
+          type: object
+    PaginatedResponse:
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/SuccessResponse'
+        -
+          properties:
+            total:
+              description: 'Total results'
+              type: integer
+              nullable: false
+            page:
+              description: 'Current page'
+              type: integer
+              nullable: false
+              minimum: 1
+            limit:
+              description: 'Results per page'
+              type: integer
+              nullable: false
+              minimum: 1
+          type: object
+    SuccessResponse:
+      description: 'This is the default response for the API.'
+      properties:
+        success:
+          description: 'Response status'
+          type: boolean
+          nullable: false
+        message:
+          description: 'Status/Error message'
+          type: string
+          nullable: true
+      type: object
+    UserResponse:
+      properties:
+        id:
+          description: 'User identifier'
+          type: integer
+          nullable: false
+          minimum: 1
+        login:
+          description: Username
+          type: string
+          nullable: false
+        full_name:
+          description: 'Full name'
+          type: string
+          nullable: true
+        roles:
+          description: Roles
+          type: array
+          items:
+            enum:
+              - ROLE_USER
+              - ROLE_ADMIN
+              - ROLE_SUPER_ADMIN
+        enabled:
+          description: 'User enabled'
+          type: boolean
+          nullable: false
+        permissions:
+          description: 'User permissions'
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessResponse'
+          nullable: true
+      type: object
+    VoiceListResponse:
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/PaginatedResponse'
+        -
+          properties:
+            voices:
+              description: 'Voice list'
+              type: array
+              items:
+                $ref: '#/components/schemas/SpeechSynthesisVoice'
+          type: object
+    SearchModel:
+      properties:
+        search:
+          description: 'Search query'
+          type: string
+          nullable: true
+        start_date:
+          description: 'Start date'
+          type: string
+          example: 2026-01
+          nullable: true
+        end_date:
+          description: 'End date'
+          type: string
+          example: 2026-12
+          nullable: true
+        page:
+          description: 'Page number'
+          type: integer
+          nullable: true
+          minimum: 1
+        limit:
+          description: 'Items per page'
+          type: integer
+          nullable: true
+          minimum: 1
+      type: object
+    SpeechSynthesisUtterance:
+      properties:
+        text:
+          description: 'A string containing the text that will be synthesized when the utterance is spoken.'
+          type: string
+          nullable: false
+        lang:
+          description: 'Language of the utterance.'
+          type: string
+          example: fr-FR
+          nullable: false
+        voice:
+          description: 'Voice that will be used to speak the utterance.'
+          type: string
+          nullable: false
+        rate:
+          description: 'Speaking rate of the utterance (0.1–10). Defaults to 1.'
+          type: number
+          format: float
+          nullable: true
+          maximum: 10
+          minimum: 0.1
+        pitch:
+          description: 'Pitch of the utterance (0–2). Defaults to 1.'
+          type: number
+          format: float
+          nullable: true
+          maximum: 2
+          minimum: 0
+        volume:
+          description: 'Volume of the utterance (0–2). Defaults to 1.'
+          type: number
+          format: float
+          nullable: true
+          maximum: 2
+          minimum: 0
+        format:
+          description: 'Output audio format. Defaults to the provider format when omitted.'
+          type: string
+          nullable: true
+          enum:
+            - wav
+            - mp3
+            - ogg
+      type: object
+    SpeechSynthesisVoice:
+      properties:
+        default:
+          description: 'A boolean value indicating whether the voice is the default voice for the current language.'
+          type: boolean
+          nullable: false
+        lang:
+          description: 'Returns a BCP 47 language tag indicating the language of the voice.'
+          type: string
+          nullable: false
+        localService:
+          description: 'A boolean value indicating whether the voice is supplied by a local speech synthesizer service.'
+          type: boolean
+          nullable: false
+        name:
+          description: 'Returns a human-readable name that represents the voice.'
+          type: string
+          nullable: false
+        provider:
+          description: 'Returns the voice provider name.'
+          type: string
+          nullable: false
+        friendlyName:
+          description: 'Returns a human-readable friendly name that represents the voice.'
+          type: string
+          nullable: true
+        voiceUri:
+          description: 'Returns the type of URI and location of the speech synthesis service for this voice.'
+          type: string
+          nullable: false
+        voiceInfoUri:
+          description: 'Returns the information URI of the speech synthesis service for this voice.'
+          type: string
+          nullable: true
+      type: object
+tags:
+  -
+    name: 'Core Components'
+    description: 'Shared application utilities.'
+  -
+    name: 'Speech Synthesis'
+    description: 'List voices, synthesize speech, and download generated audio.'

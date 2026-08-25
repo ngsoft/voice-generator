@@ -10,23 +10,23 @@ use Symfony\Component\HttpFoundation\Request;
 use View\ErrorResponse;
 use View\SuccessResponse;
 
-#[OA\Post('/api/translate', 'Translate text', description: 'Translate input text', requestBody: new OA\RequestBody(required: true, content: new OA\MediaType(
+#[OA\Post('/api/translate', 'Translate text', description: 'Translate a message key or text using the application locale catalog.', requestBody: new OA\RequestBody(required: true, content: new OA\MediaType(
     'application/json',
-    schema: new OA\Schema(properties: [
-        new OA\Property('text', description: 'Translate input text', type: 'string', nullable: false),
-        new OA\Property('lang', description: 'Translation locale', type: 'string', nullable: true),
+    schema: new OA\Schema(required: ['text'], properties: [
+        new OA\Property('text', description: 'Message key or text to translate', type: 'string', nullable: false),
+        new OA\Property('lang', description: 'Target locale (e.g. en, fr). Uses the request/app locale when omitted.', type: 'string', example: 'fr', nullable: true),
     ])
 )), tags: ['Core Components'])]
 #[OA\Response(
     response: 200,
-    description: 'ok',
+    description: 'Translated message',
     content: new OA\MediaType(
         'application/json',
         schema: new OA\Schema(SuccessResponse::class)
     )
 )]
 #[OA\Response(response: 400, description: 'Bad Request', content: new OA\MediaType('application/json', schema: new OA\Schema(ErrorResponse::class)))]
-#[OA\Tag('Core Components')]
+#[OA\Tag(name: 'Core Components', description: 'Shared application utilities.')]
 class TranslateAction extends BaseController implements ActionInterface
 {
     public function __construct(private readonly LocaleService $localeService) {}
