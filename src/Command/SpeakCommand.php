@@ -59,6 +59,7 @@ class SpeakCommand extends Command
                     $proc = Process::fromShellCommandline(
                         sprintf('"%s/cmdmp3.exe" "%s"', resolve_path('%project_root%/bin'), $result->path)
                     );
+
                     $proc->run();
                     return $proc->getExitCode();
                 } finally

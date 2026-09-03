@@ -83,7 +83,12 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
                 $options['volume'] = sprintf('+%d', floor(100 * ($utterance->getVolume() - 1))) . '%';
             }
 
-            $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options);
+            // EdgeTTS → React Socket → react/dns probes Windows DNS via `wmic`.
+            // WMIC was removed in Windows 11 24H2+; shell_exec then prints to STDERR.
+            // A PATH stub silences that; empty nameservers fall back to 8.8.8.8.
+            $this->withSilencedMissingWmic(
+                fn () => $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options)
+            );
             $this->client->toFile($dest);
 
             $duration     = AudioConverter::getMediaDuration($file);
@@ -178,5 +183,58 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Prepend a no-op `wmic.cmd` to PATH when WMIC is missing (Windows 11 24H2+).
+     * react/dns still calls `wmic` for nameserver discovery; without a stub, cmd.exe
+     * prints "'wmic' n'est pas reconnu..." to STDERR on every synthesize().
+     *
+     * @see https://github.com/reactphp/dns/issues/228
+     */
+    private function withSilencedMissingWmic(callable $callback): void
+    {
+        if ('\\' !== DIRECTORY_SEPARATOR || $this->isWmicAvailable())
+        {
+            $callback();
+
+            return;
+        }
+
+        $stubDir      = resolve_path('%data%/bin');
+        @mkdir($stubDir, 0777, true);
+        $stub         = $stubDir . DIRECTORY_SEPARATOR . 'wmic.cmd';
+
+        if ( ! is_file($stub))
+        {
+            file_put_contents($stub, "@echo off\r\nrem Stub for WMIC removed from Windows 11 24H2+\r\nexit /b 0\r\n");
+        }
+
+        $previousPath = getenv('PATH') ?: '';
+        putenv('PATH=' . $stubDir . PATH_SEPARATOR . $previousPath);
+        $_ENV['PATH'] = $stubDir . PATH_SEPARATOR . $previousPath;
+
+        try
+        {
+            $callback();
+        } finally
+        {
+            putenv('PATH=' . $previousPath);
+            $_ENV['PATH'] = $previousPath;
+        }
+    }
+
+    private function isWmicAvailable(): bool
+    {
+        static $available = null;
+
+        if (null !== $available)
+        {
+            return $available;
+        }
+
+        $where            = @shell_exec('where wmic 2>nul');
+
+        return $available = is_string($where) && str_contains($where, 'wmic');
     }
 }
