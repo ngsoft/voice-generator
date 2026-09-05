@@ -42,6 +42,7 @@ class SpeakCommand extends Command
         $lang   = $io->getInput()->getOption('lang');
         $voice  = $io->getInput()->getOption('voice');
 
+        $proc   = null;
         //        $voice = "en-US-AvaMultilingualNeural";
         //        $lang = "en-US";
         $format = 'mp3';
@@ -61,7 +62,6 @@ class SpeakCommand extends Command
                     );
 
                     $proc->run();
-                    return $proc->getExitCode();
                 } finally
                 {
                     @unlink($result->path);
@@ -81,7 +81,6 @@ class SpeakCommand extends Command
                         sprintf('afplay "%s"', $result->path)
                     );
                     $proc->run();
-                    return $proc->getExitCode();
                 } finally
                 {
                     @unlink($result->path);
@@ -95,8 +94,15 @@ class SpeakCommand extends Command
             );
 
             $proc->run();
-            return $proc->getExitCode();
         }
-        return self::FAILURE;
+
+        $code   = $proc?->getExitCode();
+
+        if (0 === $code)
+        {
+            $io->writeln($text);
+        }
+
+        return $code ?? self::FAILURE;
     }
 }

@@ -83,8 +83,8 @@ type Options struct {
 	Interactive bool
 	// NoANSI ajoute --no-ansi (utile quand la sortie est journalisée).
 	NoANSI bool
-	// Stdout et Stderr reçoivent la sortie en flux. Nil : capture en mémoire,
-	// restituée dans Result et dans ExitError.
+	// Stdout et Stderr reçoivent la sortie en flux, en plus de la capture
+	// toujours restituée dans Result et dans ExitError. Nil : capture seule.
 	Stdout io.Writer
 	Stderr io.Writer
 }
@@ -171,7 +171,8 @@ type Result struct {
 	Command []string
 	// ExitCode est le code de sortie (0 en cas de succès).
 	ExitCode int
-	// Stdout et Stderr sont la sortie capturée, vides si redirigée via Options.
+	// Stdout et Stderr sont toujours la sortie capturée, y compris si
+	// Options.Stdout / Options.Stderr reçoivent le flux en parallèle.
 	Stdout string
 	Stderr string
 	// Duration est le temps passé dans le sous-processus.
@@ -180,7 +181,7 @@ type Result struct {
 
 // Speak vocalise l'énoncé et attend la fin de la lecture.
 //
-// Une sortie non nulle de php produit une *ExitError contenant le code et stderr.
+// Une sortie non nulle de php produit une *ExitError contenant le code, stdout et stderr.
 func (c *Client) Speak(ctx context.Context, u Utterance) (*Result, error) {
 	if strings.TrimSpace(u.Text) == "" {
 		return nil, ErrEmptyText
@@ -208,13 +209,13 @@ func (c *Client) Speak(ctx context.Context, u Utterance) (*Result, error) {
 	var stdout, stderr bytes.Buffer
 
 	if c.opts.Stdout != nil {
-		cmd.Stdout = c.opts.Stdout
+		cmd.Stdout = io.MultiWriter(c.opts.Stdout, &stdout)
 	} else {
 		cmd.Stdout = &stdout
 	}
 
 	if c.opts.Stderr != nil {
-		cmd.Stderr = c.opts.Stderr
+		cmd.Stderr = io.MultiWriter(c.opts.Stderr, &stderr)
 	} else {
 		cmd.Stderr = &stderr
 	}
@@ -235,6 +236,7 @@ func (c *Client) Speak(ctx context.Context, u Utterance) (*Result, error) {
 		return result, &ExitError{
 			Command:  args,
 			ExitCode: result.ExitCode,
+			Stdout:   result.Stdout,
 			Stderr:   result.Stderr,
 			Err:      err,
 		}

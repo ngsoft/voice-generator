@@ -21,7 +21,8 @@ type ExitError struct {
 	Command []string
 	// ExitCode est le code de sortie renvoyé par php (-1 si le processus n'a pas démarré).
 	ExitCode int
-	// Stderr contient la sortie d'erreur capturée, si elle ne fut pas redirigée.
+	// Stdout et Stderr sont les sorties capturées, si elles ne furent pas redirigées.
+	Stdout string
 	Stderr string
 	// Err est l'erreur d'origine remontée par os/exec.
 	Err error
@@ -31,6 +32,10 @@ func (e *ExitError) Error() string {
 	var b strings.Builder
 
 	fmt.Fprintf(&b, "client: %s a échoué (code %d)", strings.Join(e.Command, " "), e.ExitCode)
+
+	if stdout := strings.TrimSpace(e.Stdout); stdout != "" {
+		fmt.Fprintf(&b, "\n%s", stdout)
+	}
 
 	if stderr := strings.TrimSpace(e.Stderr); stderr != "" {
 		fmt.Fprintf(&b, ": %s", stderr)

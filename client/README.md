@@ -158,13 +158,13 @@ utterance := client.UtteranceFromEnv(client.Utterance{Text: "Hello world"})
 | `Verbosity`       | `--quiet`, `-v`, `-vv`, `-vvv`                                                                                                                 |
 | `Interactive`     | faux (défaut) → `--no-interaction`                                                                                                             |
 | `NoANSI`          | ajoute `--no-ansi`                                                                                                                             |
-| `Stdout`/`Stderr` | flux de sortie ; nil → capture en mémoire dans `Result` et `ExitError`                                                                         |
+| `Stdout`/`Stderr` | flux de sortie en parallèle de la capture ; nil → capture seule, restituée dans `Result` et `ExitError`                                        |
 
 ### Erreurs
 
 - `ErrEmptyText` — texte vide ou uniquement des espaces (vérifié avant lancement).
 - `ErrPHPNotFound`, `ErrConsoleNotFound` — résolution impossible.
-- `*ExitError` — sortie non nulle de `php` : contient `Command`, `ExitCode` et `Stderr`.
+- `*ExitError` — sortie non nulle de `php` : contient `Command`, `ExitCode`, `Stdout` et `Stderr`.
 
 ## CLI
 
@@ -186,7 +186,7 @@ Le texte se donne en arguments, ou `-` pour le lire sur l'entrée standard :
 echo "Depuis l'entrée standard" | ./speak.exe -
 ```
 
-`-dry-run` affiche la commande résolue sans l'exécuter, avec le `speak.json` et les fichiers `.env` retenus ; `-json` renvoie le résultat structuré (commande, code de sortie, sorties, durée). Le code de sortie de la CLI reprend celui de `php`.
+`-dry-run` affiche la commande résolue sans l'exécuter, avec le `speak.json` et les fichiers `.env` retenus ; `-json` renvoie le résultat structuré (commande, code de sortie, sorties, durée). Sans `-json`, stdout et stderr de `php` sont affichés s'ils ne sont pas vides. Le code de sortie de la CLI reprend celui de `php`.
 
 Pour une exécution totalement silencieuse, `-q` ou `VOICE_VERBOSITY=quiet`
 transmet `--quiet` à la commande PHP.
