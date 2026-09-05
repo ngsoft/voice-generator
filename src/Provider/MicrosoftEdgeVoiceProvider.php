@@ -18,13 +18,18 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 {
     use SynthesisProviderTrait;
 
-    private const SOCKET_TIMEOUT = 60;
+    private const DEFAULT_SOCKET_TIMEOUT = 60;
 
     private string $storage;
 
+    /** Explicit `SPEECH_SYNTHESIS_SOCKET_TIMEOUT` override, `null` when left unset. */
+    private ?int $socketTimeout;
+
     public function __construct(private EdgeTTS $client, private CacheInterface $cache)
     {
-        $this->storage = resolve_path('%data%/edge_voice');
+        $this->storage       = resolve_path('%data%/edge_voice');
+        $timeout             = env_get('SPEECH_SYNTHESIS_SOCKET_TIMEOUT');
+        $this->socketTimeout = is_numeric($timeout) ? max(1, (int) $timeout) : null;
     }
 
     public function getName(): string
@@ -196,20 +201,23 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
      * TLS handshake at once ("timed out after -1 seconds"), leaving no audio at all.
      * The WebSdk php.ini ships `-1` from PHP 8.3 onwards, hence the guard.
      *
+     * `SPEECH_SYNTHESIS_SOCKET_TIMEOUT` overrides the ini value for every synthesis;
+     * left unset, a usable ini value is kept as-is and only a broken one is repaired.
+     *
      * @see https://github.com/reactphp/socket/blob/1.x/src/Connector.php
      */
     private function withUsableSocketTimeout(callable $callback): void
     {
         $previous = ini_get('default_socket_timeout');
 
-        if (is_numeric($previous) && $previous > 0)
+        if (null === $this->socketTimeout && is_numeric($previous) && $previous > 0)
         {
             $callback();
 
             return;
         }
 
-        ini_set('default_socket_timeout', (string) self::SOCKET_TIMEOUT);
+        ini_set('default_socket_timeout', (string) ($this->socketTimeout ?? self::DEFAULT_SOCKET_TIMEOUT));
 
         try
         {
