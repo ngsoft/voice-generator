@@ -18,6 +18,8 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 {
     use SynthesisProviderTrait;
 
+    private const SOCKET_TIMEOUT = 60;
+
     private string $storage;
 
     public function __construct(private EdgeTTS $client, private CacheInterface $cache)
@@ -86,8 +88,10 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
             // EdgeTTS → React Socket → react/dns probes Windows DNS via `wmic`.
             // WMIC was removed in Windows 11 24H2+; shell_exec then prints to STDERR.
             // A PATH stub silences that; empty nameservers fall back to 8.8.8.8.
-            $this->withSilencedMissingWmic(
-                fn () => $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options)
+            $this->withUsableSocketTimeout(
+                fn () => $this->withSilencedMissingWmic(
+                    fn () => $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options)
+                )
             );
             $this->client->toFile($dest);
 
@@ -183,6 +187,37 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Force a positive `default_socket_timeout` around the synthesis.
+     * react/socket derives its connect timeout from that ini setting; PHP reads `-1`
+     * as "no limit" for native streams, but react takes it literally and cancels the
+     * TLS handshake at once ("timed out after -1 seconds"), leaving no audio at all.
+     * The WebSdk php.ini ships `-1` from PHP 8.3 onwards, hence the guard.
+     *
+     * @see https://github.com/reactphp/socket/blob/1.x/src/Connector.php
+     */
+    private function withUsableSocketTimeout(callable $callback): void
+    {
+        $previous = ini_get('default_socket_timeout');
+
+        if (is_numeric($previous) && $previous > 0)
+        {
+            $callback();
+
+            return;
+        }
+
+        ini_set('default_socket_timeout', (string) self::SOCKET_TIMEOUT);
+
+        try
+        {
+            $callback();
+        } finally
+        {
+            false !== $previous && ini_set('default_socket_timeout', $previous);
+        }
     }
 
     /**
