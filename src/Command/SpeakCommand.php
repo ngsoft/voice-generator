@@ -2,6 +2,7 @@
 
 namespace Command;
 
+use Message\SpeakMessage;
 use NGSOFT\Console\Profile\CommandHelper;
 use Provider\SynthesisProviderStack;
 use Psr\SimpleCache\CacheInterface;
@@ -12,6 +13,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Process\Process;
 use Traits\CommandTrait;
 
@@ -23,8 +27,11 @@ class SpeakCommand extends Command
     private const CACHE_KEY = 'speak.command.previous';
     private const CACHE_DURATION = 60;
 
-    public function __construct(private readonly SynthesisProviderStack $synthesisProviderStack, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly SynthesisProviderStack $synthesisProviderStack,
+        private readonly CacheInterface $cache,
+        private readonly MessageBusInterface $bus,
+    ) {
         parent::__construct();
     }
 
@@ -33,6 +40,7 @@ class SpeakCommand extends Command
         $this->addArgument('text', mode: InputArgument::REQUIRED);
         $this->addOption('lang', null, InputOption::VALUE_OPTIONAL, 'Lang to use', 'en-US');
         $this->addOption('voice', null, InputOption::VALUE_OPTIONAL, 'Voice to use', 'en-US-AvaMultilingualNeural');
+        $this->addOption('async', null, InputOption::VALUE_NONE, 'Queue the synthesis for a background worker instead of playing locally');
     }
 
     /**
@@ -60,6 +68,23 @@ class SpeakCommand extends Command
 
         if (!$text) {
             $io->error('Text argument is empty');
+        }
+
+        if ($input->getOption('async'))
+        {
+            $this->bus->dispatch(new Envelope(
+                new SpeakMessage(
+                    $text,
+                    (string) $input->getOption('voice'),
+                    (string) $input->getOption('lang')
+                ),
+                [new TransportNamesStamp(['async'])]
+            ));
+
+            $this->log('queued async synthesis: %s', [$text]);
+            $io->success('Queued for async synthesis.');
+
+            return self::SUCCESS;
         }
 
         $said = $this->previousTextPlayed();
