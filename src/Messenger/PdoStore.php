@@ -9,13 +9,24 @@ use Symfony\Component\Messenger\Exception\TransportException;
 /**
  * Persists Messenger envelopes in a SQL table using the project's \Sql helpers.
  */
-final class PdoStore
+final readonly class PdoStore
 {
     public function __construct(
-        private readonly string $connectionName = '0',
-        private readonly string $tableName = 'messenger_messages',
-        private readonly int $redeliverTimeout = 3600,
+        private string $connectionName = \SqlConnector::DEFAULT_CONNECTION,
+        private string $tableName = 'messenger_messages',
+        private int $redeliverTimeout = 60,
     ) {}
+
+    /**
+     * Creates the messenger table (idempotent) by running the messenger migrations.
+     */
+    public function setup(): bool
+    {
+        return migrate_database(
+            \SqlConnector::getConnection($this->connectionName),
+            'messenger'
+        );
+    }
 
     public function connectionName(): string
     {
@@ -30,17 +41,6 @@ final class PdoStore
     public function driverType(): string
     {
         return \SqlConnector::getConnection($this->connectionName)->type();
-    }
-
-    /**
-     * Creates the messenger table (idempotent) by running the messenger migrations.
-     */
-    public function setup(): bool
-    {
-        return (bool) migrate_database(
-            \SqlConnector::getConnection($this->connectionName),
-            'messenger'
-        );
     }
 
     public function insert(string $queueName, string $body, string $headers, ?string $availableAt = null): string
@@ -115,12 +115,12 @@ final class PdoStore
         $stmt = \Sql::easyQuery(
             "SELECT * FROM {$this->tableName}"
             . ' WHERE queue_name = ? AND delivered_at IS NULL AND available_at <= ?'
-            . ' ORDER BY available_at ASC, id ASC LIMIT 1',
+            . ' ORDER BY available_at, id LIMIT 1',
             [$queueName, $now],
             $this->connectionName
         );
 
-        $row = $stmt ? $stmt->fetchOne(\Sql\FETCH_ASSOC) : null;
+        $row  = $stmt?->fetchOne(\Sql\FETCH_ASSOC);
 
         if ( ! $row)
         {
@@ -152,7 +152,7 @@ final class PdoStore
             [$queueName],
             $this->connectionName
         );
-        $row  = $stmt ? $stmt->fetchOne(\Sql\FETCH_ASSOC) : null;
+        $row  = $stmt?->fetchOne(\Sql\FETCH_ASSOC);
 
         return (int) ($row['c'] ?? 0);
     }
@@ -162,7 +162,7 @@ final class PdoStore
      */
     public function all(string $queueName, ?int $limit = null): array
     {
-        $sql = "SELECT * FROM {$this->tableName} WHERE queue_name = ? AND delivered_at IS NULL"
+        $sql  = "SELECT * FROM {$this->tableName} WHERE queue_name = ? AND delivered_at IS NULL"
             . ' ORDER BY available_at ASC, id ASC';
 
         if (null !== $limit)
@@ -183,7 +183,7 @@ final class PdoStore
             $this->connectionName
         );
 
-        return ($stmt ? $stmt->fetchOne(\Sql\FETCH_ASSOC) : null) ?: null;
+        return ($stmt?->fetchOne(\Sql\FETCH_ASSOC)) ?: null;
     }
 
     /**
@@ -191,6 +191,10 @@ final class PdoStore
      */
     private function redeliverStale(string $queueName): void
     {
+        if ( ! $this->redeliverTimeout)
+        {
+            return;
+        }
         $threshold = date('Y-m-d H:i:s', time() - $this->redeliverTimeout);
 
         \Sql::easyQuery(

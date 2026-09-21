@@ -2,7 +2,7 @@
 /**
  * PHP Dev Tools PDO Edition (Supports SQLite)
  * @author Aymeric Anger
- * @version 26.03.6 build on 2026-03-29
+ * @version 26.09.1 build on 2026-09-12
  * @noinspection ALL
  */
 namespace {
@@ -1277,14 +1277,10 @@ if ( ! function_exists('value'))
      *
      * @return mixed
      */
-    function value($value, $args = [])
+    function value($value, ...$args)
     {
         if ($value instanceof \Closure)
         {
-            if ( ! is_array($args))
-            {
-                $args = array_slice(func_get_args(), 1);
-            }
             return call_user_func_array($value, $args);
         }
 
@@ -1877,6 +1873,117 @@ if ( ! function_exists('preg_valid'))
         {
             restore_error_handler();
         }
+    }
+}
+
+final class StringEncoder
+{
+    /**
+     * Encrypt string using a pbkdf2 passphrase.
+     *
+     * @param string $raw
+     * @param string $passphrase
+     *
+     * @return string
+     */
+    public static function encrypt($raw, $passphrase = '')
+    {
+        static $keyLength = 40, $iterations = 10000, $cipher = 'aes-256-cbc';
+
+        if ( ! in_array($cipher, openssl_get_cipher_methods()))
+        {
+            throw new \RuntimeException("Cipher {$cipher} not supported.");
+        }
+        $salt             = openssl_random_pseudo_bytes(12);
+        $generated_key    = openssl_pbkdf2($passphrase, $salt, $keyLength, $iterations, 'sha256');
+        $iv_len           = @openssl_cipher_iv_length($cipher);
+        $iv               = openssl_random_pseudo_bytes($iv_len);
+        $enc              = @openssl_encrypt($raw, $cipher, $generated_key, 0, $iv);
+
+        if (false === $enc)
+        {
+            throw new \RuntimeException('Unable to encode string.');
+        }
+
+        $data             = [$cipher, base64_encode($salt), base64_encode($iv), $enc];
+        return self::urlsafeB64Encode(json_encode($data));
+    }
+
+    /**
+     * Decrypt string using a pbkdf2 passphrase.
+     *
+     * @param mixed $encoded
+     * @param mixed $passphrase
+     */
+    /**
+     * @param string $encoded
+     * @param string $passphrase
+     *
+     * @return string
+     */
+    public static function decrypt($encoded, $passphrase = '')
+    {
+        static $keyLength                     = 40, $iterations = 10000;
+
+        $json                                 = self::urlSafeB64Decode($encoded);
+
+        if ( ! $json || ! is_array($array = json_decode($json, true)))
+        {
+            throw new \RuntimeException('Unable to decode string.');
+        }
+
+        if (4 !== count($array))
+        {
+            throw new \RuntimeException('Invalid encoded data.');
+        }
+
+        list($cipher, $saltB64, $ivB64, $enc) = $array;
+        $generated_key                        = openssl_pbkdf2($passphrase, base64_decode($saltB64), $keyLength, $iterations, 'sha256');
+
+        if ( ! in_array($cipher, openssl_get_cipher_methods()))
+        {
+            throw new \RuntimeException("Cipher {$cipher} not supported.");
+        }
+        $result                               = @openssl_decrypt($enc, $cipher, $generated_key, 0, base64_decode($ivB64));
+
+        if (false === $result)
+        {
+            throw new \RuntimeException('Unable to decode string.');
+        }
+        return $result;
+    }
+
+    /**
+     * Decode a string with URL-safe Base64.
+     *
+     * @param string $input A Base64 encoded string
+     *
+     * @return string A decoded string
+     */
+    public static function urlSafeB64Decode($input)
+    {
+        $remainder = strlen($input) % 4;
+
+        if ($remainder)
+        {
+            $pad_len = 4 - $remainder;
+            $input .= str_repeat('=', $pad_len);
+        }
+        $input     = strtr($input, '-_', '+/');
+
+        return base64_decode($input);
+    }
+
+    /**
+     * Encode a string with URL-safe Base64.
+     *
+     * @param string $input The string you want encoded
+     *
+     * @return string The base64 encode of what you passed in
+     */
+    public static function urlSafeB64Encode($input)
+    {
+        return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
     }
 }
 

@@ -148,10 +148,31 @@ abstract class Services
             }
 
             call_user_func(
-                function ($file, $cfg)
+                function ($file, $cfg, $projectRoot)
                 {
+                    $modified = (int) @filemtime($file);
+                    $update   = $modified <= @filemtime($cfg);
+
+                    if ( ! $update)
+                    {
+                        foreach (['.env', '.env.local', is_dev() ? '.env.dev' : '.env.prod', is_dev() ? '.env.dev.local' : '.env.prod.local'] as $envFile)
+                        {
+                            if ( ! is_file($envFile))
+                            {
+                                continue;
+                            }
+                            $modded = (int) @filemtime($envFile);
+
+                            if ($modified <= $modded)
+                            {
+                                $update = true;
+                                break;
+                            }
+                        }
+                    }
+
                     // check modifications on cfg
-                    if (@filemtime($file) <= @filemtime($cfg))
+                    if ($update)
                     {
                         require_once $cfg;
                         $request = self::getRequest();
@@ -182,7 +203,8 @@ abstract class Services
                     require_once $file;
                 },
                 $file = resolve_path($data, 'openapi', is_dev() ? 'dev' : 'prod', 'OpenApiMetadata.php'),
-                resolve_path('%config%/openapi.php')
+                resolve_path('%config%/openapi.php'),
+                resolve_path('%project_root%')
             );
 
             $generator = self::make(Generator::class);

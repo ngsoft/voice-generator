@@ -53,7 +53,7 @@ use TemplateEngine\Renderer;
  */
 return function (Container $container)
 {
-    $translator = Services::getTranslator();
+    $translator          = Services::getTranslator();
     // console component
     $container->setMany([
         ApplicationLogger::class       => Services::getLogger(),
@@ -126,9 +126,9 @@ return function (Container $container)
     // messenger (async speech synthesis)
     $messengerSerializer = new PhpSerializer();
     $messengerStore      = new PdoStore(
-        env_get('MESSENGER_DB_CONNECTION', '0', false),
+        env_get('MESSENGER_DB_CONNECTION', SqlConnector::DEFAULT_CONNECTION, false),
         'messenger_messages',
-        (int) env_get('MESSENGER_REDELIVER_TIMEOUT', 3600, false)
+        (int) env_get('MESSENGER_REDELIVER_TIMEOUT', 60, false)
     );
     $messengerTransport  = new PdoTransport($messengerSerializer, $messengerStore, 'async');
 
@@ -139,7 +139,7 @@ return function (Container $container)
         MessageBusInterface::class => function (Container $container) use ($messengerTransport)
         {
             // Container exposing the single "async" sender to the SendersLocator.
-            $senders = new class($messengerTransport) implements PsrContainerInterface
+            $senders         = new class($messengerTransport) implements PsrContainerInterface
             {
                 public function __construct(private readonly PdoTransport $transport) {}
 

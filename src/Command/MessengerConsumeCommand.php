@@ -55,9 +55,9 @@ class MessengerConsumeCommand extends Command
 
         try
         {
-            $limit     = (int) $input->getOption('limit');
-            $timeLimit = (int) $input->getOption('time-limit');
-            $sleep     = (int) $input->getOption('sleep');
+            $limit      = (int) $input->getOption('limit');
+            $timeLimit  = (int) $input->getOption('time-limit');
+            $sleep      = (int) $input->getOption('sleep');
 
             $dispatcher = new EventDispatcher();
 
@@ -71,7 +71,7 @@ class MessengerConsumeCommand extends Command
                 $dispatcher->addSubscriber(new StopWorkerOnTimeLimitListener($timeLimit, $this->logger));
             }
 
-            $worker = new Worker(['async' => $this->transport], $this->bus, $dispatcher, $this->logger);
+            $worker     = new Worker(['async' => $this->transport], $this->bus, $dispatcher, $this->logger);
 
             $io->info('Consuming messages. Press CTRL+C to stop.');
 

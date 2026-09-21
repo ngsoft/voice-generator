@@ -34,8 +34,8 @@ class SynthesisController extends BaseController
     #[OA\Get('/api/voices', 'List Voices', description: 'List available speech synthesis voices, with optional locale, provider, and pagination filters.', tags: ['Speech Synthesis'], parameters: [
         new OA\HeaderParameter(name: 'X-Api-Key', description: 'API key', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
         new OA\QueryParameter(name: 'search', description: 'Filter voices by locale or name substring', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
-        new OA\QueryParameter(name: 'limit', description: 'Number of results per page', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 10)),
-        new OA\QueryParameter(name: 'page', description: 'Page number (1-based)', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1)),
+        new OA\QueryParameter(name: 'limit', description: 'Number of results per page', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'integer', example: 10, minimum: 1)),
+        new OA\QueryParameter(name: 'page', description: 'Page number (1-based)', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'integer', example: 1, minimum: 1)),
         new OA\QueryParameter(name: 'provider', description: 'Filter by provider name (e.g. edge)', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
     ])]
     #[OA\Response(
@@ -113,9 +113,9 @@ class SynthesisController extends BaseController
 
     #[OA\Get('/api/voice/{provider}/{lang}/{name}', 'Voice informations', description: 'Get details for a single voice identified by provider, language, and name.', tags: ['Speech Synthesis'], parameters: [
         new OA\HeaderParameter(name: 'X-Api-Key', description: 'API key', required: false, allowEmptyValue: true, schema: new OA\Schema(type: 'string')),
-        new OA\PathParameter(name: 'provider', description: 'Voice provider name', required: true, example: 'edge', schema: new OA\Schema(type: 'string')),
-        new OA\PathParameter(name: 'lang', description: 'BCP 47 language tag of the voice', required: true, example: 'en-US', schema: new OA\Schema(type: 'string')),
-        new OA\PathParameter(name: 'name', description: 'Voice name / identifier', required: true, example: 'en-US-AvaMultilingualNeural', schema: new OA\Schema(type: 'string')),
+        new OA\PathParameter(name: 'provider', description: 'Voice provider name', required: true, schema: new OA\Schema(type: 'string'), example: 'edge'),
+        new OA\PathParameter(name: 'lang', description: 'BCP 47 language tag of the voice', required: true, schema: new OA\Schema(type: 'string'), example: 'en-US'),
+        new OA\PathParameter(name: 'name', description: 'Voice name / identifier', required: true, schema: new OA\Schema(type: 'string'), example: 'en-US-AvaMultilingualNeural'),
     ])]
     #[OA\Response(
         response: 200,

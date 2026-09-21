@@ -11,12 +11,12 @@ use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 
-final class PdoTransport implements TransportInterface, MessageCountAwareInterface, ListableReceiverInterface
+final readonly class PdoTransport implements TransportInterface, MessageCountAwareInterface, ListableReceiverInterface
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
-        private readonly PdoStore $store,
-        private readonly string $queueName = 'async',
+        private SerializerInterface $serializer,
+        private PdoStore $store,
+        private string $queueName = 'async',
     ) {}
 
     public function get(): iterable
@@ -40,7 +40,7 @@ final class PdoTransport implements TransportInterface, MessageCountAwareInterfa
     {
         $encoded = $this->serializer->encode($envelope);
 
-        $id = $this->store->insert(
+        $id      = $this->store->insert(
             $this->queueName,
             $encoded['body'],
             json_encode($encoded['headers'] ?? [], JSON_UNESCAPED_SLASHES)
@@ -74,7 +74,8 @@ final class PdoTransport implements TransportInterface, MessageCountAwareInterfa
      */
     private function hydrate(array $row): Envelope
     {
-        $headers = json_decode((string) ($row['headers'] ?? '[]'), true);
+        /** @var ?array<string,string> $headers */
+        $headers  = json_decode((string) ($row['headers'] ?? '{}'), true);
 
         $envelope = $this->serializer->decode([
             'body'    => (string) $row['body'],

@@ -90,15 +90,17 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
                 $options['volume'] = sprintf('+%d', floor(100 * ($utterance->getVolume() - 1))) . '%';
             }
 
+            $client       = clone $this->client;
+
             // EdgeTTS → React Socket → react/dns probes Windows DNS via `wmic`.
             // WMIC was removed in Windows 11 24H2+; shell_exec then prints to STDERR.
             // A PATH stub silences that; empty nameservers fall back to 8.8.8.8.
             $this->withUsableSocketTimeout(
                 fn () => $this->withSilencedMissingWmic(
-                    fn () => $this->client->synthesize($utterance->getText(), $utterance->getVoice(), $options)
+                    fn () => $client->synthesize($utterance->getText(), $utterance->getVoice(), $options)
                 )
             );
-            $this->client->toFile($dest);
+            $client->toFile($dest);
 
             $duration     = AudioConverter::getMediaDuration($file);
 
@@ -150,12 +152,14 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 
         $list       = $this->cache->get($key);
 
+        $client     = clone $this->client;
+
         if ( ! $list)
         {
             try
             {
                 set_default_error_handler();
-                $list = $this->client->getVoices();
+                $list = $client->getVoices();
                 ! empty($list) && $this->cache->set($key, $list, 600);
             } catch (\Throwable $exception)
             {
