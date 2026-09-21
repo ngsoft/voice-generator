@@ -3,6 +3,7 @@
 use Command\ClearCacheCommand;
 use Command\ClearTranslationCacheCommand;
 use Command\HelloCommand;
+use Command\MessengerSetupCommand;
 use Command\SpeakCommand;
 use Command\TranslationGeneratorCommand;
 use NGSOFT\Console\ConsoleApplication;
@@ -17,4 +18,5 @@ return function (ConsoleApplication $app)
     $app->add(ClearTranslationCacheCommand::class);
     $app->add(ClearCacheCommand::class);
     $app->add(SpeakCommand::class);
+    $app->add(MessengerSetupCommand::class);
 };
