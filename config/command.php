@@ -3,6 +3,7 @@
 use Command\ClearCacheCommand;
 use Command\ClearTranslationCacheCommand;
 use Command\HelloCommand;
+use Command\MessengerConsumeCommand;
 use Command\MessengerSetupCommand;
 use Command\SpeakCommand;
 use Command\TranslationGeneratorCommand;
@@ -19,4 +20,5 @@ return function (ConsoleApplication $app)
     $app->add(ClearCacheCommand::class);
     $app->add(SpeakCommand::class);
     $app->add(MessengerSetupCommand::class);
+    $app->add(MessengerConsumeCommand::class);
 };
