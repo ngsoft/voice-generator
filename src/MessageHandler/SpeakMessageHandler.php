@@ -50,6 +50,12 @@ final class SpeakMessageHandler
             @unlink($result->path);
         }
 
+        if ( ! is_file($dest))
+        {
+            $this->logger->log(LoggerService::ERR, sprintf('async synthesis failed to persist: %s', $dest));
+            return null;
+        }
+
         $this->logger->log(LoggerService::INFO, sprintf('async synthesis stored: %s', $dest));
 
         return $dest;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Command;
 
+use Messenger\PdoStore;
 use Messenger\PdoTransport;
 use NGSOFT\Console\Profile\CommandHelper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -26,6 +27,7 @@ class MessengerConsumeCommand extends Command
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly PdoTransport $transport,
+        private readonly PdoStore $store,
     ) {
         parent::__construct();
     }
@@ -39,6 +41,12 @@ class MessengerConsumeCommand extends Command
 
     protected function executeCommand(CommandHelper $io, InputInterface $input)
     {
+        if ( ! $this->store->isSetup())
+        {
+            $io->error('The messenger table does not exist. Run "messenger:setup" first.');
+            return self::FAILURE;
+        }
+
         if ( ! PidLock::lock('messenger', 1))
         {
             $io->warning('A messenger worker is already running.');

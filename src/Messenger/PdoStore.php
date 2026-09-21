@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Messenger;
 
+use Symfony\Component\Messenger\Exception\TransportException;
+
 /**
  * Persists Messenger envelopes in a SQL table using the project's \Sql helpers.
  */
@@ -44,14 +46,65 @@ final class PdoStore
     public function insert(string $queueName, string $body, string $headers, ?string $availableAt = null): string
     {
         $now = $this->now();
-        $ok  = \Sql::easyQuery(
-            "INSERT INTO {$this->tableName} (body, headers, queue_name, created_at, available_at, delivered_at)"
-            . ' VALUES (?, ?, ?, ?, ?, NULL)',
-            [$body, $headers, $queueName, $now, $availableAt ?? $now],
-            $this->connectionName
-        );
 
-        return $ok ? (string) \Sql::getLastInsertId($this->connectionName) : '0';
+        try
+        {
+            $ok = \Sql::easyQuery(
+                "INSERT INTO {$this->tableName} (body, headers, queue_name, created_at, available_at, delivered_at)"
+                . ' VALUES (?, ?, ?, ?, ?, NULL)',
+                [$body, $headers, $queueName, $now, $availableAt ?? $now],
+                $this->connectionName
+            );
+        } catch (\Throwable $err)
+        {
+            // The project's \Sql layer throws (rather than returning falsy) whenever
+            // throw-on-error is active (the default, see src/init.php), e.g. when the
+            // messenger table is missing. Surface it the same way as a falsy result below.
+            throw new TransportException(
+                sprintf('Failed to enqueue message to %s (%s)', $this->tableName, $this->connectionName),
+                0,
+                $err
+            );
+        }
+
+        if ( ! $ok)
+        {
+            throw new TransportException(
+                sprintf('Failed to enqueue message to %s (%s)', $this->tableName, $this->connectionName)
+            );
+        }
+
+        return (string) \Sql::getLastInsertId($this->connectionName);
+    }
+
+    /**
+     * Whether the messenger table exists on this connection.
+     *
+     * The project's \Sql layer throws (rather than returning falsy) when throw-on-error is
+     * active (the default, see src/init.php), so a missing table surfaces as an exception
+     * here too — caught below and turned into a plain `false`.
+     */
+    public function isSetup(): bool
+    {
+        try
+        {
+            if ('mysql' === $this->driverType())
+            {
+                return ! empty(\Sql::describeTable($this->tableName, null, $this->connectionName));
+            }
+
+            // \Sql::describeTable() only implements the mysql (SHOW COLUMNS) branch; for
+            // other drivers (e.g. sqlite) it always returns an empty array, so fall back to
+            // a driver-aware existence probe instead.
+            return null !== \Sql::easyQuery(
+                "SELECT 1 FROM {$this->tableName} LIMIT 1",
+                [],
+                $this->connectionName
+            );
+        } catch (\Throwable $err)
+        {
+            return false;
+        }
     }
 
     public function get(string $queueName): ?array
