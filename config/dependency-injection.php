@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use Message\SpeakMessage;
+use MessageHandler\SpeakMessageHandler;
+use Messenger\PdoStore;
+use Messenger\PdoTransport;
 use Middleware\AuthorizationMiddleware;
 use NGSOFT\Container\Container;
 use NGSOFT\Routing\Container\DefaultContainerBuilder;
@@ -15,6 +19,7 @@ use Provider\ElevenLabsVoiceProvider;
 use Provider\MicrosoftEdgeVoiceProvider;
 use Provider\SynthesisProviderStack;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Service\LocaleService;
@@ -30,6 +35,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Messenger\Handler\HandlersLocator;
+use Symfony\Component\Messenger\MessageBus;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
+use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
+use Symfony\Component\Messenger\Transport\Sender\SendersLocator;
+use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
 use Symfony\Component\Translation\Translator;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -108,6 +120,53 @@ return function (Container $container)
                 $stack[] = $container->make(ElevenLabsVoiceProvider::class, ['api_key' => $eleven]);
             }
             return new SynthesisProviderStack($stack);
+        },
+    ]);
+
+    // messenger (async speech synthesis)
+    $messengerSerializer = new PhpSerializer();
+    $messengerStore      = new PdoStore(
+        env_get('MESSENGER_DB_CONNECTION', '0', false),
+        'messenger_messages',
+        (int) env_get('MESSENGER_REDELIVER_TIMEOUT', 3600, false)
+    );
+    $messengerTransport  = new PdoTransport($messengerSerializer, $messengerStore, 'async');
+
+    $container->setMany([
+        PhpSerializer::class       => $messengerSerializer,
+        PdoStore::class            => $messengerStore,
+        PdoTransport::class        => $messengerTransport,
+        MessageBusInterface::class => function (Container $container) use ($messengerTransport)
+        {
+            // Container exposing the single "async" sender to the SendersLocator.
+            $senders = new class($messengerTransport) implements PsrContainerInterface
+            {
+                public function __construct(private readonly PdoTransport $transport) {}
+
+                public function get(string $id): mixed
+                {
+                    return $this->transport;
+                }
+
+                public function has(string $id): bool
+                {
+                    return 'async' === $id;
+                }
+            };
+
+            // Empty static map → no sender unless a TransportNamesStamp is present (sync by default).
+            $sendersLocator  = new SendersLocator([], $senders);
+
+            $handlersLocator = new HandlersLocator([
+                SpeakMessage::class => [
+                    static fn (SpeakMessage $message) => $container->get(SpeakMessageHandler::class)($message),
+                ],
+            ]);
+
+            return new MessageBus([
+                new SendMessageMiddleware($sendersLocator),
+                new HandleMessageMiddleware($handlersLocator),
+            ]);
         },
     ]);
 
