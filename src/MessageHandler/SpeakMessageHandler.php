@@ -65,7 +65,7 @@ final readonly class SpeakMessageHandler
 
     private function dispatchAsync(SpeakMessage $message)
     {
-        sleep(5);
+        sleep((int) env_get('SPEAK_MESSENGER_FAIL_RETRY_SECONDS', 5));
         $this->bus->dispatch(new Envelope(
             $message,
             [new TransportNamesStamp(['async'])]

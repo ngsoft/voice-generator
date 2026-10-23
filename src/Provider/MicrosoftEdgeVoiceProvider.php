@@ -2,6 +2,7 @@
 
 namespace Provider;
 
+use Afaya\EdgeTTS\Exception\HandshakeException;
 use Afaya\EdgeTTS\Service\EdgeTTS;
 use Enum\AudioFormat;
 use Psr\SimpleCache\CacheInterface;
@@ -18,18 +19,35 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
 {
     use SynthesisProviderTrait;
 
-    private const DEFAULT_SOCKET_TIMEOUT = 60;
+    private const DEFAULT_SOCKET_TIMEOUT        = 60;
+
+    /** Extra synthesize attempts after the first 429 (0 = fail immediately). */
+    private const DEFAULT_RATE_LIMIT_RETRIES    = 5;
+
+    /** First backoff wait in seconds; doubles each attempt, capped by RATE_LIMIT_MAX_DELAY. */
+    private const DEFAULT_RATE_LIMIT_BASE_DELAY = 2;
+
+    private const RATE_LIMIT_MAX_DELAY          = 30;
 
     private string $storage;
 
     /** Explicit `SPEECH_SYNTHESIS_SOCKET_TIMEOUT` override, `null` when left unset. */
     private ?int $socketTimeout;
 
+    private int $rateLimitRetries;
+
+    private int $rateLimitBaseDelay;
+
     public function __construct(private EdgeTTS $client, private CacheInterface $cache)
     {
-        $this->storage       = resolve_path('%data%/edge_voice');
-        $timeout             = env_get('SPEECH_SYNTHESIS_SOCKET_TIMEOUT');
-        $this->socketTimeout = is_numeric($timeout) ? max(1, (int) $timeout) : null;
+        $this->storage            = resolve_path('%data%/edge_voice');
+        $timeout                  = env_get('SPEECH_SYNTHESIS_SOCKET_TIMEOUT');
+        $this->socketTimeout      = is_numeric($timeout) ? max(1, (int) $timeout) : null;
+
+        $retries                  = env_get('SPEECH_SYNTHESIS_429_RETRIES');
+        $this->rateLimitRetries   = is_numeric($retries) ? max(0, (int) $retries) : self::DEFAULT_RATE_LIMIT_RETRIES;
+        $delay                    = env_get('SPEECH_SYNTHESIS_429_BASE_DELAY');
+        $this->rateLimitBaseDelay = is_numeric($delay) ? max(1, (int) $delay) : self::DEFAULT_RATE_LIMIT_BASE_DELAY;
     }
 
     public function getName(): string
@@ -90,16 +108,11 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
                 $options['volume'] = sprintf('+%d', floor(100 * ($utterance->getVolume() - 1))) . '%';
             }
 
-            $client       = clone $this->client;
-
             // EdgeTTS → React Socket → react/dns probes Windows DNS via `wmic`.
             // WMIC was removed in Windows 11 24H2+; shell_exec then prints to STDERR.
             // A PATH stub silences that; empty nameservers fall back to 8.8.8.8.
-            $this->withUsableSocketTimeout(
-                fn () => $this->withSilencedMissingWmic(
-                    fn () => $client->synthesize($utterance->getText(), $utterance->getVoice(), $options)
-                )
-            );
+            // Free Read Aloud also returns HTTP 429 under burst load — retry locally.
+            $client       = $this->synthesizeWithRetry($utterance->getText(), $utterance->getVoice(), $options);
             $client->toFile($dest);
 
             $duration     = AudioConverter::getMediaDuration($file);
@@ -196,6 +209,55 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Run EdgeTTS synthesize with local retries on HTTP 429 (rate limit).
+     * Honors `Retry-After` when present; otherwise exponential backoff.
+     * Does not patch the afaya/edge-tts library.
+     *
+     * @param array<string, string> $options
+     */
+    private function synthesizeWithRetry(string $text, string $voice, array $options): EdgeTTS
+    {
+        $attempt = 0;
+
+        while (true)
+        {
+            $client = clone $this->client;
+
+            try
+            {
+                $this->withUsableSocketTimeout(
+                    fn () => $this->withSilencedMissingWmic(
+                        fn () => $client->synthesize($text, $voice, $options)
+                    )
+                );
+
+                return $client;
+            } catch (HandshakeException $error)
+            {
+                if (429 !== $error->getStatusCode() || $attempt >= $this->rateLimitRetries)
+                {
+                    throw $error;
+                }
+
+                sleep($this->rateLimitDelaySeconds($error, $attempt));
+                ++$attempt;
+            }
+        }
+    }
+
+    private function rateLimitDelaySeconds(HandshakeException $error, int $attempt): int
+    {
+        $retryAfter = $error->getHeaders()['retry-after'] ?? null;
+
+        if (is_numeric($retryAfter))
+        {
+            return max(1, min(self::RATE_LIMIT_MAX_DELAY, (int) $retryAfter));
+        }
+
+        return min(self::RATE_LIMIT_MAX_DELAY, $this->rateLimitBaseDelay * (2 ** $attempt));
     }
 
     /**
