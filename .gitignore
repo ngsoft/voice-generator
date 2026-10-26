@@ -1,5 +1,6 @@
 .idea
 .superpowers
+.tmp-edge-tts-venv
 ._*
 .DS_Store
 Thumbs.db

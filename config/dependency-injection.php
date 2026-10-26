@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Afaya\EdgeTTS\Service\EdgeTTS;
+use EdgeTTS\EdgeTtsClient;
 use Message\SpeakMessage;
 use MessageHandler\SpeakMessageHandler;
 use Messenger\PdoStore;
@@ -111,6 +113,8 @@ return function (Container $container)
                 is_dev() ? 'dev' : 'prod'
             )
         ),
+        // Sec-MS-GEC v2 (afaya/edge-tts 1.9.1 still ships v1; Microsoft requires v2 since ~2026-10).
+        EdgeTTS::class                 => fn (LoggerService $logger) => new EdgeTtsClient(logger: $logger),
         SynthesisProviderStack::class  => function (Container $container)
         {
             $stack = [$container->get(MicrosoftEdgeVoiceProvider::class)];
