@@ -7,6 +7,10 @@ No Semantic Versioning / `[Unreleased]`.
 
 ## 2026-10-27
 
+### Fixed
+
+- Session authorization cookie `Secure` flag now follows the request protocol (`Request::isSecure()`).
+
 ### Added
 
 - `speak:remote` console command: synthesize via a remote voice-generator (`SPEAK_REMOTE_URL` + `SPEAK_REMOTE_API_KEY`), save audio under `var/data/remote/`, and play locally (logs the remote `/api/speak` URL on request / success / failure).

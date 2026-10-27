@@ -64,7 +64,7 @@ readonly class AuthorizationMiddleware implements MiddlewareInterface
                 $response->headers->setCookie(new Cookie(
                     $key,
                     $request->attributes->get('_session_authorization'),
-                    secure: true,
+                    secure: $request->isSecure(),
                     httpOnly: false,
                 ));
             }
