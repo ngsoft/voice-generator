@@ -10,6 +10,7 @@ No Semantic Versioning / `[Unreleased]`.
 ### Fixed
 
 - Session authorization cookie `Secure` flag now follows the request protocol (`Request::isSecure()`).
+- Front `getSessionAuthorization()` falls back to `document.cookie` when Cookie Store API is missing or fails (so `Authorization: Bearer` is sent).
 
 ### Added
 
