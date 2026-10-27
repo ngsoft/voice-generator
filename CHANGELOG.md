@@ -7,6 +7,12 @@ No Semantic Versioning / `[Unreleased]`.
 
 ## 2026-10-27
 
+### Added
+
+- `speak:remote` console command: synthesize via a remote voice-generator (`SPEAK_REMOTE_URL` + `SPEAK_REMOTE_API_KEY`), save audio under `var/data/remote/`, and play locally (logs the remote `/api/speak` URL on request / success / failure).
+- Env switch `SPEECH_SYNTHESIS_SEC_MS_GEC` (`2` default = local SecMsGecV2, `1` = afaya/edge-tts vendor v1).
+- Edge TTS handshake refusal logs HTTP status, headers, and response body when readable (`HandshakeRefusalException`).
+
 ### Changed
 
 - Regenerated `openapi.yaml` with URL-safe `operationId`s, operation `summary`s, `ApiKeyAuth` security scheme, and documented `GLOBAL_ACL` / `X-Api-Key` denial responses (401 / 403).

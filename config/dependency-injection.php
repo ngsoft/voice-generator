@@ -113,7 +113,7 @@ return function (Container $container)
                 is_dev() ? 'dev' : 'prod'
             )
         ),
-        // Sec-MS-GEC v2 (afaya/edge-tts 1.9.1 still ships v1; Microsoft requires v2 since ~2026-10).
+        // Sec-MS-GEC: v2 by default (SPEECH_SYNTHESIS_SEC_MS_GEC=2); set to 1 for vendor Protocol::secMsGec.
         EdgeTTS::class                 => fn (LoggerService $logger) => new EdgeTtsClient(logger: $logger),
         SynthesisProviderStack::class  => function (Container $container)
         {

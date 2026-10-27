@@ -14,7 +14,7 @@ Domain:
 - **TTS providers** — Microsoft Edge (`MicrosoftEdgeVoiceProvider` / `EdgeTTS`) and ElevenLabs
   (`ElevenLabsVoiceProvider`), orchestrated by `SynthesisProviderStack`
 - **HTTP API** under `/api/*` — list voices/providers, synthesize (`POST /api/speak`), download audio, translate
-- **CLI** — `php bin/console speak` (sync playback or async queue via Messenger)
+- **CLI** — `php bin/console speak` (sync playback or async queue via Messenger); `speak:remote` (remote instance via `SPEAK_REMOTE_URL` / `SPEAK_REMOTE_API_KEY`)
 - **Web UI** — Svelte + Vite + Skeleton (`app/`), served with a lightweight PHP front controller
 - **OpenAPI** — `zircote/swagger-php` attributes; live Redoc UI at `/api/doc`
 
@@ -182,7 +182,7 @@ Do not leave route or behavior changes without matching OpenAPI attributes, rege
 | Console           | `bin/console`, `config/command.php`, `CommandTrait`                             |
 | Frontend          | `app/` (Svelte), Vite config under `config/vite/`                               |
 
-Notable commands: `speak`, `messenger:setup`, `messenger:consume`, `cache:clear`, `translator:generate`,
+Notable commands: `speak`, `speak:remote`, `messenger:setup`, `messenger:consume`, `cache:clear`, `translator:generate`,
 `translator:clear-cache`.
 
 ## API & security
@@ -193,9 +193,10 @@ Notable commands: `speak`, `messenger:setup`, `messenger:consume`, `cache:clear`
 - Sensitive operations must keep API-key / ACL checks as in sibling endpoints.
 
 Typical env vars: `APP_ENV`, `APP_DEBUG`, `APP_ID`, `APP_LANG`, `APP_TITLE`, `APP_DESCRIPTION`, `APP_VERSION`,
-`DATABASE_URL` / `DATABASE_URL_SQLITE`, `MESSENGER_DB_CONNECTION`, `SPEAK_COMMAND_USES_MESSENGER`, `API_KEY`,
-`GLOBAL_ACL`, `LOCAL_ACL`, `WEB_ACL`, `CORS_ENABLE`, `CORS_METHODS`, `SPEECH_SYNTHESIS_TTL`,
-`SPEECH_SYNTHESIS_SOCKET_TIMEOUT`, `LANG_FILTER`, `ELEVEN_API_KEY`.
+`DATABASE_URL` / `DATABASE_URL_SQLITE`, `MESSENGER_DB_CONNECTION`, `SPEAK_COMMAND_USES_MESSENGER`,
+`SPEAK_REMOTE_URL`, `SPEAK_REMOTE_API_KEY`, `API_KEY`, `GLOBAL_ACL`, `LOCAL_ACL`, `WEB_ACL`, `CORS_ENABLE`,
+`CORS_METHODS`, `SPEECH_SYNTHESIS_TTL`, `SPEECH_SYNTHESIS_SOCKET_TIMEOUT`, `SPEECH_SYNTHESIS_SEC_MS_GEC`,
+`LANG_FILTER`, `ELEVEN_API_KEY`.
 
 ## Git
 

@@ -4,7 +4,9 @@ namespace Provider;
 
 use Afaya\EdgeTTS\Exception\HandshakeException;
 use Afaya\EdgeTTS\Service\EdgeTTS;
+use EdgeTTS\HandshakeRefusalException;
 use Enum\AudioFormat;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Ramsey\Uuid\Uuid;
 use Service\AudioConverter;
@@ -150,6 +152,10 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
             );
         } catch (\Throwable $error)
         {
+            if ($error instanceof HandshakeException)
+            {
+                $this->logHandshakeRefusal($error);
+            }
             $this->logError($error);
             throw SpeechSynthesisException::make('An error occured during speech synthesis');
         } finally
@@ -258,6 +264,28 @@ readonly class MicrosoftEdgeVoiceProvider implements SpeechSynthesisInterface
         }
 
         return min(self::RATE_LIMIT_MAX_DELAY, $this->rateLimitBaseDelay * (2 ** $attempt));
+    }
+
+    private function logHandshakeRefusal(HandshakeException $error): void
+    {
+        $logger  = \Services::make(LoggerInterface::class);
+        $headers = $error->getHeaders();
+        $body    = $error instanceof HandshakeRefusalException ? $error->getBody() : '';
+
+        $logger->error('Edge TTS handshake refused HTTP %d headers=%s', [
+            $error->getStatusCode(),
+            json_encode($headers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+        ]);
+
+        if ('' !== $body)
+        {
+            $logger->error('Edge TTS handshake response body: %s', [
+                preg_replace('/\s+/u', ' ', trim($body)) ?? $body,
+            ]);
+        } else
+        {
+            $logger->error('Edge TTS handshake response body unavailable');
+        }
     }
 
     /**
