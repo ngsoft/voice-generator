@@ -186,7 +186,7 @@ abstract class Services
                                 Config::getItem('openapi.info.description', 'My Application'),
                                 Config::getItem('openapi.info.title', 'app')
                             ),
-                            sprintf('#[OA\Server("%s")]', $request->getSchemeAndHttpHost() . $request->getBasePath()),
+                            sprintf('#[OA\Server("%s")]', ($base = $request->getBasePath()) !== '' ? $base : '/'),
                             sprintf(
                                 '#[OA\License("%s", url: "%s")]',
                                 Config::getItem('openapi.licence', 'The Unlicense'),

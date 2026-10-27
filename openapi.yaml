@@ -5,17 +5,18 @@ info:
   license:
     name: MIT
     url: 'https://mit-license.org/2023/license.txt'
-  version: 2026.04.2
+  version: 2026.09.0
 servers:
   -
-    url: 'http://localhost'
+    url: /
 paths:
   /api/translate:
     post:
       tags:
         - 'Core Components'
-      description: 'Translate a message key or text using the application locale catalog.'
-      operationId: 'Translate text'
+      summary: 'Translate text'
+      description: 'Translate a message key or text using the application locale catalog. Protected by GLOBAL_ACL only (no X-Api-Key).'
+      operationId: translateText
       requestBody:
         required: true
         content:
@@ -47,17 +48,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden (GLOBAL_ACL)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security: []
   /api/voices:
     get:
       tags:
         - 'Speech Synthesis'
-      description: 'List available speech synthesis voices, with optional locale, provider, and pagination filters.'
-      operationId: 'List Voices'
+      summary: 'List Voices'
+      description: 'List available speech synthesis voices, with optional locale, provider, and pagination filters. Protected by GLOBAL_ACL and X-Api-Key (API_KEY) when configured.'
+      operationId: listVoices
       parameters:
         -
           name: X-Api-Key
           in: header
-          description: 'API key'
+          description: 'API key (API_KEY). Required when API_KEY is set.'
           required: false
           allowEmptyValue: true
           schema:
@@ -106,7 +115,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/VoiceListResponse'
         '401':
-          description: Unauthorized
+          description: 'Unauthorized (missing/invalid X-Api-Key)'
           content:
             application/json:
               schema:
@@ -124,7 +133,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden
+          description: 'Forbidden (GLOBAL_ACL)'
           content:
             application/json:
               schema:
@@ -135,17 +144,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security:
+        -
+          ApiKeyAuth: []
   /api/providers:
     get:
       tags:
         - 'Speech Synthesis'
-      description: 'List configured speech synthesis providers and their descriptions.'
-      operationId: 'List providers'
+      summary: 'List providers'
+      description: 'List configured speech synthesis providers and their descriptions. Protected by GLOBAL_ACL and X-Api-Key (API_KEY) when configured.'
+      operationId: listProviders
       parameters:
         -
           name: X-Api-Key
           in: header
-          description: 'API key'
+          description: 'API key (API_KEY). Required when API_KEY is set.'
           required: false
           allowEmptyValue: true
           schema:
@@ -159,23 +172,33 @@ paths:
                 allOf:
                   - { $ref: '#/components/schemas/SuccessResponse' }
                   - { properties: { providers: { description: 'provider list', type: array, items: { properties: { name: { description: 'provider name', type: string }, description: { description: 'provider description', type: string } }, type: object } } }, type: object }
-        '403':
-          description: Forbidden
+        '401':
+          description: 'Unauthorized (missing/invalid X-Api-Key)'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden (GLOBAL_ACL)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        -
+          ApiKeyAuth: []
   '/api/voice/{provider}/{lang}/{name}':
     get:
       tags:
         - 'Speech Synthesis'
-      description: 'Get details for a single voice identified by provider, language, and name.'
-      operationId: 'Voice informations'
+      summary: 'Voice informations'
+      description: 'Get details for a single voice identified by provider, language, and name. Protected by GLOBAL_ACL and X-Api-Key (API_KEY) when configured.'
+      operationId: getVoice
       parameters:
         -
           name: X-Api-Key
           in: header
-          description: 'API key'
+          description: 'API key (API_KEY). Required when API_KEY is set.'
           required: false
           allowEmptyValue: true
           schema:
@@ -213,8 +236,14 @@ paths:
                 allOf:
                   - { $ref: '#/components/schemas/SuccessResponse' }
                   - { $ref: '#/components/schemas/SpeechSynthesisVoice' }
+        '401':
+          description: 'Unauthorized (missing/invalid X-Api-Key)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden
+          description: 'Forbidden (GLOBAL_ACL)'
           content:
             application/json:
               schema:
@@ -225,17 +254,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security:
+        -
+          ApiKeyAuth: []
   /api/speak:
     post:
       tags:
         - 'Speech Synthesis'
-      description: 'Synthesize speech from text. With Accept: application/json, returns metadata and a download URL; otherwise returns the audio file.'
-      operationId: 'Generate Synthesis'
+      summary: 'Generate Synthesis'
+      description: 'Synthesize speech from text. With Accept: application/json, returns metadata and a download URL; otherwise returns the audio file. Protected by GLOBAL_ACL and X-Api-Key (API_KEY) when configured.'
+      operationId: generateSynthesis
       parameters:
         -
           name: X-Api-Key
           in: header
-          description: 'API key'
+          description: 'API key (API_KEY). Required when API_KEY is set.'
           required: false
           allowEmptyValue: true
           schema:
@@ -274,13 +307,17 @@ paths:
               schema:
                 allOf:
                   - { $ref: '#/components/schemas/SuccessResponse' }
-                  - { properties: { provider: { description: 'Provider name', type: string, example: edge, nullable: false }, voice: { description: 'Voice name', nullable: false, oneOf: [{ $ref: '#/components/schemas/SpeechSynthesisVoice' }] }, seconds: { description: 'Duration in seconds', type: number, format: float, example: 1.0E-6, nullable: false }, duration: { description: 'Duration in time string', type: string, example: '00:00:00.000001', nullable: false }, mime: { description: 'Mime type of the file', type: string, example: audio/x-wav, nullable: false }, identifier: { description: 'File identifier', type: string, nullable: false }, url: { description: 'URL to download the file', type: string, nullable: false }, expires_at: { description: 'Expiry datetime', type: string, nullable: true } }, type: object }
+                  - { properties: { provider: { description: 'Provider name', type: string, example: edge, nullable: false }, voice: { $ref: '#/components/schemas/SpeechSynthesisVoice' }, seconds: { description: 'Duration in seconds', type: number, format: float, example: 1.0E-6, nullable: false }, duration: { description: 'Duration in time string', type: string, example: '00:00:00.000001', nullable: false }, mime: { description: 'Mime type of the file', type: string, example: audio/x-wav, nullable: false }, identifier: { description: 'File identifier', type: string, nullable: false }, url: { description: 'URL to download the file', type: string, nullable: false }, expires_at: { description: 'Expiry datetime', type: string, nullable: true } }, type: object }
             audio/x-wav:
-              schema: {  }
+              schema:
+                type: string
+                format: binary
             audio/x-mpeg:
-              schema: {  }
+              schema:
+                type: string
+                format: binary
         '401':
-          description: Unauthorized
+          description: 'Unauthorized (missing/invalid X-Api-Key)'
           content:
             application/json:
               schema:
@@ -298,7 +335,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Forbidden
+          description: 'Forbidden (GLOBAL_ACL)'
           content:
             application/json:
               schema:
@@ -309,12 +346,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security:
+        -
+          ApiKeyAuth: []
   '/api/speak/download/{identifier}':
     get:
       tags:
         - 'Speech Synthesis'
-      description: 'Download a previously generated speech synthesis audio file by its identifier.'
-      operationId: 'Download File'
+      summary: 'Download File'
+      description: 'Download a previously generated speech synthesis audio file by its identifier. Protected by GLOBAL_ACL only (no X-Api-Key).'
+      operationId: downloadFile
       parameters:
         -
           name: identifier
@@ -328,11 +369,15 @@ paths:
           description: 'Audio file to download'
           content:
             audio/x-wav:
-              schema: {  }
+              schema:
+                type: string
+                format: binary
             audio/x-mpeg:
-              schema: {  }
+              schema:
+                type: string
+                format: binary
         '403':
-          description: Forbidden
+          description: 'Forbidden (GLOBAL_ACL)'
           content:
             application/json:
               schema:
@@ -343,40 +388,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security: []
 components:
   schemas:
-    AccessResponse:
-      properties:
-        id:
-          description: 'Permission identifier'
-          type: integer
-          nullable: true
-          minimum: 1
-        user_id:
-          description: 'User identifier'
-          type: integer
-          nullable: true
-          minimum: 1
-        permission:
-          description: 'Permission type'
-          type: integer
-          enum:
-            - 0
-            - 4
-            - 6
-        permission_type:
-          description: 'Permission type'
-          type: string
-          enum:
-            - none
-            - read
-            - write
-        access_group:
-          description: 'Access Group name'
-          type: string
-          enum:
-            - api
-      type: object
     ErrorResponse:
       description: 'This is the default error response for the API.'
       type: object
@@ -390,33 +404,6 @@ components:
               type: boolean
               example: false
               nullable: false
-          type: object
-    HelloResponse:
-      type: object
-      allOf:
-        -
-          $ref: '#/components/schemas/SuccessResponse'
-        -
-          properties:
-            message:
-              description: 'Hello message'
-              type: string
-              example: 'Hello {name}!'
-              nullable: false
-            url:
-              description: 'api url'
-              type: string
-              nullable: false
-            page_url:
-              description: 'web url'
-              type: string
-              nullable: false
-            user:
-              oneOf:
-                -
-                  $ref: '#/components/schemas/UserResponse'
-              nullable: true
-              description: User
           type: object
     PaginatedResponse:
       type: object
@@ -452,40 +439,6 @@ components:
           type: string
           nullable: true
       type: object
-    UserResponse:
-      properties:
-        id:
-          description: 'User identifier'
-          type: integer
-          nullable: false
-          minimum: 1
-        login:
-          description: Username
-          type: string
-          nullable: false
-        full_name:
-          description: 'Full name'
-          type: string
-          nullable: true
-        roles:
-          description: Roles
-          type: array
-          items:
-            enum:
-              - ROLE_USER
-              - ROLE_ADMIN
-              - ROLE_SUPER_ADMIN
-        enabled:
-          description: 'User enabled'
-          type: boolean
-          nullable: false
-        permissions:
-          description: 'User permissions'
-          type: array
-          items:
-            $ref: '#/components/schemas/AccessResponse'
-          nullable: true
-      type: object
     VoiceListResponse:
       type: object
       allOf:
@@ -499,33 +452,6 @@ components:
               items:
                 $ref: '#/components/schemas/SpeechSynthesisVoice'
           type: object
-    SearchModel:
-      properties:
-        search:
-          description: 'Search query'
-          type: string
-          nullable: true
-        start_date:
-          description: 'Start date'
-          type: string
-          example: 2026-01
-          nullable: true
-        end_date:
-          description: 'End date'
-          type: string
-          example: 2026-12
-          nullable: true
-        page:
-          description: 'Page number'
-          type: integer
-          nullable: true
-          minimum: 1
-        limit:
-          description: 'Items per page'
-          type: integer
-          nullable: true
-          minimum: 1
-      type: object
     SpeechSynthesisUtterance:
       properties:
         text:
@@ -606,6 +532,12 @@ components:
           type: string
           nullable: true
       type: object
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      description: 'API key from API_KEY. Required when API_KEY is set. Same-origin Authorization: Bearer may override via web session.'
+      name: X-Api-Key
+      in: header
 tags:
   -
     name: 'Core Components'

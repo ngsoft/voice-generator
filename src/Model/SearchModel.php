@@ -4,23 +4,16 @@ declare(strict_types=1);
 
 namespace Model;
 
-use OpenApi\Attributes as OA;
 use Sql\ValidationError;
 
-#[OA\Schema]
 class SearchModel extends DataModel
 {
-    #[OA\Property(description: 'Search query', type: 'string', nullable: true)]
     protected ?string $search        = null;
-    #[OA\Property(description: 'Start date', type: 'string', example: '2026-01', nullable: true)]
     protected ?\DateTime $start_date = null;
-    #[OA\Property(description: 'End date', type: 'string', example: '2026-12', nullable: true)]
     protected ?\DateTime $end_date   = null;
 
-    #[OA\Property(description: 'Page number', nullable: true, minimum: 1)]
     protected int $page              = 1;
 
-    #[OA\Property(description: 'Items per page', nullable: true, minimum: 1)]
     protected int $limit             = 10;
 
     public function paginate(array $list)
